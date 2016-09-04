@@ -8,6 +8,8 @@ addpath guifiles Borrowing
 clear all
 close all
 
+dbstop in fullsetup
+
 % Parameters to be used in analysis.
 GlobalSwitches
 GlobalValues
@@ -24,7 +26,7 @@ fsu = struct(...
     'DATAFILE', 'Data/SIM_B.nex', ...
     'DATAMASK', [], ... % Taxa to be excluded from analysis, [] to include all.
     'DATASOURCE', 1, ...    % 1 = NEXUS, 2 = BUILD; possibly depracated.
-    'DATASYN', 0, ...	% 1 if data is synthetic, 0 otherwise.
+    'DATASYN', [], ...	% 1 if data is synthetic (and initialising with true state), 0 otherwise. Automated below.
     'DEPNU', 1, ...
     'DONTMOVECATS', 0, ...
     ... % Green's functions approach.
@@ -58,7 +60,7 @@ fsu = struct(...
     'MCMCINITTREE', [], ...
     'MCMCINITTREEFILE', [], ... % OLDSTART, 'filename.nex' - include full path if not in current directory.
     'MCMCINITTREENUM', 0, ...   % OLDSTART, line no. of tree in MCMCINITTREEFILE.
-    'MCMCINITTREESTYLE', 2, ... % TRUSTART 1, EXPSTART 2, OLDSTART 3.
+    'MCMCINITTREESTYLE', 3, ... % TRUSTART 1, EXPSTART 2, OLDSTART 3.
     'MCMCMISS', 1, ...      % Include xi's, missing data, etc?
     'MCMCVARYTOP', 1, ...   % Allow topology to change?
     'MISDAT', 1, ...    % 1, as we want to include missing data in likelihood. % discrepancy between LogLkd and logLkd2 when switched off.
@@ -74,7 +76,7 @@ fsu = struct(...
     'RANDOMRHO', 0, ...
     'RHO', 0.01, ...        % Rate at which catastrophes occur.
     'ROOTMAX', 2000, ...   % Fairly loose maximum root age.
-    'RUNLENGTH', 1e6, ... % Number of iterations to perform.
+    'RUNLENGTH', 1e2, ... % 1e6, ... % Number of iterations to perform.
     'SEED', floor(now ./ rem(now, 1)), ...  % Seed to use.
     'SEEDRAND', 1, ...  % Seed random numbers?
     'STRONGCLADES', [], ... % Set to 1 below if there are clades imposed.
@@ -104,6 +106,9 @@ if fsu.ISCLADE == 1; fsu.STRONGCLADES = 1; end
 % Add data from intput file to fsu struct, include true data if it exists.
 [s, fsu.GUICONTENT, fsu.GUITRUE, fsu.CLADE] = nexus2stype(fsu.DATAFILE);
 if ~isempty(s); fsu.GUITRUE.state.tree = s; end
+
+% Are we initialising with true state?
+fsu.DATASYN = double(fsu.MCMCINITTREESTYLE == 1);
 
 % Perform MCMC.
 runmcmc(fsu);

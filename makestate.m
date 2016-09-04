@@ -91,3 +91,7 @@ state.logprior=LogPrior(prior,state);
 %%
 % update fullloglkd (i.e., without lambda integrated out)
 % state.fullloglkd = LogLkd(state,state.lambda); % Luke 28/01/2014
+
+%%
+% Clear persistent variables in SDLT code. LUKE 04/09/2016
+clear logLkd2_m patternCounts patternMeans

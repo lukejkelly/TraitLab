@@ -53,6 +53,7 @@ if isstruct(varargin{1}) % LAUNCH GUI
        if ~(isempty(handles.output.file))
            set([handles.outdirtxt handles.outfiletxt],{'String'},{strtrunc(handles.output.path,19);strtrunc(handles.output.file,19)})
        end 
+       
    else
        set(hdl,'Enable','off');
        disp('No output loaded')
@@ -337,11 +338,17 @@ if maxlag > size(handles.output.stats,2) - first - 4
     fprintf('Value of Lag should be much smaller than Number of Samples being analysed (currently %g)\n',size(handles.output.stats,2) - first)
     return
 end
-vals = get([handles.priorcorrcb, handles.llkdcorrcb, handles.rootcorrcb, handles.mucorrcb handles.kappacorrcb handles.rhocorrcb],'Value');
+vals = get([handles.priorcorrcb, handles.llkdcorrcb, handles.rootcorrcb, handles.mucorrcb handles.kappacorrcb handles.rhocorrcb handles.betacorrcb handles.betamucorrcb],'Value'); % LUKE 04/09/2016
 vals = find([vals{:}]);
-valsindex=[1 2 3 4 8 9];
+valsindex=[1 2 3 4 8 9 12 13]; % LJK
+
+% Computing beta / mu, if necessary. LUKE 04/09/2016
+if handles.betamucorrcb.Value;
+   handles.output.stats(13, :) = handles.output.stats(12, :) ./ handles.output.stats(4, :);
+end
+
 if ~isempty(vals)
-    names = {'PRIOR','LIKELIHOOD','ROOT TIME','MU','KAPPA','RHO'};
+    names = {'PRIOR','LIKELIHOOD','ROOT TIME','MU','KAPPA','RHO', 'BETA', 'BETA / MU'};
     stats(handles.output.stats(valsindex(vals),first:end),maxlag,names(vals),handles.output.statsfig);
     if handles.makeHTMLet, writehtml([handles.HTMLpathet handles.HTMLfileet], '<h2>Autocorrelations</h2>',handles.output.statsfig); end
 else
@@ -535,6 +542,10 @@ function  rootcorrcb_Callback(h, eventdata, handles, varargin)
 % --------------------------------------------------------------------
 function  mucorrcb_Callback(h, eventdata, handles, varargin)
 % --------------------------------------------------------------------
+function  betacorrcb_Callback(h, eventdata, handles, varargin)
+% --------------------------------------------------------------------
+function  betamucorrcb_Callback(h, eventdata, handles, varargin)
+% --------------------------------------------------------------------
 function  zoombutt_Callback(h, eventdata, handles, varargin)
 
 xlim = sort(str2double(get([handles.movbeginet handles.movendet],'String')));
@@ -598,11 +609,17 @@ function  compcb_Callback(h, eventdata, handles, varargin)
 function  histbutt_Callback(h, eventdata, handles, varargin)
 bins = str2double(get(handles.binset,'string'));
 starthist = str2double(get(handles.starthistet,'string'));
-vals = get([handles.priorcorrcb, handles.llkdcorrcb, handles.rootcorrcb, handles.mucorrcb, handles.kappacorrcb, handles.rhocorrcb],'Value');
+vals = get([handles.priorcorrcb, handles.llkdcorrcb, handles.rootcorrcb, handles.mucorrcb, handles.kappacorrcb, handles.rhocorrcb, handles.betacorrcb, handles.betamucorrcb],'Value'); % LUKE 04/09/2016
 vals = find([vals{:}]);
-valsindex=[1 2 3 4 8 9];
+valsindex=[1 2 3 4 8 9, 12, 13]; % LJK 12, 13
+
+% Computing beta / mu, if necessary. LUKE 04/09/2016
+if handles.betamucorrcb.Value;
+   handles.output.stats(13, :) = handles.output.stats(12, :) ./ handles.output.stats(4, :);
+end
+       
 if ~isempty(vals)
-    names = {'PRIOR','LIKELIHOOD','ROOT TIME','MU','KAPPA','RHO'};
+    names = {'PRIOR','LIKELIHOOD','ROOT TIME','MU','KAPPA','RHO', 'BETA', 'BETA / MU'};
     figure(handles.output.histfig);
     set(handles.output.histfig,'NumberTitle','off','Name','Histograms of output trace');
     for i = 1:length(vals)

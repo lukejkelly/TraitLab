@@ -3,8 +3,8 @@ function varargout = TraitLab(varargin)
 
 GlobalSwitches;
 GlobalValues;
-addpath guifiles
- 
+addpath guifiles Borrowing
+
 if nargin == 0  % LAUNCH GUI
     
     fig = openfig(mfilename,'reuse');
@@ -33,8 +33,7 @@ if nargin == 0  % LAUNCH GUI
     guidata(fig, handles);
     
     set([handles.outdirtxt handles.outfiletxt],{'String'},{strtrunc(handles.output.path,19);handles.output.file});
-    
-    
+ 
     
     if nargout > 0
         varargout{1} = fig;
@@ -672,3 +671,85 @@ function cladeagesmasket_CreateFcn(h, eventdata, handles)
 if ispc && isequal(get(h,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(h,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in allowForLateralTransferCB.
+function allowForLateralTransferCB_Callback(hObject, eventdata, handles)
+% hObject    handle to allowForLateralTransferCB (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of allowForLateralTransferCB
+
+if get(hObject, 'Value')
+   able([], [], [handles.varyLateralTransferRateCB, ...
+       handles.initialiseLateralTransferRateAtSpecifiedValueRB, ...
+       handles.initialiseLateralTransferRateAtRandomValueRB, ...
+       handles.initialiseLateralTransferRateAtSpecifiedValueEB], []);
+else
+   able([], [], [], [handles.varyLateralTransferRateCB, ...
+       handles.initialiseLateralTransferRateAtSpecifiedValueRB, ...
+       handles.initialiseLateralTransferRateAtRandomValueRB, ...
+       handles.initialiseLateralTransferRateAtSpecifiedValueEB]);   
+end
+
+
+% --- Executes on button press in varyLateralTransferRateCB.
+function varyLateralTransferRateCB_Callback(hObject, eventdata, handles)
+% hObject    handle to varyLateralTransferRateCB (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of varyLateralTransferRateCB
+
+
+% --- Executes on button press in initialiseLateralTransferRateAtSpecifiedValueRB.
+function initialiseLateralTransferRateAtSpecifiedValueRB_Callback(hObject, eventdata, handles)
+% hObject    handle to initialiseLateralTransferRateAtSpecifiedValueRB (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of initialiseLateralTransferRateAtSpecifiedValueRB
+if get(hObject, 'Value')
+    able([], [], handles.initialiseLateralTransferRateAtSpecifiedValueEB, []);
+end
+
+% --- Executes on button press in initialiseLateralTransferRateAtRandomValueRB.
+function initialiseLateralTransferRateAtRandomValueRB_Callback(hObject, eventdata, handles)
+% hObject    handle to initialiseLateralTransferRateAtRandomValueRB (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of initialiseLateralTransferRateAtRandomValueRB
+
+if get(hObject, 'Value')
+    able([], [], [], handles.initialiseLateralTransferRateAtSpecifiedValueEB);
+end
+
+
+function initialiseLateralTransferRateAtSpecifiedValueEB_Callback(hObject, eventdata, handles)
+% hObject    handle to initialiseLateralTransferRateAtSpecifiedValueEB (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of initialiseLateralTransferRateAtSpecifiedValueEB as text
+%        str2double(get(hObject,'String')) returns contents of initialiseLateralTransferRateAtSpecifiedValueEB as a double
+
+checknum(hObject, 0, 1, 1e-3);
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function initialiseLateralTransferRateAtSpecifiedValueEB_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to initialiseLateralTransferRateAtSpecifiedValueEB (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+

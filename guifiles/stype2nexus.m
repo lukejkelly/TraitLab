@@ -83,8 +83,8 @@ end
 if ok && dotrue
 % write synthesize block
 truestr = 'BEGIN SYNTHESIZE;\n\nPARAMETERS ';
-vals = [true.mu,true.br,true.lambda, true.theta,  true.vocabsize ];
-truestr = [truestr sprintf('mu = %1.9e\nborrowrate = %1.9e\nlambda = %1.9e\ntheta = %1.9f\nvocabsize = %1.0f;\n\n',vals)];
+vals = [true.mu,true.br,true.lambda, true.theta,  true.vocabsize, true.beta ]; % LUKE added beta 04/09/2016.
+truestr = [truestr sprintf('mu = %1.9e\nborrowrate = %1.9e\nlambda = %1.9e\ntheta = %1.9f\nvocabsize = %1.0f\nbeta = %1.9e;\n\n',vals)];
 truestr = [truestr 'END;\n\n'];
 end;
 

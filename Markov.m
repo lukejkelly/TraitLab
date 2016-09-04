@@ -245,6 +245,10 @@ for t=1:(mcmc.subsample)
 
     if OK
 
+        if ~all(sort(find([state.tree.type] == 0)) == sort(find([nstate.tree.type] == 0)))
+            keyboard; return;
+        end
+        
 %         if TOPOLOGY
 %             nstate.length=TreeLength(nstate.tree,nstate.root);
 %         end        
