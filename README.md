@@ -2,7 +2,7 @@
 
 ## Description
 
-Code which extends the Stochastic Dollo model ([Nicholls and Gray, 2008][1]; [Ryder and Nicholls, 2011][2]) implementation in _TraitLab_ [(Nicholls, Ryder and Welch)][3] to include lateral transfer ([Kelly and Nicholls, 2016][4].
+Code which extends the Stochastic Dollo model ([Nicholls and Gray, 2008][1]; [Ryder and Nicholls, 2011][2]) implementation in _TraitLab_ [(Nicholls, Ryder and Welch)][3] to include lateral transfer ([Kelly and Nicholls, 2016])[4].
 
 
 ## Analysis
