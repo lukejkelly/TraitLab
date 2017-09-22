@@ -53,7 +53,7 @@ state.rho=rho;
 state.kappa=kappa;
 state.nu=state.lambda*state.kappa/state.mu;
 state.L=content.L;
-state.cat=ListOfCats;
+state.cat=ListOfCats(:); % LUKE 05/09/2016 to ensure this appears as a column vector.
 state.ncat=sum(state.cat);
 state.length=TreeLength(state.tree,state.root);
 state.beta = beta; % LUKE
@@ -76,6 +76,17 @@ state = MarkRcurs(state,[state.leaves,state.nodes],TOPOLOGY);
 %maintain the tree log-likelihood and log-prior
 % state.loglkd=LogLkd(state);
 
+% Setting initial catastrophe locations in borrowing model when we start from an
+% old state.
+if BORROWING
+    % Catastrophes cannot go on the edge <Adam, Root>.
+    for i = (find(state.cat & ([state.tree.type]' <= ANST) ...
+            & cellfun(@isempty, {state.tree.catloc})'))'
+        % Catastrophes are uniformly distributed along edge <pa(i), i>.
+        state.tree(i).catloc = rand(state.cat(i), 1);
+    end
+end
+    
 if BORROWING    % Luke 28/01/2014
     [state.loglkd, state.fullloglkd] = logLkd2(state);
 else

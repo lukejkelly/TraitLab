@@ -32,9 +32,9 @@ for k = 1:( size(tEvents, 2) - 1 )
     % Solve up to next event time.
     if(tEvents(k).time - tEvents(k + 1).time > 0)
     
-            % Use pattern means approach for small L.
-            x_tminus = patternMeans( tEvents(k).L, x_s, tEvents(k).time ...
-                - tEvents(k + 1).time, tr, tEvents(k).K, borPars );
+        % Use pattern means approach for small L.
+        x_tminus = patternMeans( tEvents(k).L, x_s, tEvents(k).time ...
+            - tEvents(k + 1).time, tr, tEvents(k).K, borPars );
         
     end
         

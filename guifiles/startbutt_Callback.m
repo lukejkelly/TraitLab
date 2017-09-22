@@ -228,6 +228,11 @@ if ok
                 
             % Lateral transfer. LUKE 04/09/2016
             MT.beta = handles.data.true.beta;
+            if BORROWING && MT.beta > 0
+                fprintf('Ignoring the trait transfer rate set as starting value (%g) and using\n', MCMCINITBETA);
+                fprintf('the rate %g imported with the true tree to initialise the MCMC instead', MT.beta);                
+                MCMCINITBETA = MT.beta;
+            end
         end
     end
 end

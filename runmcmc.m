@@ -11,15 +11,6 @@ if nargin>0
     % intialise variables
     [data,model,state,handles.output,mcmc]=fullsetup(fsu);
 
-    % Setting initial catastrophe locations in borrowing model.
-    if BORROWING
-        % Catastrophes cannot go on the edge <Adam, Root>.
-        for i = (find(state.cat & ([state.tree.type]' <= ANST)))'
-            % Catastrophes are uniformly distributed along edge <pa(i), i>.
-            state.tree(i).catloc = rand(state.cat(i), 1);
-        end
-    end
-    
     save outIC;
     
     if fromgui
