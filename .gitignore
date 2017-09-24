@@ -1,16 +1,9 @@
-# Old tracking code.
-.directory
-.svn/
-svn-*
-
 # Backups.
-*~
 **/*~
-*#
 
-# Folders containing input or output files.
-Input/*
+# Output files.
 Output/*
+tloutput*
 
 # Files and folders we're not interested in.
 **/old/
@@ -19,10 +12,7 @@ pathdef.m
 
 # Matlab and MEX files.
 **/*.mat
-**/*.mexa64
-**/*.nex
+**/*.mex*
 **/*.par
 **/*.txt
 **/*_info
-
-
