@@ -26,6 +26,8 @@ while ~feof(fid) & ~strcmp(token,'END') & ~strcmp(token,'ENDBLOCK')
                 true.vocabsize = getvalue(fid,'Vocabsize','SYNTHESIZE',-1);
             case 'P'
                 true.p = getvalue(fid,'p','SYNTHESIZE',-1);
+            case 'BETA' % LUKE 04/09/2016
+                true.beta = getvalue(fid, 'beta', 'SYNTHESIZE', -1);
             end
         end
         token=upper(gettoken(fid));
@@ -34,13 +36,13 @@ while ~feof(fid) & ~strcmp(token,'END') & ~strcmp(token,'ENDBLOCK')
         token=upper(gettoken(fid));
     end
     % check that all the statistics are numeric
-    toread = {'Mu','Borrowrate','Lambda','Vocabsize','Theta','p'};
-    notAN = find(isnan([true.mu,true.br,true.lambda,true.vocabsize,true.theta]));
+    toread = {'Mu','Borrowrate','Lambda','Vocabsize','Theta','p', 'beta'};
+    notAN = find(isnan([true.mu,true.br,true.lambda,true.vocabsize,true.theta, true.beta]));
     if  ~isempty(notAN);
         disp(sprintf('Error in reading SYNTHESIZE block: %s is not numeric\n', toread{notAN} ));
     end
     % check that all the necessary statistics were found
-    notdone = find( [true.mu,true.br,true.lambda,true.vocabsize,true.p] < 0 );
+    notdone = find( [true.mu,true.br,true.lambda,true.vocabsize,true.p, true.beta] < 0 );
     if  ~isempty(notdone);
         disp(sprintf('Error in reading SYNTHESIZE block: %s not found\n', toread{notdone} ));
     end

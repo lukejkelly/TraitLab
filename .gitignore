@@ -1,0 +1,18 @@
+# Backups.
+**/*~
+
+# Output files.
+Output/*
+tloutput*
+
+# Files and folders we're not interested in.
+**/old/
+**/Old/
+pathdef.m
+
+# Matlab and MEX files.
+**/*.mat
+**/*.mex*
+**/*.par
+**/*.txt
+**/*_info

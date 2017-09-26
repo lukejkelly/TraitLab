@@ -11,15 +11,6 @@ if nargin>0
     % intialise variables
     [data,model,state,handles.output,mcmc]=fullsetup(fsu);
 
-    % Setting initial catastrophe locations in borrowing model.
-    if BORROWING
-        % Catastrophes cannot go on the edge <Adam, Root>.
-        for i = (find(state.cat & ([state.tree.type]' <= ANST)))'
-            % Catastrophes are uniformly distributed along edge <pa(i), i>.
-            state.tree(i).catloc = rand(state.cat(i), 1);
-        end
-    end
-    
     save outIC;
     
     if fromgui
@@ -111,7 +102,7 @@ for t=start:finish
     
     %Write the current state of the Markov chain to output
     NextSamp=handles.output.Nsamp+1;
-    stats = [state.logprior; state.loglkd; state.tree(state.root).time; log(state.mu); state.p; btime; state.lambda ; state.kappa ; state.rho ; state.ncat ; state.fullloglkd ; log(state.beta)]; % Luke - added ' ; state.beta' to end.
+    stats = [state.logprior; state.loglkd; state.tree(state.root).time; state.mu; state.p; btime; state.lambda ; state.kappa ; state.rho ; state.ncat ; state.fullloglkd ; state.beta]; % Luke - added ' ; state.beta' to end.
     handles.output.stats(:,NextSamp) = stats;
     handles.output.pa(:,NextSamp) = pa;
     for i=1:2*state.NS

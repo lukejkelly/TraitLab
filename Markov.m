@@ -49,7 +49,7 @@ for t=1:(mcmc.subsample)
             [nstate,U,TOPOLOGY]=Eupdate(state,i,j,iP,jP);
         end
         % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end         
+        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==4
         update='Reconnect an edge into a nearby edge';
         [i,j,k,newage,logq]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
@@ -58,7 +58,7 @@ for t=1:(mcmc.subsample)
             [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
         end
         % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end        
+        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==5
         update='Reconnect an edge into an edge chosen UAR over the tree';
         [i,j,k,newage,logq]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
@@ -67,7 +67,7 @@ for t=1:(mcmc.subsample)
             [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
         end
         % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end        
+        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==6
         update='Rescale whole tree';
         variation=mcmc.update.del+rand*mcmc.update.deldel;
@@ -83,7 +83,7 @@ for t=1:(mcmc.subsample)
         update='Rescale randomly chosen subtree';
         [nstate,U,TOPOLOGY,logq,OK]=RscaleSubTree(state,mcmc.update.del,mcmc.update.deldel);
         % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end        
+        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==8
         update='Vary mu';
         if ~VARYMU, disp('vary mu ?'); keyboard;pause; end
@@ -134,16 +134,16 @@ for t=1:(mcmc.subsample)
                 OK=0;
             end
         end
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.        
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end        
+        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
+        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==12
         update='Rescale top tree';
         if model.prior.isclade
             %keyboard;
             [nstate,U,TOPOLOGY,logq,OK]=RscaleTopTree(state,model.prior,mcmc.update.del,mcmc.update.deldel);
         end
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.        
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end                
+        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
+        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==13
         update='Add a catastrophe';
         [nstate, U, OK, logq]=AddCat(state);
@@ -195,7 +195,7 @@ for t=1:(mcmc.subsample)
         update='Vary XI for one leaf';
         nstate=state;
         variation=mcmc.update.del+rand*mcmc.update.deldel;
-        logq=-log(variation); 
+        logq=-log(variation);
         leaf=state.leaves(ceil(rand*length(state.leaves)));
         if variation*(1-state.tree(leaf).xi) <=1
             nstate.tree(leaf).xi=1-variation*(1-state.tree(leaf).xi);
@@ -211,7 +211,7 @@ for t=1:(mcmc.subsample)
         variation=mcmc.update.del+rand*mcmc.update.deldel;
         logq = -2 * log(variation); % logq=2*log(variation);
         for i=state.leaves
-            if state.tree(i).xi<1                
+            if state.tree(i).xi<1
                 c=variation*(1-state.tree(i).xi);
                 if c<=1
                     nstate.tree(i).xi=1-c;
@@ -224,7 +224,7 @@ for t=1:(mcmc.subsample)
             end
         end
         U=above(V,state.tree,state.root);
-        TOPOLOGY=0;        
+        TOPOLOGY=0;
     elseif MV == 21 % LUKE
         update = 'Vary beta';
         % if ~VARYBETA && BORROWING, disp('vary beta?'), keyboard; pause; end
@@ -235,7 +235,7 @@ for t=1:(mcmc.subsample)
         TOPOLOGY = 0;
         U = state.nodes;
     end % End of move section.
-    
+
     if OK && model.prior.isclade
         if TOPOLOGY
             nstate=UpdateClades(nstate,U,size(model.prior.clade,2));
@@ -245,9 +245,14 @@ for t=1:(mcmc.subsample)
 
     if OK
 
+        if ~all(sort(find([state.tree.type] == 0)) == sort(find([nstate.tree.type] == 0)))
+            disp('Leaf variables mismatch')
+            keyboard; return;
+        end
+
 %         if TOPOLOGY
 %             nstate.length=TreeLength(nstate.tree,nstate.root);
-%         end        
+%         end
 
         %disp(update);
         if TOPOLOGY && DONTMOVECATS
@@ -265,16 +270,16 @@ for t=1:(mcmc.subsample)
             nstate.loglkd     = LogLkd(nstate);
             nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
         end
-        
+
         % Log-prior for tree and catastrophes.
         nstate.logprior = LogPrior(model.prior, nstate);
-        
+
         % Log-prior for parameters: mu, beta, etc.
         logpp = LogPriorParm(state, nstate);
-        
+
         % Log-Hastings ratio in acceptance step.
         logr = nstate.logprior - state.logprior + nstate.loglkd - state.loglkd + logq + logpp;
-        
+
         % Acceptance step.
         %GKN Jan 08 to handle big tree, llkd is -inf so do random walk (3rd OR)
         if ( (logr>0) || (log(rand)<logr) || isinf(state.loglkd) )
@@ -292,7 +297,7 @@ end
 
 % % % % % %update lambda|g,mu - assumes 1/lambda prior
 % % % % % if ~VARYLAMBDA
-% % % % %     state.lambda=Lambda(state); 
+% % % % %     state.lambda=Lambda(state);
 % % % % %     if DEPNU
 % % % % %         state.nu=state.kappa*state.lambda/state.mu;
 % % % % %     end

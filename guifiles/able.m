@@ -4,7 +4,7 @@ function able(switchon,switchoff,enable,disable)
 %
 % All variables passed in are vectors of handles.
 % switchon/switchoff have 'Value' set to 1/0,
-% enable/disbale have 'Enable' set to 'on'/'off'.
+% enable/disable have 'Enable' set to 'on'/'off'.
 
 if ~isempty(switchon)
     set(switchon,'Value',1);

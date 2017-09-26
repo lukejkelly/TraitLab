@@ -65,7 +65,7 @@ if ~isempty(P_bo)
     % Creating a struct with the binary representations of observed
     % patterns and their respective counts.
     inds = find(n_To);
-    
+
     % For the decimal-to-binary conversion, we use a C function if its
     % compiled version is available.
 	% obs.pattern = fastDe2Bi_c_par(inds, L);
@@ -73,12 +73,12 @@ if ~isempty(P_bo)
     obs.count = n_To(inds);
 
 else
-    
+
     % If there are no fully-observed patterns then we set obs to 0. We
     % can't set it to [] as this will pose a problem when we use persistent
     % variables.
     obs = 0;
-    
+
 end
 
 % Partially-observed patterns.
@@ -87,7 +87,7 @@ if ~isempty(P_bm)
     % For each partially-observed pattern, we require the pattern it refers
     % to, the corresponding vector of missing indices and matrix of
     % possible true underlying patterns.
-    
+
     % Reorienting P_bm.
     P_bm = fliplr( P_bm' );
 
@@ -100,41 +100,41 @@ if ~isempty(P_bm)
     % patterns and a vector indicating.
     miss = struct( 'pattern', cell(size(P_bmu, 1), 1), 'count', ...
         cell(size(P_bmu, 1), 1), 'underlying', cell(size(P_bmu, 1), 1) );
-    
+
     % Populating the count vector.
     for i = 1:size(P_bmu, 1)
-        
+
         % Recording the pattern with missing data.
         miss(i).pattern = P_bmu(i, :);
 
         % Number of observations of partially-observed pattern P_bmu(i, :).
         miss(i).count = sum( all( bsxfun( @eq, P_bmu(i, :), P_bm ), 2 ) );
-        
+
         % Indices of entries with data missing.
         m_inds = find( P_bmu(i, :) == 2 );
-        
+
         % Generating possible underlying patterns.
         % Using C function, if its compiled version exists.
         % perms = fastDe2Bi_c_par( 0:(2^length(m_inds) - 1), length(m_inds) );
         % Using Matlab function otherwise.
-        perms = de2bi( 0:(2^length(m_inds) - 1), 'left-msb' );
-        
+        perms = de2bi( 0:(2^length(m_inds) - 1), length(m_inds), 'left-msb' );
+
         p_poss = repmat( P_bmu(i, :), length(perms), 1 );
         p_poss(:, m_inds) = perms;
-                
+
         % removing any patterns consisting solely of zeros and creating the
         % corresponding struct entry.
         miss(i).underlying = p_poss(any(p_poss, 2), :);
-        
+
     end
 
 else
-    
+
     % If there are no partially-observed patterns then we set miss to 0. We
     % can't set it to [] as this will pose a problem when we use persistent
     % variables.
     miss = 0;
-    
+
 end
 
 end

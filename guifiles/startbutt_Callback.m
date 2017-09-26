@@ -3,6 +3,9 @@ function startbutt_Callback(h, eventdata, handles, varargin)
 GlobalSwitches;
 GlobalValues;
 
+% Clear persistent variables in SDLT code. LUKE 04/09/2016
+clear logLkd2_m patternCounts patternMeans
+
 set(h,'UserData',STOPRUN);
 ok = 1;
 set(handles.statustxt,'String','Initialising');
@@ -51,6 +54,23 @@ if ok
         RLR = 1;
     end
     IM = DeathRate(LR); % Initial Mu - converted from proportion to modelled mu
+end
+
+% Lateral transfer. LUKE 04/09/2016
+[BORROWING, VARYBETA, MCMCINITBETA] = deal(0);
+if ok
+    % Are we accounting for lateral transfer with SDLT model?
+    BORROWING = handles.allowForLateralTransferCB.Value;
+    
+    % If so, is beta fixed and what is its initial value?
+    if BORROWING
+        VARYBETA = handles.varyLateralTransferRateCB.Value;
+        if handles.initialiseLateralTransferRateAtSpecifiedValueRB.Value        
+            MCMCINITBETA = str2double(handles.initialiseLateralTransferRateAtSpecifiedValueEB.String);
+        else            
+            MCMCINITBETA = IM * (0.5 + rand);
+        end
+    end
 end
 
 % check catastrophe parameters
@@ -168,7 +188,7 @@ if ok
                         s=MT.tree;
                         sc=rnextree(handles.tree.output.cattrees{TN});
                         %removed legacy code for cattreetolist in svn version < 146 
-                        [MT.tree MT.cat]=CatTreeToList(sc,s); % RJR 17 Mar 2011
+                        [MT.tree MT.cat]=CatTreeToList(sc,s); % RJR 17ï¿½Mar 2011
                     else
                         MT.kappa = MCMCINITKAPPA;
                         MT.rho = MCMCINITRHO;
@@ -176,6 +196,12 @@ if ok
                     end
                     % estimate theta at 1/E[edge length]
                     IT = (length(MT.tree)-2)/TreeLength(MT.tree,find([MT.tree.type]==ROOT));
+                    
+                    % Lateral transfer. LUKE 04/09/2016
+                    if BORROWING
+                        % We initialise beta = 0 in pop('state').
+                        MT.beta = handles.tree.output.stats(12, TN);
+                    end
                 else
                     fprintf('\nTree number %1.0f does not exist in the file %s \n',TN,MIF)
                     ok=0;
@@ -200,6 +226,13 @@ if ok
                 fprintf('Using the trait death rate %g imported with the true tree to initialise MCMC',LossRate(handles.data.true.mu));
             end
                 
+            % Lateral transfer. LUKE 04/09/2016
+            MT.beta = handles.data.true.beta;
+            if BORROWING && MT.beta > 0
+                fprintf('Ignoring the trait transfer rate set as starting value (%g) and using\n', MCMCINITBETA);
+                fprintf('the rate %g imported with the true tree to initialise the MCMC instead', MT.beta);                
+                MCMCINITBETA = MT.beta;
+            end
         end
     end
 end
@@ -482,6 +515,11 @@ if ok
         fsu.MISDAT            = MISDAT;   % 19/8/10 GKN 
         fsu.TOPOLOGYPRIOR     = TOPOLOGYPRIOR;
 	
+        % Lateral transfer. LUKE 04/09/2016
+        fsu.BORROWING         = BORROWING;
+        fsu.VARYBETA          = VARYBETA;
+        fsu.MCMCINITBETA      = MCMCINITBETA;
+        
         
         runmcmc(fsu,handles,h);
 else
