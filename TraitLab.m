@@ -6,10 +6,10 @@ GlobalValues;
 addpath guifiles Borrowing
 
 if nargin == 0  % LAUNCH GUI
-    
+
     fig = openfig(mfilename,'reuse');
-        
-    % Generate a structure of handles to pass to callbacks, and store it. 
+
+    % Generate a structure of handles to pass to callbacks, and store it.
     handles = guihandles(fig);
     % initialise other data stored in handles
     handles.data  = struct('array',{[]},...
@@ -31,16 +31,18 @@ if nargin == 0  % LAUNCH GUI
     handles.oldstart.path ='';
     handles.oldstart.file = '';
     guidata(fig, handles);
-    
+
     set([handles.outdirtxt handles.outfiletxt],{'String'},{strtrunc(handles.output.path,19);handles.output.file});
- 
-    
+
+    % Decrease font sizes if we're on a windows computer.
+    decreaseFontSizesIfReq(handles)
+
     if nargout > 0
         varargout{1} = fig;
     end
-    
+
 elseif ischar(varargin{1}) % INVOKE NAMED SUBFUNCTION OR CALLBACK
-    
+
 %     try
         if (nargout)
             [varargout{1:nargout}] = feval(varargin{:}); % FEVAL switchyard
@@ -50,7 +52,7 @@ elseif ischar(varargin{1}) % INVOKE NAMED SUBFUNCTION OR CALLBACK
 %     catch
 %         disp(lasterr);
 %     end
-    
+
 end
 
 % --------------------------------------------------------------------
@@ -64,7 +66,7 @@ if strcmp(get(h,'String'),'Pause')
     waitfor(h,'String','Pause')
 else
     % in Resume mode
-    set(h,'String','Pause');   
+    set(h,'String','Pause');
     set(handles.statustxt,'String','Running');
 end
 
@@ -75,8 +77,8 @@ GlobalSwitches;
 GlobalValues;
 
 set(handles.startbutt,{'Enable','UserData'},{'on',~STOPRUN});
-set([handles.pausebutt,h],'Enable','off'); 
-set(handles.pausebutt,'String','Pause');    
+set([handles.pausebutt,h],'Enable','off');
+set(handles.pausebutt,'String','Pause');
 set(handles.statustxt,'String','Idle');
 
 % --------------------------------------------------------------------
@@ -227,7 +229,7 @@ if get(h,'Value')==0
 set([handles.seedet],'Enable','off')
 else
 set([handles.seedet],'Enable','on')
-end    
+end
 
 % --------------------------------------------------------------------
 function quietcb_Callback(h, eventdata, handles, varargin)
@@ -236,7 +238,7 @@ if get(h,'Value')==1
 set([handles.drawtreescb handles.plotstatscb],'Enable','off')
 else
 set([handles.drawtreescb handles.plotstatscb],'Enable','on')
-end    
+end
 
 % --------------------------------------------------------------------
 function  rootet_Callback(h, eventdata, handles, varargin)
@@ -284,7 +286,7 @@ function  datafilebutt_Callback(h, eventdata, handles, varargin)
 % get file names from user
 [filename,pathname] = uigetfile({'*.nex','Nexus'},'Choose a nexus file to load data from');
 if isequal(filename,0)||isequal(pathname,0)
-    %no file selected - done 
+    %no file selected - done
     disp('No file selected')
 else
     %user selected file - save info in relevant place
@@ -303,7 +305,7 @@ else
     else
         handles.data.true.state.tree = [];
     end
-        
+
     [NS,L] = size(handles.data.array);
     set([handles.numlangtxt handles.numcogtxt],{'String'},{NS;L})
     if ~isempty(handles.data.clade)
@@ -328,7 +330,7 @@ else
                 set(handles.masket,'Enable','on')
             end
         end
-    end           
+    end
    guidata(h,handles);
    L=size(handles.data.language,1);
    for k=1:L,
@@ -364,10 +366,10 @@ GlobalSwitches;
 [filename pathname] = uigetfile({'*.nex','Nexus'},'Select an output file');
 
 if isequal(filename,0)||isequal(pathname,0)
-    %no file selected - done 
+    %no file selected - done
     disp('No file selected')
     return
-else    
+else
     %user selected file - check that it is a .txt or a .nex file
     if strcmp(strtrunc(filename,4),'.nex') || strcmp(strtrunc(filename,4),'.txt')
         % good file - load output
@@ -375,7 +377,7 @@ else
         disp('Extracting trees and loss rates')
         [handles.tree.output,ok]=readoutput([pathname, filename(1:end-4)]);
         handles.oldstart.path = pathname;
-        handles.oldstart.file = filename;        
+        handles.oldstart.file = filename;
         set([handles.treedirtxt handles.treefiletxt],{'String'},{strtrunc(pathname,28);strtrunc(filename,22)})
         guidata(h,handles);
         if ok && handles.tree.output.Nsamp >= 1
@@ -384,7 +386,7 @@ else
             set(hdl,'Enable','on');
             set(handles.numtreetxt, 'String',sprintf('The file contains %1.0f trees',handles.tree.output.Nsamp))
             set(handles.numtreeet,'String','1');
-            fprintf('%1.0f trees found\n',handles.tree.output.Nsamp)                
+            fprintf('%1.0f trees found\n',handles.tree.output.Nsamp)
         else
             % problem with loading or no trees in file
             hdl = [handles.numtreeet handles.viewinitbutt];
@@ -565,7 +567,7 @@ function rhovalet_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
- 
+
 
 % --- Executes on button press in specrhorb.
 function specrhorb_Callback(hObject, eventdata, handles)
@@ -690,7 +692,7 @@ else
    able([], [], [], [handles.varyLateralTransferRateCB, ...
        handles.initialiseLateralTransferRateAtSpecifiedValueRB, ...
        handles.initialiseLateralTransferRateAtRandomValueRB, ...
-       handles.initialiseLateralTransferRateAtSpecifiedValueEB]);   
+       handles.initialiseLateralTransferRateAtSpecifiedValueEB]);
 end
 
 
@@ -753,3 +755,16 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+
+% --- Call this when opening figure. Posted by a guy called Wouter at
+% https://stackoverflow.com/questions/19843040/matlab-gui-compatibility-between-mac-and-windows-display
+function decreaseFontSizesIfReq(handles)
+% make all fonts smaller on a Windows computer
+if ispc()
+  for afield = fieldnames(handles)'
+    afield = afield{1}; %#ok<FXSET>
+    try %#ok<TRYNC>
+      set(handles.(afield), 'FontSize', 8.5); % decrease font size
+    end
+  end
+end
