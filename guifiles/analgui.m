@@ -774,13 +774,11 @@ checknum(handles.consensuspet,.5,1,.5,0);
 % https://stackoverflow.com/questions/19843040/matlab-gui-compatibility-between-mac-and-windows-display
 function decreaseFontSizesIfReq(handles)
 % make all fonts smaller on a Windows computer
-persistent fontSizeDecreased
-if ispc() && isempty(fontSizeDecreased)
+if ispc()
   for afield = fieldnames(handles)'
     afield = afield{1}; %#ok<FXSET>
     try %#ok<TRYNC>
       set(handles.(afield), 'FontSize', 8.5); % decrease font size
     end
   end
-  fontSizeDecreased = 1;
 end
