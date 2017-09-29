@@ -13,7 +13,7 @@ if isstruct(varargin{1}) % LAUNCH GUI
 	% Use system color scheme for figure:
 	set(fig,'Color',get(0,'defaultUicontrolBackgroundColor'));
 
-	% Generate a structure of handles to pass to callbacks, and store it. 
+	% Generate a structure of handles to pass to callbacks, and store it.
 	handles = guihandles(fig);
     handles.data = varargin{1};
     handles.output = varargin{2};
@@ -23,7 +23,7 @@ if isstruct(varargin{1}) % LAUNCH GUI
         % so replace it
        handles.llkdax = findobj(fig,'Type','axes');
    end
-   
+
    hdl = [handles.currpossl handles.currposet handles.viewtreebutt handles.movbeginet handles.movendet handles.moviebutt handles.zoombutt];
    if handles.output.Nsamp >= 1
        % there is output loaded
@@ -34,7 +34,7 @@ if isstruct(varargin{1}) % LAUNCH GUI
            xlim = [0.9 handles.output.Nsamp];
            slidestep = [1 0.1];
        else
-           xlim = [1 handles.output.Nsamp];      
+           xlim = [1 handles.output.Nsamp];
            slidestep = [1/(xlim(2)-xlim(1)) 0.1];
        end
        set(handles.llkdax,'Xlim',xlim);
@@ -49,20 +49,23 @@ if isstruct(varargin{1}) % LAUNCH GUI
            set(handles.datafiletxt,'String',handles.data.file);
            set(handles.datadirtxt,'String',handles.data.path);
        end
-       
+
        if ~(isempty(handles.output.file))
            set([handles.outdirtxt handles.outfiletxt],{'String'},{strtrunc(handles.output.path,19);strtrunc(handles.output.file,19)})
-       end 
-       
+       end
+
    else
        set(hdl,'Enable','off');
        disp('No output loaded')
    end
 
    if ~isfield(handles,'makeHTMLet'), handles.makeHTMLet=0; end
-   
+
     guidata(fig, handles);
-    
+
+  % Decrease font sizes if we're on a windows computer.
+  decreaseFontSizesIfReq(handles)
+
 	if nargout > 0
 		varargout{1} = fig;
 	end
@@ -182,11 +185,11 @@ else
     content.language = handles.data.language;
     [content.NS,content.L] = size(content.array);
     %TODO below would set up state properly but need model.prior
-    
+
     %junk_model=pop('model');
     pos = str2double(get(handles.currposet,'string'));
     %state=makestate(junk_model.prior,handles.output.stats(4,pos),handles.output.stats(5,pos),content,rnextree(handles.output.trees{pos}));
-    
+
     % check that there is some output loaded
     if pos == 0
         disp('Can''t analyse data as there is no output loaded')
@@ -203,7 +206,7 @@ else
     state.leaves = find([state.tree.type]==LEAF);
     state.nodes = [state.root, state.leaves, find([state.tree.type]==ANST)];
     state.NS = length(state.leaves);
-    % check that have 
+    % check that have
 %     state = pop('state');pos = str2double(get(handles.currposet,'string'));
 %     state.tree = rnextree(handles.output.trees{pos});
 %     state.mu = handles.output.stats(4,pos);
@@ -275,7 +278,7 @@ if abs(diff(lims))>=1
     else
         inc = 1;
     end
-    
+
     xlim = sort(lims);
     currxlim = get(handles.llkdax,'Xlim');
     if xlim(1)<currxlim(1) || xlim(2) > currxlim(2)
@@ -290,7 +293,7 @@ if abs(diff(lims))>=1
         set(handles.titletxt,'String',sprintf('Log Likelihood Trace for samples %1.0f to %1.0f',xlim));
         guidata(h,handles);
     end
-    
+
     for pos = lims(1):inc:lims(2)
         % check for interuption
         if pos > lims(1) && ~ishandle(handles.output.treefig)
@@ -385,7 +388,7 @@ if get(h,'Value')==1
     set([handles.showcoget],'Enable','on');
 else
     set([handles.showcoget],'Enable','off');
-end    
+end
 
 
 % --------------------------------------------------------------------
@@ -404,7 +407,7 @@ function  loadoutbutt_Callback(h, eventdata, handles, varargin)
 [filename pathname] = uigetfile({'*.nex','Nexus'},'Load an output file');
 
 if isequal(filename,0)||isequal(pathname,0)
-    %no file selected - done 
+    %no file selected - done
     disp('No file selected')
     return
 else
@@ -462,11 +465,11 @@ GlobalSwitches;
 global za zb zc za1 za2 zb1 zb2 zq1 zq2
 % merge data and tree
 pos = str2double(get(handles.currposet,'string'));
-s = rnextree(handles.output.trees{pos}); 
+s = rnextree(handles.output.trees{pos});
 scat= rnextree(handles.output.cattrees{pos});
 s=CatTreeToList(scat,s);
 [s,ok]=mergetreedata(s,handles.data.array,handles.data.language);
-if ok     
+if ok
     % merge worked, now need to fill work variables in tree
     state = pop('state');
     state.NS = length(s)/2;
@@ -485,7 +488,7 @@ if ok
     za2=zeros(1,state.L);
     zb2=zeros(1,state.L);
     zq2=zeros(1,state.L);
-    
+
    [state.tree]=ActiveI(state.tree,state.root);
 
    state.tree(state.root).CovI=[state.tree(state.root).ActI{:}];
@@ -493,8 +496,8 @@ if ok
    state.tree=CoversI(state.tree,state.root);
 
     % get drawing options
-    vals = get([handles.leafnamesrb handles.anstnumsrb handles.showcovrb handles.showcogcb],'Value');    
-    
+    vals = get([handles.leafnamesrb handles.anstnumsrb handles.showcovrb handles.showcogcb],'Value');
+
     if vals{1}
         vb = LEAF;
     elseif vals{2}
@@ -506,16 +509,16 @@ if ok
     end
     showcog = 0;
     cogname = '';
-    
+
     if vals{4}
         showcog = str2double(get(handles.showcoget,'String'));
         if length(handles.data.cognate)>=showcog
             cogname = handles.data.cognate{showcog};
         end
-    end  
+    end
     draw(state.tree,handles.output.treefig,vb,['Sample number ' num2str(pos)],showcog,cogname);
-     
-    
+
+
     if handles.makeHTMLet
         if vb == LEAF
             showing='Showing leaf names.';
@@ -570,7 +573,7 @@ function  loaddatabutt_Callback(h, eventdata, handles, varargin)
 % get file names from user
 [filename,pathname] = uigetfile({'*.nex','Nexus'},'Choose a nexus file to load data from');
 if isequal(filename,0)||isequal(pathname,0)
-    %no file selected - done 
+    %no file selected - done
     disp('No file selected')
 else
     %user selected file - save info in relevant place
@@ -580,7 +583,7 @@ else
     [s,content,true,clade] = nexus2stype([pathname filename]);
     handles.data.array = content.array;
     handles.data.language = content.language;
-    handles.data.cognate = content.cognate; 
+    handles.data.cognate = content.cognate;
     handles.data.clade=clade;
     set([handles.datadirtxt,handles.datafiletxt],{'String'},{pathname;filename});
     if handles.makeHTMLet, writehtml([handles.HTMLpathet handles.HTMLnameet],['Using data file ' handles.data.path handles.data.file '.nex. <br/>']); end
@@ -617,7 +620,7 @@ valsindex=[1 2 3 4 8 9, 12, 13]; % LJK 12, 13
 if handles.betamucorrcb.Value;
    handles.output.stats(13, :) = handles.output.stats(12, :) ./ handles.output.stats(4, :);
 end
-       
+
 if ~isempty(vals)
     names = {'PRIOR','LIKELIHOOD','ROOT TIME','MU','KAPPA','RHO', 'BETA', 'BETA / MU'};
     figure(handles.output.histfig);
@@ -680,43 +683,43 @@ if ~isempty(x)
             return
         end
 
-        
+
         if handles.makeHTMLet
             writehtml([handles.HTMLpathet handles.HTMLnameet],['<h2>MRCA distribution</h2><b2/>' int2str(bins) 'bins; ' 'lag: ' int2str(maxlag) '<br/>']);
         end
-        
+
         for i = starthist:length(handles.output.trees)
             s = rnextree(handles.output.trees{i});
             sroot = find([s.type]==ROOT);
-            y=[]; 
-            for k=1:length(x), 
-                fi=find(strcmp(langs(k),{s.Name})); 
+            y=[];
+            for k=1:length(x),
+                fi=find(strcmp(langs(k),{s.Name}));
                 if length(fi)~=1, error('One of the taxa was not found or was not unique'); end
                 y=[y,fi]; %#ok<AGROW>
             end
             mrcatime(i-starthist+1) = s(mrca(y,s,sroot)).time; %#ok<AGROW>
             cladeindicator(i-starthist+1) = IsClade(y,s,sroot); %#ok<AGROW>
-        end  
+        end
         disp(['Tree, TMRCA for ' langlist])
         %disp(sprintf('%g, %g \n',[starthist:length(handles.output.trees);mrcatime]))
         figure(handles.output.tmrcafig)
         set(handles.output.tmrcafig,{'Name','NumberTitle'},{'TMRCA distribution','off'});
         hist(mrcatime,bins);title(['MRCA-time distribution for clade ',langlist]);
         if handles.makeHTMLet, writehtml([handles.HTMLpathet handles.HTMLnameet], ['TMRCA for ' langlist '<br/>'],handles.output.tmrcafig); end
-        
+
         stats(mrcatime,maxlag,{['MRCA: ',langlist]},handles.output.histfig);
         mmr=mean(mrcatime); smr=std(mrcatime);
         fprintf('mean MRCA-time: %g (std err %g) or [%g,%g] at 2*sigma \n',mmr,smr,mmr-2*smr,mmr+2*smr);
         [hpdl hpdh]=hpd(mrcatime,5);
         fprintf('95%% HPD interval (assumes unimodal): [%g,%g] \n',hpdl,hpdh);
-        if handles.makeHTMLet 
-            writehtml([handles.HTMLpathet handles.HTMLnameet], sprintf('mean MRCA-time: %g (std err %g) or [%g,%g] at 2*sigma <br/>',mmr,smr,mmr-2*smr,mmr+2*smr)); 
+        if handles.makeHTMLet
+            writehtml([handles.HTMLpathet handles.HTMLnameet], sprintf('mean MRCA-time: %g (std err %g) or [%g,%g] at 2*sigma <br/>',mmr,smr,mmr-2*smr,mmr+2*smr));
             writehtml([handles.HTMLpathet handles.HTMLnameet], sprintf('95&#37; HPD interval (assumes unimodal): [%g,%g] <br/>',hpdl,hpdh),handles.output.histfig);
         end
-        
+
         [fbar,stdf]=stats(cladeindicator,maxlag,{['IsClade(',langlist,')']},handles.output.histfig2);
         mci=mean(cladeindicator); %sci=std(cladeindicator);
-        
+
         disp(['probability that ',langlist,sprintf(' is a clade: %g (std OF MEAN %g)',mci,stdf)]);
         if handles.makeHTMLet, writehtml([handles.HTMLpathet handles.HTMLnameet], ['probability that ',langlist,sprintf(' is a clade: %g (std OF MEAN %g)',mci,stdf)],handles.output.histfig2); end
     end
@@ -733,7 +736,7 @@ function createconsensusbutt_Callback(hObject, eventdata, handles)
     p=str2double(get(handles.consensuspet,'String'));
     step=str2double(get(handles.consensusstepet,'String'));
     includecats=get(handles.consensuscatcb,'Value');
-    
+
     if includecats
          consensuscat(strcat(handles.output.path,handles.output.file),p,'',step,starthist);
 %         [scon,conclade]=consensuscat(strcat(handles.output.path,handles.output.file),p,'',step,starthist);
@@ -749,7 +752,7 @@ function createconsensusbutt_Callback(hObject, eventdata, handles)
     if handles.makeHTMLet
         writehtml([handles.HTMLpathet handles.HTMLnameet], sprintf('<h2>Consensus tree</h2> Displaying nodes with at least %g&#37; support.<br/>',100*p),fig.constree);
     end
-        
+
 
 
 function consensusstepet_Callback(hObject, eventdata, handles)
@@ -764,3 +767,20 @@ end
 
 function consensuspet_Callback(hObject, eventdata, handles)
 checknum(handles.consensuspet,.5,1,.5,0);
+
+
+
+% --- Call this when opening figure. Posted by a guy called Wouter at
+% https://stackoverflow.com/questions/19843040/matlab-gui-compatibility-between-mac-and-windows-display
+function decreaseFontSizesIfReq(handles)
+% make all fonts smaller on a Windows computer
+persistent fontSizeDecreased
+if ispc() && isempty(fontSizeDecreased)
+  for afield = fieldnames(handles)'
+    afield = afield{1}; %#ok<FXSET>
+    try %#ok<TRYNC>
+      set(handles.(afield), 'FontSize', 8.5); % decrease font size
+    end
+  end
+  fontSizeDecreased = 1;
+end
