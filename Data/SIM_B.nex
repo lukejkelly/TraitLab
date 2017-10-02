@@ -116,3 +116,14 @@ ROOTMIN = 200 ROOTMAX = 500
 TAXA = 6 7 8 9 10;
 
 END;
+
+
+BEGIN SYNTHESIZE;
+
+PARAMETERS
+
+mu = 0.0005
+lambda = 0.1
+beta = 0.0005;
+
+END;
