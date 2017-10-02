@@ -34,7 +34,7 @@ return;
 
 function mcmc=initMCMC(fsu,TWOSEQS)
 
-global GATHER 
+global GATHER
 global VARYRHO VARYMU VARYLAMBDA VARYKAPPA VARYNU DEPNU VARYP MISDAT MCMCCAT DONTMOVECATS BORROWING VARYBETA GF_START GF_APPROX
 
 VARYRHO=fsu.VARYRHO*fsu.MCMCCAT;
@@ -90,20 +90,20 @@ if ~BORROWING, mcmc.initial.beta = 0; end
 %19 Vary XI for one leaf
 %20 Vary XI for all leaves
 %21 random walk beta (log scale) % Luke
-if TWOSEQS      % Luke 23/04/2014 added Beta.
-   move=[1, 0, 0, 0, 0, 1, 0, VARYMU, VARYP, 0, 0, 1*fsu.ISCLADE, MCMCCAT, MCMCCAT, VARYRHO, VARYKAPPA, VARYLAMBDA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA]; % Luke 24/10/14 changed move 10 from MISDAT to 0.
-   %     1  2  3  4  5  6  7  8       9      10 11 12             13       14       15       16         17          18           19            20            21
+if TWOSEQS      % Luke 23/04/2014 added Beta. % Luke 02/10/2017 removed move on Rho.
+   move=[1, 0, 0, 0, 0, 1, 0, VARYMU, VARYP, 0, 0, 1*fsu.ISCLADE, MCMCCAT, MCMCCAT, 0, VARYKAPPA, VARYLAMBDA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA]; % Luke 24/10/14 changed move 10 from MISDAT to 0.
+   %     1  2  3  4  5  6  7  8       9      10 11 12             13       14       15 16         17          18           19            20            21
    %move=[0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 1];
 else
-   move=[1, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3, 1, 3*VARYMU, VARYP, 0, 3, 3*fsu.ISCLADE, fsu.MCMCCAT, fsu.MCMCCAT, fsu.VARYRHO, fsu.VARYKAPPA, VARYLAMBDA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA]; % Luke - added #21 VARYBETA.
-   %     1  2                  3                4                  5                6  7  8         9      10 11 12             13           14           15           16             17          18           19            20            21
+   move=[1, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3, 1, 3*VARYMU, VARYP, 0, 3, 3*fsu.ISCLADE, fsu.MCMCCAT, fsu.MCMCCAT, 0, fsu.VARYKAPPA, VARYLAMBDA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA]; % Luke - added #21 VARYBETA.
+   %     1  2                  3                4                  5                6  7  8         9      10 11 12             13           14           15 16             17          18           19            20            21
    if fsu.DONTMOVECATS %for punctuational bursts.
        move(13)=0;
        move(14)=0;
        move(18)=0;
    end
-   
-   %move=[1 0 0 0 0 0 1 VARYMU VARYP MISDAT 1]; 
+
+   %move=[1 0 0 0 0 0 1 VARYMU VARYP MISDAT 1];
    %move=[1 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 0];
    %move=[zeros(1,12),1,1,zeros(1,3),1];
 end
@@ -122,7 +122,7 @@ if mcmc.initial.seedrand
 else
     % reset generator to random state
    rand('state',sum(100*clock));
-   randn('state',sum(100*clock)); 
+   randn('state',sum(100*clock));
 end
 
 if mcmc.monitor.on
@@ -136,7 +136,7 @@ return;
 
 function model=initMODEL(fsu)
 
-global YULE FLAT 
+global YULE FLAT
 
 global LOSTONES; %TODO FIX THIS
 LOSTONES=fsu.LOSTONES;
@@ -179,7 +179,7 @@ if model.prior.isclade
             end
         end
         if (~isempty(model.prior.clade{k}.adamrange) && ((model.prior.type==FLAT && model.prior.clade{k}.adamrange(2)<model.prior.rootmax) || (model.prior.type==YULE && ~isinf(model.prior.clade{k}.adamrange(2)))))
-            model.prior.upboundclade=[model.prior.upboundclade,k]; 
+            model.prior.upboundclade=[model.prior.upboundclade,k];
             model.prior.isupboundadamclade=[model.prior.isupboundadamclade,true];
             model.prior.clade{k}.lowlim=model.prior.clade{k}.adamrange(1);
         else
@@ -213,7 +213,7 @@ initial.treefile=fsu.SYNTHTREFILE;
 initial.tree=fsu.SYNTHTRE;
 initial.knowcats=fsu.KNOWCATS;
 initial.masking=fsu.MASKING;
-initial.mask=fsu.DATAMASK;   
+initial.mask=fsu.DATAMASK;
 initial.is_column_mask=fsu.ISCOLMASK;
 initial.column_mask=fsu.COLUMNMASK;
 initial.lost=fsu.LOST;
@@ -258,15 +258,15 @@ switch initial.source
             true.nu=fsu.NU;
         end
 
-        
+
         switch initial.synth
             case OLDTRE
                 true.NS=[];
             case {NEWTRE}
                 true.NS=fsu.NUMSEQ;
         end
-        
-                
+
+
         if ~fsu.MCMCCAT
             true.kappa=0;
             true.rho=0;
@@ -291,14 +291,14 @@ case NEXUS
     if ~isempty(true)
        true.state=makestate(prior,true.mu,true.lambda,true.p,true.rho,true.kappa,content,true.state.tree, [], true.beta);
     else
-       true.state=[];   
+       true.state=[];
     end
 case BUILD
-    [true,content]=truthN(prior,initial,true);    
+    [true,content]=truthN(prior,initial,true);
 %    true=dataold.true;
 %   content=dataold.content;
     % make sure we have the specified value of lambda in true.state
-    true.state.lambda = true.lambda; %DW 9/1/2007 
+    true.state.lambda = true.lambda; %DW 9/1/2007
 
 end
 

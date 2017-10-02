@@ -29,10 +29,10 @@ elseif prior.type==FLAT
                 n(1)=[];
                 if isempty(n)
                     logprior=0;
-                else                    
+                else
                     %GKN change 23/3/11 to make uniform when there are
                     %adamrange nodes (added extra normalising term)
-                    logprior=-sum(log(s(Root).time-n))+sum(log(prior.rootmax-n)); 
+                    logprior=-sum(log(s(Root).time-n))+sum(log(prior.rootmax-n));
                 end
             end
             %logprior=-Nup*log(s(Root).time-mx); %uniform
@@ -45,8 +45,8 @@ else
 end
 
 if prior.topologyprior==TOPO
-    % this is now correct - (was no '-1' but this error was masked by 
-    % an error in MCMC move 2, so was in fact the best value in 
+    % this is now correct - (was no '-1' but this error was masked by
+    % an error in MCMC move 2, so was in fact the best value in
     % that setting) GKN 31/3/11
     logprior=logprior+sum(log([state.tree(state.nodes).d]-1));
     %elseif prior.topologyprior==LABHIST %% For now, assume that LABHIST is default
@@ -58,11 +58,11 @@ end
 % %Taking into account catastrophies
 if MCMCCAT
     if BORROWING  % Luke 25/06/2015.
-        % Prior on number of catastrophes on branch k and their positions 
+        % Prior on number of catastrophes on branch k and their positions
         % w = (w_1, ..., w_k) is k ~ Poisson(rho * dt) and w | k ~ k! / (dt)^k
         % so mass/density function is pi(w, k) = rho^k exp(-rho * dt). We can
         % integrate out rho to obtain a negative binomial.
-        if VARYRHO
+        if ~VARYRHO
             % Poisson prior on number, uniform locations.
             for node = 1:(2*state.NS)
                 if state.tree(node).type < ROOT
@@ -70,14 +70,14 @@ if MCMCCAT
                     Ncat     = state.cat(node);
                     logprior = logprior - state.rho * dt + Ncat * log(state.rho);
                 end
-            end       
+            end
         else
             % Negative binomial. Parameters from LogRhoPrior.
             a = 1.5; b = 5e3;
-            logprior = logprior + gammaln(a + state.ncat) - (a + state.ncat) * log(state.length + b);            
+            logprior = logprior + gammaln(a + state.ncat) - (a + state.ncat) * log(state.length + b);
         end
     else
-        if VARYRHO
+        if ~VARYRHO
             % Poisson prior on number of catastrophes on each branch.
             for node=1:2*state.NS %[state.nodes state.leaves]
                 if state.tree(node).type <ROOT
