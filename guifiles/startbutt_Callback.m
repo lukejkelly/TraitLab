@@ -94,7 +94,7 @@ if ok
             MCMCINITKAPPA=str2double(get(handles.kappavalet,'String'));
         else
             %choose random starting kappa and vary
-            MCMCINITKAPPA=rand;
+            MCMCINITKAPPA = 0.25 + 0.75 * rand; % LUKE 02/10/2017
             RANDOMKAPPA=1;
         end
         
