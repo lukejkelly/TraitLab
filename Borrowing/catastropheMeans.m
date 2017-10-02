@@ -1,8 +1,14 @@
 function[ x_tminus ] = catastropheMeans(L, x_s, T, tr, loc, K, borPars)
 % Function to compute the pattern means as a result of a catastrophe on
 % lineage loc (counting from right to left).
-% Takes the same inputs as patternMeans except for the list of dead
-% branches with the addition of loc.
+% Takes the same inputs as patternMeans with the addition of loc:
+%  -- L: number of lineages
+%  -- x_s: vector of initial expected pattern frequencies
+%  -- T: length of interval
+%  -- tr: rate parameters
+%  -- loc: catastrophe branch
+%  -- K: offset leaves on interval, if any
+%  -- borPars: parameters of ODEs, etc.
 % Outputs pattern means at the end of the catastrophe period, which is
 % a period of virtual time during which deaths on and borrowings in to
 % loc occur.
@@ -33,29 +39,29 @@ P_b = borPars(end).P_b(inds, (end + 1 - L):end);
 
 % Parameters which depend on whether there are offset leaves or not.
 if isempty(K)
-    
+
     % There are no dead branches; that is, K is empty.
-    
+
     % Number of evolving traits in each pattern.
     S_a = borPars(end).S(inds);
-    
+
     % Number of extant branches.
     L_a = L;
-    
+
 else
-    
+
     % List of dead branches is non-empty.
-    
+
     % Indices of extant branches.
     inds_a = 1:L;
     inds_a(K) = [];
-    
+
     % Number of evolving traits in each pattern.
     S_a = sum( P_b(:, L + 1 - inds_a), 2 );
-    
+
     % Number of extant branches.
     L_a = L - length(K);
-    
+
 end
 
 % Updating pattern means.

@@ -1,5 +1,5 @@
 % Fast replacements for Communications Toolbox functions de2bi and bi2de.
-
+% Run from main TraitLab folder after adding Borrowing/ to the path.
 % Include -fopenmp flags if using parallelised versions.
 
 % [Parallelised] Binary-to-decimal function.

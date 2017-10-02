@@ -1,7 +1,7 @@
 function[ x_t ] = transferMatrix(L, x_tminus, loc, borPars)
 % A function which maps the pattern means, x_tminus, just before a
 % branching event on branch loc (of L) to their corresponding values
-% afterwards, x_t.
+% afterwards, x_t, when there are L + 1 branches.
 
 % x_tminus is the pattern means before the split, loc the branching point
 % (counting from the right-most branch in the tree representation in the

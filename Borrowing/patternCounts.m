@@ -6,18 +6,18 @@ function [intLogLik, logLik] = patternCounts(state, rl, x_T, borPars)
 % The log-likelihood (ignoring constants) can be written as follows:
 %
 %   l(n|x) = -\sum_p x_p + \sum_p n_p \log(x_p).
-%            
+%
 % With missing data, this becomes:
 %
 %   l'(n|x) = -\sum_p x_p + \sum_{p \in P} n_p \log( x_p \xi(p) ) % logLik_o
 %             + \sum{q \in Q \ P} n_q \log( x_q \xi(q) )          % logLik_m
 %
 % Similarly, the integrated log-likelihood (ignoring constants) is:
-% 
+%
 %   h(n|x) = -( \sum_p n_p ) \log( \sum_p y_p ) + \sum_p n_p \log( y_p ),
-% 
+%
 % and with missing data:
-% 
+%
 %   h'(n|x) = -( \sum_{p \in P} n_p ) \log( \sum_{p \in P} y_p )
 %                   + \sum_{p \in P} n_p \log( y_p \xi(p) )
 %           = -( \sum_{q \in Q\P} n_q ) \log( \sum_{p \in P} y_p )
@@ -25,8 +25,8 @@ function [intLogLik, logLik] = patternCounts(state, rl, x_T, borPars)
 
 % Setting up data structures, etc.
 
-% First of all we need to account for the fact that the rl order from
-% stype2Events and the order used to count the patterns in the dataset are
+% First of all we need to account for the fact that the rl (right-to-left) order
+% from stype2Events and the order used to count the patterns in the dataset are
 % (potentially) not the same.
 
 % MISDAT indicates whether or not we want to model missing data, if any.
@@ -37,9 +37,9 @@ global MISDAT LOSTONES
 persistent obs miss rl_c
 
 if isempty(obs) && isempty(miss) && isempty(rl_c)
-    
+
     [obs, miss, rl_c] = observedPatternCounts(state);
-    
+
 end
 
 % Number of leaves.
@@ -62,8 +62,8 @@ lr = fliplr(rl);
 P = zeros(L);
 
 for j = 1:L
-    
-    P(lr_c == lr(j), j) = 1; 
+
+    P(lr_c == lr(j), j) = 1;
 
 end
 
@@ -75,41 +75,41 @@ xi = [ state.tree(lr).xi ];
 % which do not correspond to at least a single trait being present.
 % As a result, we require a correction term in the likelihood calculation.
 if misdat
-    
+
     % We use P_b to find which xi terms are required. For example, the
     % thinning factor for x_{011} is (1 - xi_2)(1 - xi_3).
     C = sum( x_T .* prod( repmat( (1 - xi), 2^L - 1, 1) .^ borPars(L).P_b , 2) );
     % C = sum( x_T .* prod( 1 - bsxfun(@times, xi, borPars(L).P_b), 2) );
-    
+
 else
-    
+
     % If there is no missing data then the registration process has already
     % been accounted for.
     C = 0;
-    
+
 end
 
 % Accounting for correction when traits present in 1 or less leaves are
 % discarded.
 if LOSTONES
-    
+
     % For p = 011, say, we subtract off xi_2 * (1 - xi_3) + (1 - xi_2) * xi_3 of
     % x_011 in the likelihood calculation.
-    
+
     if misdat
-        
+
         C = C + sum( prod(1 - bsxfun(@times, xi, borPars(L).P_b), 2) ...
             .* x_T .* sum(bsxfun(@times, xi, borPars(L).P_b) ...
             ./ (1 - bsxfun(@times, xi, borPars(L).P_b)), 2) );
-            
+
     else
-    
+
         C = C + sum(x_T(borPars(L).S == 1));
-    
+
     end
-    
+
 end
-    
+
 % Contribution to the full log-likelihood from term not involving pattern
 % counts: -(\sum_{p \in P} x_p - C) = -(\sum_{r \in R} x_r).
 logLik_c = -(sum(x_T) - C) * state.lambda;
@@ -128,7 +128,7 @@ if isstruct(obs)
     % version exists. If not, the corresponding Matlab function.
 	% n_To( fastBi2De_c_par(obs.pattern * P) ) = obs.count;
 	n_To( bi2de(obs.pattern * P, 'left-msb') ) = obs.count;
-    
+
     % Contribution of observed patterns to integrated and full
     % log-likelihoods.
     if ~misdat % No missing data - ignore xis and correction term.
@@ -137,7 +137,7 @@ if isstruct(obs)
         % constants).
         intLogLik_o = sum(n_To .* log(x_T)) - sum(n_To) * log(sum(x_T));
         % Should probably subtract C off here -- check this? LUKE 13/11/2015.
-        
+
         % Log-likelihood of fully-observed data (ignoring constants).
         logLik_o = sum(n_To .* log(x_T * state.lambda));
 
@@ -156,9 +156,9 @@ if isstruct(obs)
         logLik_o = sum(n_To .* log(x_T * prod(xi) * state.lambda));
 
     end
-    
+
 else
-    
+
     % No fully-observed patterns so contribution to log-likelihoods is 0.
     intLogLik_o = 0;
     logLik_o = 0;
@@ -167,19 +167,19 @@ end
 
 % Partially observed patterns.
 if misdat
-    
+
     % Initialising vector of pattern counts.
     n_Tm = zeros( size(miss) );
 
     % Initialising vector of pattern means.
     x_Tm = zeros( size(miss) );
-    
+
     % Populating n_Tm and x_Tm.
     for k = 1:size(miss, 1)
-        
+
         % Populating vector of pattern counts.
         n_Tm(k) = miss(k).count;
-          
+
         % Observation probability.
         v = prod( xi.^(miss(k).pattern * P ~= 2) .* ...
             (1 - xi).^(miss(k).pattern * P == 2) );
@@ -187,9 +187,9 @@ if misdat
         % Missing pattern means.
         % We use parallelised C function for binary-to-decimal operation if it
         % exists. If not, the Matlab function.
-		% x_Tm(k) = sum( x_T( fastBi2De_c_par(miss(k).underlying * P) ) ) * v;        
+		% x_Tm(k) = sum( x_T( fastBi2De_c_par(miss(k).underlying * P) ) ) * v;
         x_Tm(k) = sum( x_T( bi2de(miss(k).underlying * P, 'left-msb') ) ) * v;
-        
+
     end
 
     % Integrated log-likelihood of partially-observed patterns (ignoring
@@ -200,12 +200,12 @@ if misdat
     logLik_m = sum( n_Tm .* log(x_Tm * state.lambda) );
 
 else
-   
+
     % If no partially-observed patterns then no contribution to
     % log-likelihood.
     intLogLik_m = 0;
     logLik_m = 0;
-    
+
 end
 
 % Integrated log-likelihood.
