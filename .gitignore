@@ -2,18 +2,14 @@
 **/*~
 
 # Output files.
-Output/*
-tloutput*
+**/tloutput*
+**/*.par
+**/*.txt
 
 # Files and folders we're not interested in.
-**/old/
-**/oldstuff/
-**/Old/
 pathdef.m
 
 # Matlab and MEX files.
 **/*.mat
 **/*.mex*
-**/*.par
-**/*.txt
-**/*_info
+
