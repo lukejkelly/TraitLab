@@ -1,5 +1,6 @@
 /*
  * fastBi2De.c - convert binary arrays to decimal vectors.
+ * Adapted from a similar function by written by Giovanni Motta.
  *
  * The calling syntax is:
  *

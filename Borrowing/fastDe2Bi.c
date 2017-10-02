@@ -1,6 +1,6 @@
 /*
  * fastDe2Bi_c_par.c - convert decimal vectors to binary arrays.
- * Adapted from a similar function by Giovanni Motta.
+ * Adapted from a similar function written by Giovanni Motta.
  *
  * The calling syntax is:
  *
