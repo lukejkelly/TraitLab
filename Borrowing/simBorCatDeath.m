@@ -1,4 +1,4 @@
-function[ D ] = SimBorCatDeath(tEvents, tr)
+function[ D ] = simBorCatDeath(tEvents, tr)
 % Function to simulate patterns on a catastrophe tree with borrowing and
 % branch deaths.
 % -- tEvents is the output of stype2Events detailing branching, death and
@@ -21,25 +21,25 @@ for k = 1:( size(tEvents, 2) - 1 )
 
     % Total number of branches
   	L = tEvents(k).L;
-    
+
     % Total number of branches still alive.
     L_a = L - length( tEvents(k).K );
-    
+
     % Indices of alive and dead branches.
     a_inds = 1:L;
     a_inds( L + 1 - tEvents(k).K ) = [];
     d_inds = L + 1 - tEvents(k).K;
-    
+
     if tEvents(k).type == 1 % Branching event.
-        
+
         % Branching location.
-        loc = tEvents(k).loc;        
-        
+        loc = tEvents(k).loc;
+
         % Pass D across branching event.
-        D = D( :, [ 1:( L - loc), (L - loc):(L - 1) ] ); 
-        
+        D = D( :, [ 1:( L - loc), (L - loc):(L - 1) ] );
+
     elseif tEvents(k).type == 2 % Catastrophe event.
-        
+
         % Some parameters.
         len = - log(1 - kappa) / mu;
         cat_loc = L + 1 - tEvents(k).loc; % Counting from right.
@@ -54,7 +54,7 @@ for k = 1:( size(tEvents, 2) - 1 )
             tlambda = lambda; % Birth rate on cat_loc
             tmu = mu * sum( D(:, cat_loc) ); % Likewise deaths.
             tbeta = beta * sum( sum( D(:, a_inds) ) ); % Borrow from extant branches.
-        
+
             dt = exprnd( 1 / (tlambda + tmu + tbeta) );
 
             if t + dt < len
@@ -71,9 +71,9 @@ for k = 1:( size(tEvents, 2) - 1 )
                     v(cat_loc) = 1;
 
                     D = [ D; v ];
-                        
+
                 elseif etype == 2 % Trait death.
-                  
+
                     % Find indices of traits that are present.
                     inds = find( D(:, cat_loc) == 1 );
 
@@ -94,7 +94,7 @@ for k = 1:( size(tEvents, 2) - 1 )
                     if a_inds( logical(c_ind) ) == cat_loc
 
                         D( logical(r_ind), cat_loc ) = 1;
-                        
+
                     end
 
                 end % End if.
@@ -105,9 +105,9 @@ for k = 1:( size(tEvents, 2) - 1 )
             t = t + dt;
 
         end % End while.
-        
+
     end % End if.
- 
+
     % Some parameters.
     len = tEvents(k).time - tEvents(k + 1).time;
     t = 0;
@@ -117,8 +117,8 @@ for k = 1:( size(tEvents, 2) - 1 )
         % Time to next event is exponential.
         tlambda = lambda * L_a;
         tmu = mu * sum( sum( D(:, a_inds) ) );
-        tbeta = beta * sum( sum( D(:, a_inds) ) );        
-        
+        tbeta = beta * sum( sum( D(:, a_inds) ) );
+
         dt = exprnd( 1 / (tlambda + tmu + tbeta) );
 
         if t + dt < len
@@ -133,7 +133,7 @@ for k = 1:( size(tEvents, 2) - 1 )
                 % Choose a branch and create the pattern of size one.
                 v = zeros(1, L);
                 v( a_inds( logical( mnrnd(1, ones(1, L_a) / L_a) ) ) ) = 1;
-                
+
                 % Add on a randomly chosen pattern of size 1 to D.
                 D = [ D; v ];
 
@@ -147,7 +147,7 @@ for k = 1:( size(tEvents, 2) - 1 )
                 % Select an entry to kill.
                 c_ind = logical( mnrnd(1, D(r_ind, a_inds) / ...
                     sum( D(r_ind, a_inds) ) ) );
-                
+
                 % Set the corresponding entry in D to zero.
                 D(r_ind, a_inds(c_ind) ) = 0;
 
@@ -161,10 +161,10 @@ for k = 1:( size(tEvents, 2) - 1 )
 
                 % Select a slot to transfer to.
                 c_ind = logical( mnrnd(1, ones(1, L_a) / L_a) );
-                
+
                 % Set the corresponding entry in D to 1.
                 D(r_ind, a_inds(c_ind) ) = 1;
-                
+
             end % End if.
 
         end % End if.
