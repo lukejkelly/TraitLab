@@ -16,7 +16,8 @@ state=tree2state(s);
 %TODO check that this doesn't lead to any problems; should ListOfCats
 %always be something? RJR 28/02/07
 %GKN added isempty Jan 08
-if nargin<=8 || isempty(ListOfCats) 
+% LJK added all(ListOfCats == 0) for true state when taxa dropped.
+if nargin<=8 || isempty(ListOfCats) || all(ListOfCats == 0)
     ListOfCats=zeros(2*state.NS,1);
     if DONTMOVECATS
         for i=1:2*state.NS
