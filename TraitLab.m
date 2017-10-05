@@ -3,7 +3,7 @@ function varargout = TraitLab(varargin)
 
 GlobalSwitches;
 GlobalValues;
-addpath guifiles Borrowing
+addpath core guifiles borrowing
 
 if nargin == 0  % LAUNCH GUI
 

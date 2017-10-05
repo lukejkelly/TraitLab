@@ -10,12 +10,12 @@ We extend the _Stochastic Dollo_ model ([Nicholls and Gray, 2008][1]; [Ryder and
 
 The code is in Matlab and requires the standard installation with the exception of `bi2de` and `de2bi` from the _Communication Systems_ toolbox. If `bi2de` and `de2bi` are unavailable then _MEX_ implementations of these functions can be compiled from within the _TraitLab_ folder by
 ```Matlab
-addpath Borrowing
+addpath borrowing
 mexFiles
 ```
 The compiled functions have the same names and syntaxes as their _Communication Systems_ counterparts.
 
-> If you have OpenMP then you can compile the functions to run in parallel by uncommenting the relevant parts of _mexFiles.m_, _fastBi2De.c_ and _fastDe2Bi.c_ in _Borrowing_.
+> If you have OpenMP then you can compile the functions to run in parallel by uncommenting the relevant parts of _mexFiles.m_, _fastBi2De.c_ and _fastDe2Bi.c_ in _borrowing_.
 
 I've checked the Matlab code on Linux, Mac and PC and the C code on Linux (gcc) and Mac (Clang). Get in touch if you have any issues.
 
@@ -56,13 +56,13 @@ If you opt to start from the true tree in the Nexus file or a tree in an output 
 
 ### Example
 
-The Nexus file for the synthetic data with lateral transfer example (_SIM-B_) in [Kelly (2016, Chapter 4)][4] and [Kelly and Nicholls (2017, supplement)][5] is included in the _Data_ folder.
+The Nexus file for the synthetic data with lateral transfer example (_SIM-B_) in [Kelly (2016, Chapter 4)][4] and [Kelly and Nicholls (2017, supplement)][5] is included in the _data_ folder.
 
 ---
 
 ## Description of algorithm
 
-With some minor adjustments to the MCMC algorithm (to account for extra parameter and the fact that catastrophe locations are included in the state), the lateral transfer code in _Borrowing_ focuses on the likelihood calculation.
+With some minor adjustments to the MCMC algorithm (to account for the extra parameter and the fact that catastrophe locations are included in the state), the lateral transfer code in _borrowing_ focuses on the likelihood calculation.
 
 * `borrowingParameters` stores persistent variables for manipulating patterns and calculating expected pattern frequencies and the likelihood.
 * `stype2Events` embeds the tree in the plane and reads off the branching, catastrophe and extinction events on the tree in order from the root to the leaves.
@@ -75,14 +75,14 @@ If you are interested in the system for estimating the likelihood parameters in 
 
 ## Synthetic data
 
-To generate a synthetic data set, do not use the GUI, rather use the `simBorCatDeath` function in _Borrowing_ as described below.
+To generate a synthetic data set, do not use the GUI, rather use the `simBorCatDeath` function in _borrowing_ as described below.
 
-To generate data from the same process as _SIM-B_ in the _Data_ folder, within the main _TraitLab_ folder run:
+To generate data from the same process as _SIM-B_ in the _data_ folder, within the main TraitLab folder run:
 
 ```matlab
 % Set up global variables and workspace.
 GlobalSwitches; GlobalValues;
-addpath guifiles Borrowing;
+addpath core guifiles borrowing;
 
 % Generate an isochronous ten-leaf tree with exponential branching rate 0.001.
 L = 10;
@@ -95,7 +95,7 @@ s(leaves(1)).time = rand * s(s(leaves(1)).parent).time;
 draw(s);
 
 % Alternatively, one could read in a tree. For example,
-%   s = nexus2stype(['Data', filesep, 'SIM_B.nex']);
+%   s = nexus2stype(['data', filesep, 'SIM_B.nex']); draw(s);
 
 % Adding catastrophes. The catastrophe location gives the relative position of
 % a catastrophe a long the branch from s(i).time to s(s(i).parent).time.
@@ -134,7 +134,7 @@ end
 
 % Write to Nexus file.
 sFile = stype2nexus(s, '', 'BOTH', '', '');
-fid = fopen(['Data', filesep, 'SIM_B_10.nex'], 'w');
+fid = fopen(['data', filesep, 'SIM_B_10.nex'], 'w');
 fprintf(fid, sFile);
 fclose(fid);
 ```

@@ -1,6 +1,7 @@
 GlobalSwitches
 GlobalValues
-addpath('guifiles') %commented out GKN Feb 08; added back in RJR 16 Mar 2011
+addpath('core') % Luke 05/10/2017
+addpath('guifiles') %commented out GKN Feb 08; added back in RJRï¿½16ï¿½Mar 2011
 
 a = readrunfile('batchtlinput.txt');
 for i = 1:length(a{1})
@@ -35,7 +36,7 @@ if ~isempty(x) && x == length(Output_file_name)-3
     disp('Discarding .nex extension from Output_file_name')
     Output_file_name = Output_file_name(1:x-1);
 end
-    
+
 
 % make sure dont overwrite old run
 if exist([Output_path_name Output_file_name '.nex'],'file') && ~strcmp('tloutput',Output_file_name)
@@ -132,7 +133,7 @@ RMIR=0;
 MIR=0;
 
 if MCT
-    if exist('Random_initial_cat_death_prob','var') && Random_initial_cat_death_prob 
+    if exist('Random_initial_cat_death_prob','var') && Random_initial_cat_death_prob
         MIK=rand;
         RMIK=1;
     elseif exist('Initial_cat_death_prob','var')
@@ -141,7 +142,7 @@ if MCT
         warning('Catastrophes included, but no value set for kappa (probability of death at a catastrophe). Setting at 0.2.')
         MIK=.2;
     end
-    
+
     if exist('Random_initial_cat_rate','var') && Random_initial_cat_rate
         MIR=rand;
         RMIR=1;
@@ -150,9 +151,9 @@ if MCT
     else
         warning('Catastrophes included, but no value set for rho (rate of catastrophes). Setting at 0.002.')
         MIR=.002;
-    end   
+    end
 end
-    
+
 if exist('Model_missing','var')
     MISS = Model_missing;
 else
@@ -203,19 +204,19 @@ switch find(vals)
                 MT.tree = rnextree(oldoutput.trees{TN});
                 warning('Parameters values from same output as tree');
                 %GKN 18/3/11 alter whatever we concluded above
-                MT.mu = oldoutput.stats(4,TN); 
+                MT.mu = oldoutput.stats(4,TN);
                 MIK = oldoutput.stats(8,TN);
-                MIR = oldoutput.stats(9,TN); 
+                MIR = oldoutput.stats(9,TN);
                 IM=MT.mu;
                 MT.rho=MIR;
                 MT.p=1;
                 MT.kappa=MIK;
-                
+
                 %Add catastrophes %GKN 18/3/11 was '.cat.nex'
                 if MCT && exist([MIF(1:end-4) 'cat.nex'],'file')
                     scat=rnextree(oldoutput.cattrees{TN});
                     [MT.tree MT.cat]=CatTreeToList(scat,MT.tree);
-                else                    
+                else
                     MT.cat = [];
                 end
                 % estimate theta at 1/E[edge length]
@@ -248,7 +249,7 @@ end
 IC = Impose_clades;
 if IC
     CL = data.clade;
-    if ~isempty(data.clade) 
+    if ~isempty(data.clade)
         disp(sprintf('%1.0f clades found in file',length(data.clade)));
         for hdci=1:length(data.clade)
             disp([sprintf('Clade %3d ',hdci),sprintf(' %s',data.clade{hdci}.language{:})]);
@@ -270,9 +271,9 @@ if ~exist('Omit_clade_ages_list'), Omit_clade_ages_list=''; end  % For backwards
  BF = 0.15;
  PS=1;
  IP=1;
- 
 
-    
+
+
 
 %write the control variables into structures used by fullsetup
 fsu=pop('fsu');
@@ -301,7 +302,7 @@ fsu.MCMCINITMU        = IM    ;  %RJR 15 Mar 2011
 fsu.MCMCINITP         = IP     ;  %ignored anyway
 fsu.MCMCINITTHETA     = IT    ;
 fsu.VARYKAPPA         = MCT   ;  %RJR 15 Mar 2011
-fsu.VARYMU            = VARYMU; %RJR 15 Mar 2011 
+fsu.VARYMU            = VARYMU; %RJR 15 Mar 2011
 fsu.VARYRHO           = MCT   ;  %RJR 15 Mar 2011
 fsu.MCMCMISS          = MISS ; %RJR 15 Mar 2011
 fsu.RANDOMKAPPA       = RMIK;
@@ -331,7 +332,7 @@ fsu.SYNTHCLADES       = 0     ;  %GKN CHANGE Jan 08
 fsu.SYNTHCLADESACCURACY = 0   ;  %GKN CHANGE Jan 08
 fsu.SYNTHCLADESTIMES  = 0     ;  %GKN CHANGE Jan 08
 fsu.NUMSYNTHCLADES    = 0     ;  %GKN CHANGE Jan 08
-fsu.MISDAT            = MISS     ;  %RJR 17 Mar 2011
+fsu.MISDAT            = MISS     ;  %RJR 17ï¿½Mar 2011
 fsu.LOSSRATEBRANCHVAR = 0     ;  %GKN CHANGE Jan 08
 fsu.LOSSRATECLASSVAR  = 0     ;  %GKN CHANGE Jan 08
 
