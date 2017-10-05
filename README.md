@@ -2,7 +2,7 @@
 
 ## Description
 
-We extend the _Stochastic Dollo_ model ([Nicholls and Gray, 2008][1]; [Ryder and Nicholls, 2011][2]) implementation in _[TraitLab][6]_ [(Nicholls, Ryder and Welch)][3] to include lateral trait transfer ([Kelly, 2016][4]; [Kelly and Nicholls, 2017][5]).
+We extend the _Stochastic Dollo_ model ([Nicholls and Gray, 2008][1]; [Ryder and Nicholls, 2011][2]) implementation in [TraitLab][6] [(Nicholls, Ryder and Welch)][3] to include lateral trait transfer ([Kelly, 2016][4]; [Kelly and Nicholls, 2017][5]).
 
 ---
 
@@ -32,8 +32,9 @@ To run an experiment using the GUI:
 * Set the options for lateral transfer (enable/disable; set initial beta or randomise; allow beta to vary over a MCMC run)
 * Proceed according to the instructions in the [manual][3]
 
+> Traits recorded in a single taxon are evidence against lateral transfer so uncheck the option _'Account for rare traits'_ to keep these traits in the analysis.
 
-To analyse samples at the end of a run, open the analysis GUI from the toolbar in the main _TraitLab_ GUI.
+To analyse samples at the end of a run, open the analysis GUI from the toolbar in the main TraitLab GUI.
 
 **Goodness-of-fit:** If you are interested in performing the various goodness-of-fit tests described in [Kelly (2016)][4] and [Kelly and Nicholls (2017)][5] using Savage--Dickey ratios, the Wang--Landau algorithm, etc., then do get in touch.
 
@@ -77,7 +78,7 @@ If you are interested in the system for estimating the likelihood parameters in 
 
 To generate a synthetic data set, do not use the GUI, rather use the `simBorCatDeath` function in _borrowing_ as described below.
 
-To generate data from the same process as _SIM-B_ in the _data_ folder, within the main TraitLab folder run:
+To generate data from the same process as _SIM-B_ in the _data_ folder, within the main _TraitLab_ folder run:
 
 ```matlab
 % Set up global variables and workspace.
