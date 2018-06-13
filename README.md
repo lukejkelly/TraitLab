@@ -117,6 +117,12 @@ When nodes times may be negative, one must comment out the following lines in `g
 64: end
 ```
 
+Note that allowing leaf times to vary over large ranges can lead to huge variation in the tree height. If we are placing an approximately flat prior on the root time and we specify clades that do not have upper bounds (on the node time before present), and we do not want the root time to be affected by an offset leaf, then we need to edit `core/LogPrior.m` to ignore the corresponding leaf:
+```matlab
+13: height = s(Root).time - max(min([s.time]), 0);
+```
+assuming the most recent time of the remaining leaves is 0. Similarly, for a Yule prior then you would need account for it in calculating `tl` in line 9.
+
 To generate samples from the prior, the simplest option is to replace
 ```matlab
 4: [intLogLik, logLkd] = logLkd2_m( state );
