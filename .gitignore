@@ -1,15 +1,13 @@
-# Backups.
+# Backups
 **/*~
 
-# Output files.
+# Output files
 **/tloutput*
 **/*.par
 **/*.txt
+**/*.nex
+**/*_info
 
-# Files and folders we're not interested in.
-pathdef.m
-
-# Matlab and MEX files.
+# Matlab and MEX files
 **/*.mat
 **/*.mex*
-
