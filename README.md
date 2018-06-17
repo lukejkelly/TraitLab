@@ -140,16 +140,24 @@ To compute Savage–Dickey ratios and plot the output, we use the functions in t
 GlobalSwitches; GlobalValues;
 addpath core guifiles borrowing goodnessOfFit;
 
-% Getting node times
+% Where I kept the output files for my goodness-of-fit analyses
 pathToPriorSamples = 'output/SIM_B_P_C3.nex';
 pathToSDLTSamples  = 'output/SIM_B_B_C3.nex';
 pathToSDSamples    = 'output/SIM_B_N_C3.nex';
 
-constraints     = [200, 500];
-ancestorOfNodes = {'6', '7', '8', '9', '10'};
-referenceNode   = '2';
-sampInds        = 10002:1:30001;
+% Each output file contains 1 initial state and 30,000 samples (thinned from a
+% chain with 3 million iterations); we discard the first 10,001 entries as
+% burn-in and analyse the rest
+sampInds = 10002:1:30001;
 
+% The node is the most recent common ancestor of leaves 6–10; the age range of
+% the constraint is 200 to 500 years before the reference node (at time 0 here,
+% see note below for more details)
+ancestorOfNodes = {'6', '7', '8', '9', '10'};
+constraints     = [200, 500];
+referenceNode   = '2';
+
+% Getting sampled node times for each model
 p = getConstraintNodeTimes(pathToPriorSamples, ancestorOfNodes, sampInds, ...
                            referenceNode);
 b = getConstraintNodeTimes(pathToSDLTSamples,  ancestorOfNodes, sampInds, ...
@@ -181,7 +189,7 @@ xlabel('Model', 'Interpreter', 'LaTeX');
 ylabel('Log-Savage--Dickey ratio', 'Interpreter', 'LaTeX'); ;
 
 ```
-We need to specify a reference node for `getConstraintNodeTimes` as when the tree is written to file, the node times times are shifted so that the most recent node has time 0. This is only an issue for unconstrained leaf nodes as we do not allow ancestral node times to drop below their offspring at time 0.
+We need to specify a reference node for `getConstraintNodeTimes` as when the tree is written to file, the node times times are shifted so that the most recent node has time 0. This is only an issue for unconstrained leaf nodes which can have negative node times as we do not allow ancestral node times to drop below their offspring at time 0.
 
 ---
 ## Synthetic data
