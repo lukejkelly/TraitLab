@@ -83,8 +83,8 @@ If you are interested in the system for estimating the likelihood parameters in 
 ## Goodness-of-fit
 
 If you are interested in performing the various goodness-of-fit tests described in [Ryder and Nicholls, (2011)][2], [Kelly (2016)][4] and [Kelly and Nicholls (2017)][5]:
-* Savage–Dickey ratios for node constraints: this section.
-* Bayes factors using the posterior predictive distribution: forthcoming, but get in touch in the meantime.
+* Savage–Dickey ratios for node constraints: below.
+* Bayes factors using the posterior predictive distribution: below.
 * Posterior exploration via Wang–Landau, etc.: forthcoming, but get in touch in the meantime.
 
 ### Savage–Dickey ratios
@@ -191,6 +191,47 @@ ylabel('Log-Savage--Dickey ratio', 'Interpreter', 'LaTeX'); ;
 ```
 We need to specify a reference node for `getConstraintNodeTimes` as when the tree is written to file, the node times times are shifted so that the most recent node has time 0. This is only an issue for unconstrained leaf nodes which can have negative node times as we do not allow ancestral node times to drop below their offspring at time 0.
 
+
+### Bayes factors using the posterior predictive
+To compute Bayes factors using the posterior predictive distribution, we need to fit the model to one partition and compute the poster predictive for the remaining data. The simplest way to do this is to construct training and test partitions of the data as separate nexus input files using goodnessOfFit/partitionData.m. For example:
+```matlab
+addpath goodnessOfFit;
+partitionData('data', 'SIM_B', 2/3);
+```
+randomly splits `data/SIM_B.nex` into `data/SIM_B-train.nex` and `data/SIM_B-test.nex` with roughly two-thirds of the columns in the full data set going into the training partition.
+
+ Currently, the only way to store the locations of catastrophes is to save the state of the chain. To do so, use a global variable, `SAVESTATES`, as a flag:
+```matlab
+global SAVESTATES; SAVESTATES = 1;
+```
+When the next MCMC analysis is started, the `saveStates` directory will be created and the `state` struct will be saved every time the summary statistics are written to file.
+
+Having fitted the model using the training partition of the data, we use the samples from the posterior to estimate the posterior predictive distribution for the test data partition.
+```matlab
+addpath borrowing goodnessOfFit;
+lPL = logPredictiveFromStates(pathToData, testData, outFile, sInds, misDat, ...
+                              lostOnes);
+```
+See `help logPredictiveFromStates` for details of the inputs. `lPL` is an array containing the log predictive likelihood of the test data at each state sampled from the posterior of the model fit to the training data.
+
+To get a more stable estimate of the log marginal predictive likelihood for estimating Bayes factors, use the [log-sum-exp](https://en.wikipedia.org/wiki/LogSumExp#log-sum-exp_trick_for_log-domain_calculations) trick.
+```matlab
+logMeanX = @(logX) max(logX) + log(mean(exp(logX - max(logX))));
+logMeanX(lPL)
+```
+**Note:** The log predictive is based on an unnormalised likelihood; this doesn't matter when comparing the SDLT and SD models as the functional form of the likelihood is the same in both cases, it's how the likelihood parameters are calculated that differs.
+
+For example, if we fit the SD and SDLT models to `data/SIM_B-train.nex` created above, with the output file stems set to `SIM_B-train_N` and `SIM_B-train_B` respectively, then we can estimate a Bayes factor as follows.
+```matlab
+addpath borrowing goodnessOfFit;
+lPL_N = logPredictiveFromStates('data', 'SIM_B-test', 'SIM_B-train_N', ...
+                                sInds, misDat, lostOnes);
+lPL_B = logPredictiveFromStates('data', 'SIM_B-test', 'SIM_B-train_B', ...
+                                sInds, misDat, lostOnes);
+bF = logMeanX(lPL_B) - logMeanX(lPL_N);
+```
+where `sInds` is chosen by the user, and `misDat` (model missing data) and `lostOnes` (discard singleton patterns) match the settings for the experiments (see `Model_missing` and `Account_rare_traits` in the corresponding .par output files).
+
 ---
 ## Synthetic data
 
@@ -267,3 +308,4 @@ The code becomes slower as _lambda_, _mu_, _beta_ and the length of the tree inc
 [4]: https://ora.ox.ac.uk/objects/uuid:6884785c-fccc-4044-b5b2-7a8b7015b2a5
 [5]: https://projecteuclid.org/euclid.aoas/1500537738
 [6]: https://sites.google.com/site/traitlab/
+[7]: https://www.jstor.org/stable/2291091

@@ -1,6 +1,9 @@
 # Backups
 **/*~
 
+# Saved states
+saveStates
+
 # Output files
 **/tloutput*
 **/*.par
