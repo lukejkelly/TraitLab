@@ -3,6 +3,9 @@ GlobalValues
 addpath('core') % Luke 05/10/2017
 addpath('guifiles') %commented out GKN Feb 08; added back in RJR�16�Mar 2011
 
+% Clear persistent variables in SDLT code. LUKE 24/3/20
+clear logLkd2_m patternCounts patternMeans
+
 a = readrunfile('batchtlinput.txt');
 for i = 1:length(a{1})
     switch a{1}{i}
@@ -118,6 +121,22 @@ else
 end
 IM = DeathRate(LR);
 
+% Lateral transfer LJK 23/3/20
+BORROWING = Account_for_lateral_transfer;
+if BORROWING
+    VARYBETA = Vary_borrowing_rate;
+    ISBETARANDOM = Random_initial_borrowing_rate;
+    if ISBETARANDOM
+        % Same initialisation as startbutt_Callback.m
+        MCMCINITBETA = IM * (0.5 + rand);
+    else
+        MCMCINITBETA = Initial_borrowing_rate;
+    end
+else
+    VARYBETA = 0;
+    MCMCINITBETA = 0;
+    ISBETARANDOM = 0;
+end
 
  % Parameters for catastrophes
 if ~exist('Include_catastrophes','var')
@@ -221,6 +240,13 @@ switch find(vals)
                 end
                 % estimate theta at 1/E[edge length]
                 IT = (length(MT.tree)-2)/TreeLength(MT.tree,find([MT.tree.type]==ROOT));
+
+                % Lateral transfer LJK 23/3/20
+                if BORROWING
+                    % We initialise beta = 0 in pop('state').
+                    MT.beta = oldoutput.stats(12, TN);
+                    warning('Catastrophe locations different as not stored in .cat file');
+                end
             else
                 error('\nProblem loading initial tree from file.\nCheck Tree_file_name (%s) and Use_tree number (%g).\nNote that file name must include .nex extension.',MIF,TN)
             end
@@ -243,7 +269,13 @@ switch find(vals)
             disp(sprintf('Ignoring the fixed trait death rate set as starting value (%g)',LossRate(data.true.mu)));
             disp(sprintf('Using the trait death rate %g imported with the true tree to initialise MCMC',LossRate(data.true.mu)));
         end
-
+        MT.beta = data.true.beta;
+        if BORROWING && MT.beta > 0
+            fprintf('Ignoring the trait transfer rate set as starting value (%g) and using\n', MCMCINITBETA);
+            fprintf('the rate %g imported with the true tree to initialise the MCMC instead', MT.beta);
+            MCMCINITBETA = MT.beta;
+            warning('Catastrophe locations different as not stored in .cat file')
+        end
 end
 
 IC = Impose_clades;
@@ -352,5 +384,10 @@ fsu.STRONGCLADES      = SC    ;
 fsu.GUITRUE           = GT    ;
 fsu.GUICONTENT        = GC    ;
 
+% Lateral transfer LJK 23/3/20
+fsu.BORROWING = BORROWING;
+fsu.VARYBETA = VARYBETA;
+fsu.MCMCINITBETA = MCMCINITBETA;
+fsu.ISBETARANDOM = ISBETARANDOM;
 
 runmcmc(fsu);

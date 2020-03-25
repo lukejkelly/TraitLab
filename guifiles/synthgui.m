@@ -9,11 +9,12 @@ GlobalValues;
 if nargin == 0  % LAUNCH GUI
 
 	fig = openfig(mfilename,'reuse');
+    fig.Resize = 'on';  % LJK 12/3/20
 
 	% Use system color scheme for figure:
 	set(fig,'Color',get(0,'defaultUicontrolBackgroundColor'));
 
-	% Generate a structure of handles to pass to callbacks, and store it. 
+	% Generate a structure of handles to pass to callbacks, and store it.
 	handles = guihandles(fig);
     % store any loaded trees as a cell array of tree strings
     handles.tree = {};
@@ -25,7 +26,7 @@ if nargin == 0  % LAUNCH GUI
 	guidata(fig, handles);
 
     set([handles.datafiletxt handles.datadirtxt],{'String'},{handles.file;handles.path})
-    
+
 	if nargout > 0
 		varargout{1} = fig;
 	end
@@ -79,7 +80,7 @@ function datafilebutt_Callback(h, eventdata, handles, varargin)
 [filename pathname] = uiputfile({'*.nex','Nexus file'},'Select or create an output file');
 if ~isequal(filename, 0) && ~isequal(pathname,0)
     if strcmp(strtrunc(filename,4),'.nex')
-        % selected a .nex file 
+        % selected a .nex file
         set([handles.datafiletxt,handles.datadirtxt],{'String'},{filename;pathname});
         handles.path = pathname;
         handles.file = filename;
@@ -111,7 +112,7 @@ GlobalSwitches;
 
 [filename,pathname] = uigetfile({'*.nex','Nexus'},'Choose a nexus file containing trees');
 if isequal(filename,0)||isequal(pathname,0)
-    %no file selected 
+    %no file selected
     disp('No file selected')
 else
     %user selected file - save info in relevant place
@@ -173,7 +174,7 @@ if get(h,'Value')==0
 set([handles.localborrowet,handles.localborrowtxt],'Enable','off')
 else
 set([handles.localborrowet,handles.localborrowtxt],'Enable','on')
-end    
+end
 
 % --------------------------------------------------------------------
 function polymorphet_Callback(h, eventdata, handles, varargin)
@@ -236,7 +237,7 @@ if get(h,'Value')==0
 able([],[],[],[handles.originrb,handles.cladeboundet,handles.numcladeset,handles.rootrb,handles.bothrb]);
 else
 able([],[],[handles.originrb,handles.cladeboundet,handles.numcladeset,handles.rootrb,handles.bothrb],[]);
-end    
+end
 
 
 
@@ -364,12 +365,12 @@ else
     LT = 0;
 end
 LR = str2double(get(handles.muet,'String'));  %LOSSRATE proportion cognates lost in 1000 years
-BF =  0;   % BORROWFRAC borrowing rate as a fraction of the death rate mu   
+BF =  0;   % BORROWFRAC borrowing rate as a fraction of the death rate mu
 LB = OFF;  % LOCALBORROW ON for local borrowing (also need maxdist) or OFF for wide borrowing
 MD = 0;    % MAXDISTance that languages can borrow within
 if get(handles.borrowcb,'Value')
     BO = ON;   %BORROW switch (ON, OFF) simulate borrowing
-    BF =  str2double(get(handles.borrowet,'String')); 
+    BF =  str2double(get(handles.borrowet,'String'));
     if get(handles.localborrowcb,'Value')
         LB = ON;
         MD = str2double(get(handles.localborrowet,'String'));
@@ -403,7 +404,7 @@ else
 end
 
 if get(handles.includecatscb,'Value')
-    MCMCCAT=1; 
+    MCMCCAT=1;
 %     if handles.catsmissing && get(handles.filerb)
 %         disp('Warning: There is no catastrophe file associated with the tree file you selected. Catastrophes will not be included.')
 %         MCMCCAT=0;
@@ -414,9 +415,9 @@ end
 
 if get(handles.rhbranchcb,'Value')
     % rate heterogeneity on branches - get variance parameter
-    RHB =  str2double(get(handles.rhbranchet,'String')); 
+    RHB =  str2double(get(handles.rhbranchet,'String'));
 else
-    RHB =  0; 
+    RHB =  0;
 end
 
 if MCMCCAT
@@ -451,13 +452,13 @@ if get(handles.filerb,'Value')
             CK=1;
         end
     end
-            
-    
+
+
 else
-    NS = str2double(get(handles.langet,'String')); 
-    TH = str2double(get(handles.thetaet,'String')); 
+    NS = str2double(get(handles.langet,'String'));
+    TH = str2double(get(handles.thetaet,'String'));
 end
-        
+
 %write the control variables into structures used by fullsetup
 fsu=pop('fsu');
 fsu.RUNLENGTH         = 1     ;
@@ -491,9 +492,9 @@ fsu.PSURVIVE          = 1     ;
 fsu.BORROW            = BO    ;
 fsu.BORROWFRAC        = BF    ;
 fsu.POLYMORPH         = PM    ;
-fsu.LOCALBORROW       = LB    ;   
-fsu.MAXDIST           = MD    ;     
-fsu.NMEANINGCLASS     = NMC   ; 
+fsu.LOCALBORROW       = LB    ;
+fsu.MAXDIST           = MD    ;
+fsu.NMEANINGCLASS     = NMC   ;
 fsu.MASKING           = MK    ;
 fsu.DATAMASK          = []    ;
 fsu.ISCOLMASK         = OFF   ;
@@ -515,10 +516,10 @@ fsu.MISDAT            =MISDAT;
 data = fullsetup(fsu);
 
 
-% synthesize clades 
+% synthesize clades
 clades = {};
 if get(handles.cladescb,'Value')
-    numclade = str2double(get(handles.numcladeset,'String')); 
+    numclade = str2double(get(handles.numcladeset,'String'));
     % check that the number of clades is less than the number of internal nodes
     if numclade > (data.true.NS - 2)
         fprintf('Number of clades must be less than or equal to number of internal nodes (%1.0f).\n No clades generated\n',data.true.NS-1);
@@ -533,7 +534,7 @@ if get(handles.cladescb,'Value')
         sclde = Clade2Tree(clades);
         fig = pop('output');
         % draw(sclde,fig.cladefig,CONC,'Clade structure schematic'); Not useful: the clades are shown on the complete tree. RJR 23/05/11
-        
+
         for i = 1:length(clades)
             fprintf('Clade %g:',i)
             disp(clades{i})
@@ -562,7 +563,7 @@ if ok
         fprintf('\nProblem with opening %s%s\n  Data not saved\n',handles.path, handles.file);
     end
 else
-    fprintf('\nSynthetic data not saved\n');  
+    fprintf('\nSynthetic data not saved\n');
 end
 fprintf('Data synthesizing complete\n')
 

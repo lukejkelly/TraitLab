@@ -53,7 +53,7 @@ if fid > 0
     fprintf(fid,'%% ONE OF THE FOLLOWING TWO OPTIONS MUST BE 1, THE OTHER 0\n');
     fprintf(fid,'Uniform_prior_on_tree_topologies = %g\n',fsu.TOPOLOGYPRIOR == TOPO);
     fprintf(fid,'Uniform_prior_on_labelled_histories = %g\n',fsu.TOPOLOGYPRIOR == LABHIST);
-    
+
     % fsu.ROOTMAX           = RM    ;
     fprintf(fid,'%% FOLLOWING IS IGNORED UNLESS Flat_prior_on_tree == 1\n');
     fprintf(fid,'Max_root_age = %g\n\n',fsu.ROOTMAX);
@@ -77,7 +77,15 @@ if fid > 0
     fprintf(fid,'Initial_loss_rate = %g\n',fsu.LOSSRATE);
     % fsu.ISLRRANDOM
     fprintf(fid,'Random_initial_loss_rate = %g\n\n',fsu.ISLRRANDOM);
-    
+
+    % Lateral transfer LJK 23/3/20
+    fprintf(fid, 'Account_for_lateral_transfer = %g\n', fsu.BORROWING);
+    fprintf(fid, '%% FOLLOWING IS IGNORED WHEN Account_for_lateral_transfer == 0\n');
+    fprintf(fid, 'Vary_borrowing_rate = %g\n', fsu.VARYBETA);
+    fprintf(fid, 'Random_initial_borrowing_rate = %g\n', fsu.ISBETARANDOM);
+    fprintf(fid, '%% NEXT LINE IS IGNORED WHEN Random_initial_borrowing_rate == 1\n');
+    fprintf(fid, 'Initial_borrowing_rate = %g\n\n', fsu.MCMCINITBETA);
+
     fprintf(fid,'Include_catastrophes = %g\n',fsu.MCMCCAT);
     fprintf(fid,'%% NEXT 6 LINES ARE IGNORED WHEN Include_catastrophes = 0\n');
     fprintf(fid,'%% FOLLOWING IS IGNORED WHEN Random_initial_cat_death_prob = 1\n');
@@ -86,7 +94,7 @@ if fid > 0
     fprintf(fid,'%% FOLLOWING IS IGNORED WHEN Random_initial_cat_rate = 1\n');
     fprintf(fid,'Initial_cat_rate = %g\n',fsu.MCMCINITRHO);
     fprintf(fid,'Random_initial_cat_rate = %g\n\n',fsu.RANDOMRHO);
-    
+
     fprintf(fid,'Model_missing = %g\n\n',fsu.MCMCMISS);
 
     % fsu.RUNLENGTH         = RL    ;
@@ -107,7 +115,7 @@ if fid > 0
     % fsu.OUTPATH           = OP    ;
     fprintf(fid,'%% FULL PATH FOR DIRECTORY TO OUTPUT FILES\n');
     fprintf(fid,'Output_path_name = %s\n\n',fsu.OUTPATH);
-    
+
     %GAP
     if ~isempty(GAP)
         fprintf(fid,'%%Gaps are treated as ');
@@ -115,8 +123,8 @@ if fid > 0
         fprintf(fid,'To change this, edit GlobalValues.m.');
     end
 
-    
-    
+
+
     fclose(fid);
 else
     disp(sprintf('problem opening %s while trying to write .par file',parfilename))

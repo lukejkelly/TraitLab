@@ -59,7 +59,7 @@ if nargin>0
     end
 
     % Saving state for later goodness-of-fit testing
-    if exist('SAVESTATES', 'var') && SAVESTATES == 1
+    if exist('SAVESTATES', 'var') && ~isempty(SAVESTATES) && SAVESTATES == 1
       [~, ~] = mkdir('saveStates');
       save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, 0), 'state');
     end
@@ -126,7 +126,7 @@ for t=start:finish
     end
 
     % Saving state for later goodness-of-fit testing
-    if exist('SAVESTATES', 'var') && SAVESTATES == 1
+    if exist('SAVESTATES', 'var') && ~isempty(SAVESTATES) && SAVESTATES == 1
       save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, t), 'state');
     end
 

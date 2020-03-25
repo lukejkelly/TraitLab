@@ -23,7 +23,7 @@ end
 
 % see if we want to seed the random number generator
 % define SR, SE
-if ok 
+if ok
     if get(handles.seedrandcb,'Value')
         SR = ON; % seeds the rand so runs can be repeated
         SE = str2double(get(handles.seedet,'String'));
@@ -57,18 +57,19 @@ if ok
 end
 
 % Lateral transfer. LUKE 04/09/2016
-[BORROWING, VARYBETA, MCMCINITBETA] = deal(0);
+[BORROWING, VARYBETA, MCMCINITBETA, ISBETARANDOM] = deal(0);
 if ok
     % Are we accounting for lateral transfer with SDLT model?
     BORROWING = handles.allowForLateralTransferCB.Value;
-    
+
     % If so, is beta fixed and what is its initial value?
     if BORROWING
         VARYBETA = handles.varyLateralTransferRateCB.Value;
-        if handles.initialiseLateralTransferRateAtSpecifiedValueRB.Value        
-            MCMCINITBETA = str2double(handles.initialiseLateralTransferRateAtSpecifiedValueEB.String);
-        else            
+        ISBETARANDOM = ~handles.initialiseLateralTransferRateAtSpecifiedValueRB.Value;
+        if ISBETARANDOM
             MCMCINITBETA = IM * (0.5 + rand);
+        else
+            MCMCINITBETA = str2double(handles.initialiseLateralTransferRateAtSpecifiedValueEB.String);
         end
     end
 end
@@ -79,7 +80,7 @@ if ok
     RANDOMRHO=0;
     if get(handles.includecatscb,'Value') %Include catastrophes
         MCMCCAT=1;
-        
+
         % kappa
         kappahandles=[handles.fixkapparb, handles.speckapparb];
         setkappa=get(kappahandles,'Value');
@@ -97,7 +98,7 @@ if ok
             MCMCINITKAPPA = 0.25 + 0.75 * rand; % LUKE 02/10/2017
             RANDOMKAPPA=1;
         end
-        
+
         %rho
         rhohandles=[handles.fixrhorb handles.specrhorb];
         setrho=get(rhohandles,'Value');
@@ -129,7 +130,7 @@ end
 if ok
     MCMCMISS=get(handles.missingdatacb,'Value');
 end
-    
+
 
 % find what kind of initial tree we have
 % define MI, IT, MIF, MT, TN
@@ -142,25 +143,25 @@ if ok
         disp('More than one intial tree type chosen')
         ok = 0;
     end
-    if ok 
+    if ok
         switch val
         case 1
             % use Exptree to generate random initial tree
-            MI = EXPSTART;  
+            MI = EXPSTART;
             IT = str2double(get(handles.initthetaet,'String'));
         case 2
             % use a tree stored in a nexus output file to start
-            MI = OLDSTART; 
+            MI = OLDSTART;
             MIF = [handles.oldstart.path handles.oldstart.file];
 % TODO values of handles.tree.path etc not loaded in Language:treefilebutt_Callback()
-%            MIF = [handles.tree.path handles.tree.file]; 
+%            MIF = [handles.tree.path handles.tree.file];
             if isempty(MIF)
                 fprintf('\nYou need to specify an output tree file from which to start\n')
                 ok=0;
             else
                 TN  = str2double(get(handles.numtreeet,'String'));
                 if ok && TN <= length(handles.tree.output.trees)
-                    % make sure that there 
+                    % make sure that there
                     MT = pop('state');
                     MT.tree = rnextree(handles.tree.output.trees{TN});
                     %TODO this is dangerous - if the columns of
@@ -187,7 +188,7 @@ if ok
                         end
                         s=MT.tree;
                         sc=rnextree(handles.tree.output.cattrees{TN});
-                        %removed legacy code for cattreetolist in svn version < 146 
+                        %removed legacy code for cattreetolist in svn version < 146
                         [MT.tree MT.cat]=CatTreeToList(sc,s); % RJR 17�Mar 2011
                     else
                         MT.kappa = MCMCINITKAPPA;
@@ -196,11 +197,12 @@ if ok
                     end
                     % estimate theta at 1/E[edge length]
                     IT = (length(MT.tree)-2)/TreeLength(MT.tree,find([MT.tree.type]==ROOT));
-                    
+
                     % Lateral transfer. LUKE 04/09/2016
                     if BORROWING
                         % We initialise beta = 0 in pop('state').
                         MT.beta = handles.tree.output.stats(12, TN);
+                        warning('Catastrophe locations different as not stored in .cat file');
                     end
                 else
                     fprintf('\nTree number %1.0f does not exist in the file %s \n',TN,MIF)
@@ -208,7 +210,7 @@ if ok
                 end
             end
         case 3
-            % use true tree to start from 
+            % use true tree to start from
             MI = TRUSTART;
             IT = handles.data.true.theta;
             MT = pop('state');
@@ -225,13 +227,14 @@ if ok
                 fprintf('Ignoring the fixed trait death rate set as starting value (%g)\n',LossRate(handles.data.true.mu));
                 fprintf('Using the trait death rate %g imported with the true tree to initialise MCMC',LossRate(handles.data.true.mu));
             end
-                
+
             % Lateral transfer. LUKE 04/09/2016
             MT.beta = handles.data.true.beta;
             if BORROWING && MT.beta > 0
                 fprintf('Ignoring the trait transfer rate set as starting value (%g) and using\n', MCMCINITBETA);
-                fprintf('the rate %g imported with the true tree to initialise the MCMC instead', MT.beta);                
+                fprintf('the rate %g imported with the true tree to initialise the MCMC instead', MT.beta);
                 MCMCINITBETA = MT.beta;
+                warning('Catastrophe locations different as not stored in .cat file')
             end
         end
     end
@@ -241,7 +244,7 @@ end
 % need to define VB, OP and OF
 if ok
     vals = get([handles.drawtreescb handles.plotstatscb handles.quietcb],'Value');
-    [dt,ds,qu] = deal(vals{:});  
+    [dt,ds,qu] = deal(vals{:});
     if qu
         VB = QUIET;
     elseif dt && ds
@@ -250,7 +253,7 @@ if ok
         VB = JUSTT;
     elseif ds
         VB = JUSTS;
-    else 
+    else
         VB = COUNT;
     end
     % make sure that we have an output file
@@ -260,9 +263,9 @@ if ok
         OP = get(handles.outdirtxt,'String');
     else
         OF = handles.output.file;
-        OP = handles.output.path;        
+        OP = handles.output.path;
     end
-    
+
 end
 
 % find what kind of data we have
@@ -286,7 +289,7 @@ if ok
     if isempty(handles.data.file)
         disp('No data file is loaded')
         ok = 0;
-% These next 4 lines commented out by RJR 23/05/11. What are they for?        
+% These next 4 lines commented out by RJR 23/05/11. What are they for?
 %     elseif isempty(handles.data.array)==0
 %         disp(['No data in file ' handles.data.path handles.data.file])
 %         DFS = [handles.data.path handles.data.file];
@@ -295,7 +298,7 @@ if ok
         DFS = [handles.data.path handles.data.file];
     end
 end
-if ok 
+if ok
         % called from gui these parameters are arbirtary
     ST = NEWTRE;
     STF = '';
@@ -324,7 +327,7 @@ if ok
     LT = LO;
     % are we fixing the tree or not?
     VT = get(handles.varytopcb,'Value');
-    
+
     if get(handles.uniformpriorrb,'Value')==1
         TOPOLOGYPRIOR=TOPO;
     else
@@ -350,7 +353,7 @@ if ok
                 disp([maskstr ' is not a valid vector of taxa to omit'])
                 ok = 0;
             else
-                % check that all numbers are natural less than number of languages 
+                % check that all numbers are natural less than number of languages
                 if any(floor(mask)~=mask) || mask(1) < 1 || mask(end) > NS
                     fprintf('Taxa to omit must be a vector of integers between 1 and %1.0f \n',NS)
                     ok = 0;
@@ -367,7 +370,7 @@ end
 % need to define ICM and CM
 if ok
     ICM=OFF; %is clade mask ON or OFF
-    CM=[];  % Clade mask 
+    CM=[];  % Clade mask
     if get(handles.cogmaskcb,'Value') && strcmp(get(handles.cogmaskcb,'Enable'),'on');
         % we are to mask given languages check they are valid
         ICM =ON;
@@ -388,13 +391,13 @@ end
 
 %get clade info
 %need to define IC, CL and CLM
-if ok 
+if ok
     IC = OFF;
     CL = [];
     CLM = [];
     CLAM=[];
-    if (get(handles.cladescb,'Value') == 1) && strcmp(get(handles.cladescb,'Enable'), 'on') 
-		% impose the clades         
+    if (get(handles.cladescb,'Value') == 1) && strcmp(get(handles.cladescb,'Enable'), 'on')
+		% impose the clades
         IC = ON;
         CL = handles.data.clade;
         % see whether we need to get rid of any of the clades
@@ -429,7 +432,7 @@ if ok && (NS - length(DM)) < 2
 %    disp(sprintf('\nData and inital tree don''t match: \n Data has %1.0f languages \n of which %1.0f are to be masked, leaving %1.0f \n but Initial Tree has %1.0f leaves',[NS,length(DM),NS - length(DM),length(MT.tree)/2]));
 %    ok = 0;
 %end
-if ok && (MI == OLDSTART) 
+if ok && (MI == OLDSTART)
     initleafnames = sort({MT.tree(find([MT.tree.type]==LEAF)).Name}'); %#ok<UDIM,FNDSB>
     dataleafnames = sort(handles.data.language(setdiff(1:NS,DM)));
     if (~isequal(initleafnames,dataleafnames) && MK==OFF) || (MK==ON && ~isequal(sort(setdiff(initleafnames,dataleafnames)),sort(handles.data.language(DM))))
@@ -445,12 +448,12 @@ if ok
     IP=1;
   %  try
         % run the MCMC unless there is an error
-        
+
         % configure buttons for run mode
         set(h,'Enable','off');
         set(handles.statustxt,'String','Running');
         set([handles.pausebutt,handles.stopbutt],'Enable','on');
-              
+
         %write the control variables into structures used by fullsetup
 	    fsu=pop('fsu');
         fsu.RUNLENGTH         = RL    ;
@@ -483,8 +486,8 @@ if ok
         fsu.PSURVIVE          = PS    ;
         fsu.BORROW            = BW    ;
         fsu.BORROWFRAC        = BF    ;
-        fsu.LOCALBORROW       = OFF   ;   
-        fsu.MAXDIST           = 0     ;     
+        fsu.LOCALBORROW       = OFF   ;
+        fsu.MAXDIST           = 0     ;
         fsu.POLYMORPH         = OFF   ;  %TODO XXX FIX CHECKBOXES
         fsu.MASKING           = MK    ;
         fsu.DATAMASK          = DM    ;
@@ -510,17 +513,18 @@ if ok
         fsu.MCMCINITRHO       = MCMCINITRHO;
         fsu.VARYMU            = VARYMU;
         fsu.MCMCINITLAMBDA    = 1.5e-3; % TODO: remove all instances of lambda everywhere. This value will never be needed (we are integrating lambda out). RJR 19-03-09
-        fsu.MCMCMISS          = MCMCMISS; 
-        MISDAT                = MCMCMISS; % swapped this line and next 
-        fsu.MISDAT            = MISDAT;   % 19/8/10 GKN 
+        fsu.MCMCMISS          = MCMCMISS;
+        MISDAT                = MCMCMISS; % swapped this line and next
+        fsu.MISDAT            = MISDAT;   % 19/8/10 GKN
         fsu.TOPOLOGYPRIOR     = TOPOLOGYPRIOR;
-	
+
         % Lateral transfer. LUKE 04/09/2016
         fsu.BORROWING         = BORROWING;
         fsu.VARYBETA          = VARYBETA;
         fsu.MCMCINITBETA      = MCMCINITBETA;
-        
-        
+        fsu.ISBETARANDOM      = ISBETARANDOM;  % LUKE 24/3/20
+
+
         runmcmc(fsu,handles,h);
 else
     set(handles.statustxt,'String','Idle');

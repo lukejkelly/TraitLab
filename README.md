@@ -34,6 +34,17 @@ To run an experiment using the GUI:
 
 > Traits recorded in a single taxon are evidence against lateral transfer so uncheck the option _'Account for rare traits'_ to keep these traits in the analysis.
 
+Alternatively, experiments can be run in batch mode. The full details are in the [manual][3] with the addition of the following lines in the _.par_ file. For example, to account for lateral transfer with a random initial value and explore the corresponding posterior:
+```
+Account_for_lateral_transfer = 1
+% FOLLOWING IS IGNORED WHEN Account_for_lateral_transfer == 0
+Vary_borrowing_rate = 1
+Random_initial_borrowing_rate = 1
+% NEXT LINE IS IGNORED WHEN Random_initial_borrowing_rate == 1
+Initial_borrowing_rate = 0.00184681
+```
+Copy the _.par_ file you want to use to the TraitLabSDLT directory root with the filename _batchtlinput.txt_. Alternatively, create a symlink. In the Matlab console, execute `batchTraitLab`, or from Bash do `matlab -r "batchTraitLab; exit"`.
+
 To analyse samples at the end of a run, open the analysis GUI from the toolbar in the main TraitLab GUI.
 
 For goodness-of-fit, see the section below.
@@ -52,12 +63,13 @@ This is important when specifying clade constraints. We return to this in the se
 If catastrophes are included and:
 * The option to fix the catastrophe rate, _rho_, at a value is selected, then the number of catastrophes on each branch of the tree _a priori_ is a Poisson random variable
 * The option to allow _rho_ to vary is selected, then we integrate _rho_ out analytically and the number of catastrophes on each branch is a Negative Binomial random variable.
+* When starting runs from a tree in the output file, say, the initial catastrophe tree will be different as catastrophe locations are currently not stored in an output file. See the section 'Bayes factors using the posterior predictive' below for more details.
 
 MCMC moves on _rho_ have been disabled as a consequence. See Chapter 2 of [Kelly (2016)][4] or the supplement of [Kelly and Nicholls (2017)][5] for further details on this calculation
 
-If you opt to start from the true tree in the Nexus file or a tree in an output file, the value for _beta_ in the file (if any) will be used to initialise the MCMC chain, the value in the GUI will be used otherwise.
+If you opt to start from the true tree in the Nexus file or a tree in an output file, the value for _beta_ in the file (if any) will be used to initialise the MCMC chain; the value in the GUI will be used otherwise.
 
-**Note:** I will update the code to run in batch mode (where you specify options in a _.par_ file instead) shortly; please let me know if you are interested in this.
+Repeating an experiment with seeded random numbers from the GUI using batch mode and vice versa will produce different results due to the order in which components of initialisation are executed.
 
 ---
 
@@ -121,7 +133,7 @@ Note that allowing leaf times to vary over large ranges can lead to huge variati
 ```matlab
 13: height = s(Root).time - max(min([s.time]), 0);
 ```
-assuming the most recent time of the remaining leaves is 0. Similarly, for a Yule prior then you would need account for it in calculating `tl` in line 9.
+assuming the most recent time of the remaining leaves is 0. Similarly, for a Yule prior then you would need to account for it in calculating `tl` in line 9.
 
 To generate samples from the prior, the simplest option is to replace
 ```matlab
@@ -200,7 +212,7 @@ partitionData('data', 'SIM_B', 2/3);
 ```
 randomly splits `data/SIM_B.nex` into `data/SIM_B-train.nex` and `data/SIM_B-test.nex` with roughly two-thirds of the columns in the full data set going into the training partition.
 
- Currently, the only way to store the locations of catastrophes is to save the state of the chain. To do so, use a global variable, `SAVESTATES`, as a flag:
+ Currently, the only way to store the locations of catastrophes is to save the state of the chain. To do so, use the global variable `SAVESTATES` as a flag:
 ```matlab
 global SAVESTATES; SAVESTATES = 1;
 ```
