@@ -69,7 +69,10 @@ MCMC moves on _rho_ have been disabled as a consequence. See Chapter 2 of [Kelly
 
 If you opt to start from the true tree in the Nexus file or a tree in an output file, the value for _beta_ in the file (if any) will be used to initialise the MCMC chain; the value in the GUI will be used otherwise.
 
+## Seeded random numbers
 Repeating an experiment with seeded random numbers from the GUI using batch mode and vice versa will produce different results due to the order in which components of initialisation are executed.
+
+**April 2020:** Some initialisation functions (e.g. `pop` called in `TraitLab`) modify the state of the random number generator before the seed is set in `fullsetup>initMCMC` after the 'Start' button is clicked so until this is fixed just execute `rng(<your seed>);` before executing `TraitLab` or `batchTraitLab`.
 
 ---
 

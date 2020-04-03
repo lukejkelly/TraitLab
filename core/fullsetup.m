@@ -115,14 +115,15 @@ mcmc.runlength=fsu.RUNLENGTH;
 mcmc.subsample=fsu.SUBSAMPLE;
 mcmc.gather=GATHER;
 
+%% Luke 3/4/20: Replacing old RNG format. However, this is too far into the code
+%% as some of the initialisation functions (e.g. pop) called before this use the
+%% random number generators so will be moved in a future version
 if mcmc.initial.seedrand
     % use given seed
-   rand('state',fsu.SEED);
-   randn('state',fsu.SEED);
+   rng(fsu.SEED);
 else
     % reset generator to random state
-   rand('state',sum(100*clock));
-   randn('state',sum(100*clock));
+   rng(sum(100 * clock));
 end
 
 if mcmc.monitor.on
