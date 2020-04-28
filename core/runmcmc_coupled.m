@@ -50,10 +50,10 @@ if nargin>0
     % [state_x, ~]=Markov(mcmc_init, model, state_x, ignoreearlywarn);
     % [state_y, ~]=Markov(mcmc_init, model, state_y, ignoreearlywarn);
 
-    % % Advance x chain by 1 step
-    % mcmc_lag = mcmc;
-    % mcmc_lag.subsample = 1;
-    % [state_x, ~] = Markov(mcmc_lag, model, state, ignoreearlywarn);
+    % % Advance x chain by 100 steps
+    mcmc_lag = mcmc;
+    mcmc_lag.subsample = 100;
+    [state_x, ~] = Markov(mcmc_lag, model, state_x, 1);
 
     handles_x = write_initial_state(handles_x, state_x, fsu);
     handles_y = write_initial_state(handles_y, state_y, fsu);
