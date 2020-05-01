@@ -110,7 +110,7 @@ for t=start:finish
     stats = [state.logprior; state.loglkd; state.tree(state.root).time; state.mu; state.p; btime; state.lambda ; state.kappa ; state.rho ; state.ncat ; state.fullloglkd ; state.beta]; % Luke - added ' ; state.beta' to end.
     handles.output.stats(:,NextSamp) = stats;
     handles.output.pa(:,NextSamp) = pa;
-    for i=1:2*state.NS
+    for i=1:2*state.NS  % I think this is superfluous LJK 28/4/20
         if any(state.tree(i).type==[ANST LEAF]), state.tree(i).cat=rand(state.cat(i),1)*(state.tree(state.tree(i).parent).time-state.tree(i).time)+state.tree(i).time; end
     end
     handles.output.trees{NextSamp}=wnextree(state.tree,state.root);

@@ -25,9 +25,11 @@ I've checked the Matlab code on Linux, Mac and PC and the C code on Linux (gcc) 
 
 TraitLab reads Nexus-formatted data in a _.nex_ file. Further details are in the [manual][3].
 
+A `startup.m` file will add the necessary `core`, `guifiles` and `borrowing` directories to the path when Matlab is started at the top level of the `TraitLabSDLT` directory.
+
 To run an experiment using the GUI:
 
-* Start Matlab and `cd` to the _TraitLab_ folder.
+* Start Matlab in the _TraitLabSDLT_ folder
 * Run `TraitLab` to open the analysis GUI
 * Set the options for lateral transfer (enable/disable; set initial beta or randomise; allow beta to vary over a MCMC run)
 * Proceed according to the instructions in the [manual][3]
