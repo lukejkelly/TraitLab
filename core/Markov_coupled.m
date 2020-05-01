@@ -41,8 +41,8 @@ function [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, state_x, .
                                                ignoreearlywarn, MV, u_mh);
         acct_y(MV) = acct_y(MV) + succ_y;
 
-        % % Uncoupled chains may make different calls to rng
-        % rng('shuffle');
+        % Uncoupled chains may make different calls to rng
+        rng('shuffle');
     end
     pa_x = acct_x ./ prop;
     pa_y = acct_y ./ prop;
