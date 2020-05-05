@@ -1,3 +1,5 @@
+function [] = batchTraitLab_coupled(run_file, output_file_name_app) % LJK 5/5/20
+
 GlobalSwitches
 GlobalValues
 addpath('core') % Luke 05/10/2017
@@ -6,7 +8,16 @@ addpath('guifiles') %commented out GKN Feb 08; added back in RJR�16�Mar 2011
 % Clear persistent variables in SDLT code. LUKE 24/3/20
 clear logLkd2_m patternCounts patternMeans
 
-a = readrunfile('batchtlinput.txt');
+if nargin == 0
+    [run_file, output_file_name_app] = deal([]);
+end
+
+if isempty(run_file)
+    a = readrunfile('batchtlinput.txt');
+else
+    a = readrunfile(run_file);
+end
+
 for i = 1:length(a{1})
     switch a{1}{i}
         case {'Data_file_name','Output_file_name','Output_path_name'}
@@ -38,6 +49,11 @@ x = strfind(Output_file_name,'.nex');
 if ~isempty(x) && x == length(Output_file_name)-3
     disp('Discarding .nex extension from Output_file_name')
     Output_file_name = Output_file_name(1:x-1);
+end
+
+% Add appendix to output file name when doing multiple runs
+if ~isempty(output_file_name_app)
+    Output_file_name = [Output_file_name, output_file_name_app];
 end
 
 
@@ -391,3 +407,5 @@ fsu.MCMCINITBETA = MCMCINITBETA;
 fsu.ISBETARANDOM = ISBETARANDOM;
 
 runmcmc_coupled(fsu);
+
+end
