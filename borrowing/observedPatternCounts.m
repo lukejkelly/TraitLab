@@ -4,7 +4,7 @@ function [ obs, miss, rl_c ] = observedPatternCounts( state )
 % manipulate this vector of counts to calculate the likelihood (instead of
 % manipulating the leaf order of the sampled tree and pattern means, etc.).
 % The variables returned are n_To and n_Tm representing the number of
-% observations of each fully- and partially-observed pattern.
+% observations of each fully and partially observed pattern.
 
 % Global variables.
 global LEAF
