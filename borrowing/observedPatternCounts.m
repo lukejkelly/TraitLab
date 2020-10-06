@@ -98,8 +98,9 @@ if ~isempty(P_bm)
     % Creating a struct which, for each partially observed pattern contains
     % the pattern, the count and a list of possible true underlying
     % patterns and a vector indicating.
-    miss = struct( 'pattern', cell(size(P_bmu, 1), 1), 'count', ...
-        cell(size(P_bmu, 1), 1), 'underlying', cell(size(P_bmu, 1), 1) );
+    miss = struct('pattern', cell(size(P_bmu, 1), 1), ...
+                  'count', cell(size(P_bmu, 1), 1), ...
+                  'underlying', cell(size(P_bmu, 1), 1));
 
     % Populating the count vector.
     for i = 1:size(P_bmu, 1)
