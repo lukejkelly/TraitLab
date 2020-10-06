@@ -23,6 +23,10 @@ function [intLogLik, logLik] = patternCounts(state, rl, x_T, borPars)
 %           = -( \sum_{q \in Q\P} n_q ) \log( \sum_{p \in P} y_p )
 %                   + \sum_{q \in Q\P} n_q \log( y_q \xi(q) ).
 
+% Note we use the opposite formulation to the TraitLab manual: here, xi is the
+% vector of probabilities of observing the true state of a trait at the
+% respective leaves
+
 % Setting up data structures, etc.
 
 % First of all we need to account for the fact that the rl (right-to-left) order
@@ -78,8 +82,10 @@ if misdat
 
     % We use P_b to find which xi terms are required. For example, the
     % thinning factor for x_{011} is (1 - xi_2)(1 - xi_3).
-    C = sum( x_T .* prod( repmat( (1 - xi), 2^L - 1, 1) .^ borPars(L).P_b , 2) );
+    C = sum( x_T .* prod( repmat((1 - xi), 2^L - 1, 1) .^ borPars(L).P_b , 2) );
     % C = sum( x_T .* prod( 1 - bsxfun(@times, xi, borPars(L).P_b), 2) );
+    % If each entry in xi is 1, that is we always observe the true state, then
+    % this reduces to the setting with no missing data setting so C = 0
 
 else
 
@@ -93,14 +99,14 @@ end
 % discarded.
 if LOSTONES
 
-    % For p = 011, say, we subtract off xi_2 * (1 - xi_3) + (1 - xi_2) * xi_3 of
-    % x_011 in the likelihood calculation.
-
     if misdat
 
+        % For p = 011, say, we subtract xi_2 * (1 - xi_3) + (1 - xi_2) * xi_3
+        % off x_011 in the likelihood calculation.
+        % TODO: check stability of this calculation when xi is near boundary
         C = C + sum( prod(1 - bsxfun(@times, xi, borPars(L).P_b), 2) ...
-            .* x_T .* sum(bsxfun(@times, xi, borPars(L).P_b) ...
-            ./ (1 - bsxfun(@times, xi, borPars(L).P_b)), 2) );
+                     .* x_T .* sum(bsxfun(@times, xi, borPars(L).P_b) ...
+                     ./ (1 - bsxfun(@times, xi, borPars(L).P_b)), 2) );
 
     else
 
@@ -115,7 +121,7 @@ end
 logLik_c = -(sum(x_T) - C) * state.lambda;
 
 % We now compute the contributions to the integrated and full
-% log-likelihoods by the fully- and partially-observed patterns.
+% log-likelihoods by the fully and partially observed patterns.
 
 % Fully-observed patterns.
 if isstruct(obs)
@@ -134,9 +140,8 @@ if isstruct(obs)
     if ~misdat % No missing data - ignore xis and correction term.
 
         % Integrated log-likelihood of fully-observed data (ignoring
-        % constants).
-        intLogLik_o = sum(n_To .* log(x_T)) - sum(n_To) * log(sum(x_T));
-        % Should probably subtract C off here -- check this? LUKE 13/11/2015.
+        % constants), correction C for LOSTONES registration
+        intLogLik_o = sum(n_To .* log(x_T)) - sum(n_To) * log(sum(x_T) - C);
 
         % Log-likelihood of fully-observed data (ignoring constants).
         logLik_o = sum(n_To .* log(x_T * state.lambda));
@@ -150,7 +155,7 @@ if isstruct(obs)
         % Integrated log-likelihood of fully-observed data (ignoring
         % constants).
         intLogLik_o = sum(n_To .* log(x_T * prod(xi))) ...
-             - sum(n_To) * log(sum(x_T) - C);
+                      - sum(n_To) * log(sum(x_T) - C);
 
         % Log-likelihood of fully-observed data (ignoring constants).
         logLik_o = sum(n_To .* log(x_T * prod(xi) * state.lambda));
@@ -181,8 +186,8 @@ if misdat
         n_Tm(k) = miss(k).count;
 
         % Observation probability.
-        v = prod( xi.^(miss(k).pattern * P ~= 2) .* ...
-            (1 - xi).^(miss(k).pattern * P == 2) );
+        v = prod( xi.^(miss(k).pattern * P ~= 2) ...
+                  .* (1 - xi).^(miss(k).pattern * P == 2) );
 
         % Missing pattern means.
         % We use parallelised C function for binary-to-decimal operation if it
