@@ -72,7 +72,7 @@ end
 
 % Add appendix to output file name when doing multiple runs
 if ~isempty(output_file_name_app)
-    Output_file_name = [Output_file_name, output_file_name_app];
+    Output_file_name = [Output_file_name, '_', output_file_name_app];
 end
 
 
