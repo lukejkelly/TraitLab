@@ -38,25 +38,23 @@ if nargin>0
         disp(sprintf('Encountered problem writing parameter file %s.\n Everything else seems ok.',parfilename));
     end
 
-    % Before writing initial states, advance each by multiple draws from prior
+    % Write initial states
     [state_x, state_y] = deal(state);
     [handles_x, handles_y] = deal(handles);
     handles_x.output.file = [handles_x.output.file, '_x'];
     handles_y.output.file = [handles_y.output.file, '_y'];
-
-    % % Sample from prior
-    % mcmc_init = mcmc;
-    % mcmc_init.subsample = 1e4;
-    % [state_x, ~]=Markov(mcmc_init, model, state_x, ignoreearlywarn);
-    % [state_y, ~]=Markov(mcmc_init, model, state_y, ignoreearlywarn);
-
-    % % Advance x chain by 100 steps
-    mcmc_lag = mcmc;
-    mcmc_lag.subsample = 100;
-    [state_x, ~] = Markov(mcmc_lag, model, state_x, 1);
-
+    % TODO advance each chain by multiple draws from prior
     handles_x = write_initial_state(handles_x, state_x, fsu);
     handles_y = write_initial_state(handles_y, state_y, fsu);
+
+    % %%% % Advance x chain by 100 steps
+    % mcmc_lag = mcmc;
+    % mcmc_lag.subsample = 100;
+    % [state_x, pa_x] = Markov(mcmc_lag, model, state_x, 1);
+    % Advance x chain by lag = mcmc.subsample steps
+    [state_x, pa_x] = Markov(mcmc, model, state_x, 1);
+    handles_x = write_mcmc_outputs(handles_x, state_x, 0, fsu, 1, pa_x, ...
+                                   model, data);
 
     finish=floor(mcmc.runlength/mcmc.subsample);
     timestarted = clock;
@@ -68,8 +66,8 @@ if nargin>0
     % Saving state for later goodness-of-fit testing
     if exist('SAVESTATES', 'var') && ~isempty(SAVESTATES) && SAVESTATES == 1
         error('This still needs to be implemented');
-      [~, ~] = mkdir('saveStates');
-      save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, 0), 'state');
+        % [~, ~] = mkdir('saveStates');
+        % save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, 0), 'state');
     end
 else
 
@@ -107,10 +105,10 @@ for t=start:finish
     end
 
     % Write outputs and update handles
-    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, t, pa_x, ...
-                                   model, data);
-    handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, t, pa_y, ...
-                                   model, data);
+    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, t + 1, ...
+                                   pa_x, model, data);
+    handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, t, ...
+                                   pa_y, model, data);
 end
 
 if mcmc.monitor.on

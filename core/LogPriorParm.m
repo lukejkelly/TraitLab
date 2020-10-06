@@ -8,7 +8,7 @@ global VARYNU VARYLAMBDA VARYRHO VARYBETA BORROWING
 
 %if BORROWING
     % We can't use a prior of 1/mu as the posterior is unbounded so we use
-    % a Gamma(0.001, 0.001) prior with high variance to approximate it.   
+    % a Gamma(0.001, 0.001) prior with high variance to approximate it.
     res = -0.999 * (log(nstate.mu) - log(state.mu)) - 0.001 * (nstate.mu - state.mu);
 %else
 %    res=log(state.mu)-log(nstate.mu);
@@ -22,7 +22,7 @@ if VARYBETA
     % As with mu, we use a Gamma(0.001, 0.001) prior for beta in place of
     % 1/beta to ensure the posterior is proper.
     res = res + (-0.999 * (log(nstate.beta) - log(state.beta)) ...
-        - 0.001 * (nstate.beta - state.beta) );
+                 - 0.001 * (nstate.beta - state.beta));
 end
 
 %if nstate.kappa<0.1, res=-inf; end
