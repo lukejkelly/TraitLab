@@ -1,7 +1,7 @@
 function [t2] = housekeeping(s1, s2)
     % Match indices of nodes with common descendent leaves (indexed by .Name)
     t2 = s2;
-    r = {s1.Name};
+    r = {s1([s1.type] == 0).Name}; % {s1.Name};
     a1 = getLeafArray(s1, r);
     i1 = (1:length(s1))';
     done = false;
@@ -26,7 +26,7 @@ function [a] = getLeafArray(s, r, a, l)
     global LEAF ROOT;
 
     if nargin == 2
-        a = zeros(length(s));
+        a = zeros(length(s), length(r));
         l = find([s.type] == ROOT);
     end
 
