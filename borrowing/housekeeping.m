@@ -4,25 +4,47 @@ function [t2] = housekeeping(s1, s2)
     r = {s1.Name};
     a1 = getLeafArray(s1, r);
     i1 = (1:length(s1))';
-    done = 0;
+    done = false;
     while ~done
         a2 = getLeafArray(t2, r);
         [c1, c2] = ismember(a1, a2, 'rows');
         i2 = c1 & (i1 ~= c2);
         if any(i2)
             i = find(i2, 1);
-            % We have c2(i) playing i's role, but want i playing i's role
-            fprintf('switch %i and %i\n', i, c2(i));
+            % t2:c2(i) is playing same role as s1:i so t2:i and t2:c2(i)
             t2 = swapNodes(t2, i, c2(i));
         else
-            done = 1;
+            done = true;
         end
     end
 end
 
-% Exchange nodes j and k in tree s
+function [a] = getLeafArray(s, r, a, l)
+    % Starting at node l and working towards the leaves of s, a indicates the
+    % the leaves (identified by name) beneath each node according to the
+    % reference list r
+    global LEAF ROOT;
+
+    if nargin == 2
+        a = zeros(length(s));
+        l = find([s.type] == ROOT);
+    end
+
+    if s(l).type == LEAF
+        a(l, ismember(r, s(l).Name)) = 1;
+    else
+        a1 = getLeafArray(s, r, a, s(l).child(1));
+        a2 = getLeafArray(s, r, a, s(l).child(2));
+        a(~all(a1 == 0, 2), :) = a1(~all(a1 == 0, 2), :);
+        a(~all(a2 == 0, 2), :) = a2(~all(a2 == 0, 2), :);
+        a(l, :) = sum(a(s(l).child, :));
+    end
+end
+
+
 function t = swapNodes(s, j, k)
-    % Swap subtree-parent role of nodes i and j in when doing housekeeping
+    % Swap subtree-parent role of nodes j and k
+    % ns_j and ns_k are the new sibling roles for j and k after swapping
     % Almost identical to core/swap.m but preserving sibling order
 
     % Only special case is j has k as parent
@@ -64,12 +86,9 @@ function t = swapNodes(s, j, k)
             t(sk.parent).child(sk.sibling) = j;
             t(j).sibling = sk.sibling;
         end
-        c = sk.child(sk.child ~= j);
-        % t(j).child = [k, c];
-        % t(k).sibling = 1;
         t(j).child(sj.sibling) = k;
+        c = sk.child(sk.child ~= j);
         if ~isempty(c)
-            % t(c).sibling = 2;
             t(c).parent = j;
         end
     end
@@ -80,49 +99,3 @@ function t = swapNodes(s, j, k)
         pause;
     end
 end
-
-function [a] = getLeafArray(s, r, a, l)
-    % Starting at node l and working towards the leaves of s, a indicates the
-    % the leaves beneath the node according to the reference list r
-    % each node
-    % Leaves identified by their name
-    % TODO: identify leaves by their data
-    global LEAF ROOT;
-
-    if nargin == 2
-        a = zeros(length(s));
-        l = find([s.type] == ROOT);
-    end
-
-    if s(l).type == LEAF
-        a(l, ismember(r, s(l).Name)) = 1;
-    else
-        a1 = getLeafArray(s, r, a, s(l).child(1));
-        a2 = getLeafArray(s, r, a, s(l).child(2));
-        a(~all(a1 == 0, 2), :) = a1(~all(a1 == 0, 2), :);
-        a(~all(a2 == 0, 2), :) = a2(~all(a2 == 0, 2), :);
-        a(l, :) = sum(a(s(l).child, :));
-    end
-end
-
-% function [a] = getLeafArray(s, a, l)
-%     % Starting at node l and working towards the leaves, list the leaves beneath
-%     % each node
-%     % Leaves identified by their index
-%     global LEAF ROOT;
-%
-%     if nargin == 1
-%         a = zeros(length(s));
-%         l = find([s.type] == ROOT);
-%     end
-%
-%     if s(l).type == LEAF
-%         a(l, l) = 1;
-%     else
-%         a1 = getLeafArray(s, a, s(l).child(1));
-%         a2 = getLeafArray(s, a, s(l).child(2));
-%         a(~all(a1 == 0, 2), :) = a1(~all(a1 == 0, 2), :);
-%         a(~all(a2 == 0, 2), :) = a2(~all(a2 == 0, 2), :);
-%         a(l, :) = sum(a(s(l).child, :));
-%     end
-% end
