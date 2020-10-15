@@ -56,7 +56,14 @@ function s6s7Test(testCase)
     checkHousekeeping(testCase, t7Obs, t7Exp);
 end
 
-
+function s6s8Test(testCase)
+    % Only one node swap, leaves at different times
+    s6 = testCase.TestData.s6;
+    s8 = testCase.TestData.s8;
+    t8Obs = housekeeping(s6, s8);
+    t8Exp = testCase.TestData.t8s6;
+    checkHousekeeping(testCase, t8Obs, t8Exp);
+end
 
 % Helper functions
 function checkHousekeeping(testCase, tObs, tExp)
@@ -230,25 +237,33 @@ function setupOnce(testCase)
     % s7 and s8 are the 5e4th and 1e5th iterations of a MCMC respectively
     % initialised at s6
 
-    % s6 ((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10))))
-    % s7 ((2, (4, 5)), (1, (3, ((6, 7), (8, (9, 10))))))
-    % s8 (1, ((2, (4, 5)), (3, ((6, 7), (8, (9, 10))))))
-
-    % fStr = 'borrowing/housekeepingTestDataState%i.mat';
-    % getTree = @(i) getfield(load(sprintf(fStr, i)), 'state', 'tree');
-    % testCase.TestData.s6 = getTree(6);
-    % testCase.TestData.s7 = getTree(7);
-    % testCase.TestData.s8 = getTree(8);
+    % % s6 ((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10))))
+    % % s7 ((2, (4, 5)), (1, (3, ((6, 7), (8, (9, 10))))))
+    % % s8 (1, ((2, (4, 5)), (3, ((6, 7), (8, (9, 10))))))
+    %
+    % (
+    %     (1, (2, (4, 5))),
+    %     (3, ((6, 7), (8, (9, 10))))
+    % )
+    %
+    % ((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10))))
+    % ((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10)))))
+    %
+    % % fStr = 'borrowing/housekeepingTestDataState%i.mat';
+    % % getTree = @(i) getfield(load(sprintf(fStr, i)), 'state', 'tree');
+    % % testCase.TestData.s6 = getTree(6);
+    % % testCase.TestData.s7 = getTree(7);
+    % % testCase.TestData.s8 = getTree(8);
 
     % 1 an outgroup of left subtree
     testCase.TestData.s6 = rnextree(...
-        '((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10))))');
+        '((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10)))))');
     % 1 an outgroup of right subtree
     testCase.TestData.s7 = rnextree(...
         '((2, (4, 5)), (1, (3, ((6, 7), (8, (9, 10))))))');
-    % % 1 an overall outgroup
-    % testCase.TestData.s8 = rnextree(...
-    %     '(1, ((2, (4, 5)), (3, ((6, 7), (8, (9, 10))))))');
+    % 1 an overall outgroup
+    testCase.TestData.s8 = rnextree(...
+        '(1, ((2, (4, 5)), (3, ((6, 7), (8, (9, 10))))))');
 
     % Indices of s7 switched to same roles in s6
     testCase.TestData.t7s6 = struct(...
@@ -260,6 +275,15 @@ function setupOnce(testCase)
         'sibling', {1, 2, 1, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1, 2, 1, 2, []}, ...
         'mark', {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
 
+    % Much easier problem as only pa(1) and MRCA(2, ..., 10) need to switch
+    testCase.TestData.t8s6 = struct(...
+        'Name', {[], [], '1', [], '2', [], '4', '5', [], '3', [], [], '6', '7', [], '8', [], '9', '10', 'Adam'}, ...
+        'parent', {20, 1, 1, 2, 4, 4, 6, 6, 2, 9, 9, 11, 12, 12, 11, 15, 15, 17, 17, []}, ...
+        'child', {[3, 2], [4, 9], [], [5, 6], [], [7, 8], [], [], [10, 11], [], [12, 15], [13, 14], [], [], [16, 17], [], [18, 19], [], [], 1}, ...
+        'type', {2, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 3}, ...
+        'time', {6, 5, 5, 4, 3, 3, 2, 2, 4, 3, 3, 2, 1, 1, 2, 1, 1, 0, 0, testCase.TestData.s7(20).time}, ...
+        'sibling', {1, 2, 1, 1, 1, 2, 1, 2, 2,  1, 2, 1, 1, 2, 2, 1, 2, 1, 2, []}, ...
+        'mark', {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
 end
 
 function teardownOnce(testCase)
