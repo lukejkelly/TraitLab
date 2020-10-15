@@ -1,3 +1,8 @@
+% TODO: We assume that s1 was only ever a valid modification of s2 so leaves
+% and Adam have the same indices in both, as do all nodes within a clade. We
+% should implement more general housekeeping which does not make these
+% assumptions and also updates the corresponding state variables
+
 function [t2] = housekeeping(s1, s2)
     % Match indices of nodes with common descendent leaves (indexed by .Name)
     t2 = s2;
@@ -16,6 +21,11 @@ function [t2] = housekeeping(s1, s2)
         else
             done = true;
         end
+    end
+    % TODO: remove this after further testing
+    if (equaltrees(s2, t2) == 0)
+        disp('Trees do not match after housekeeping');
+        keyboard;
     end
 end
 
@@ -92,10 +102,10 @@ function t = swapNodes(s, j, k)
             t(c).parent = j;
         end
     end
+    % TODO: remove this after further testing
     result = checktree(t, size(s, 2) / 2);
     if ~isempty(result)
-        disp('error pp');
+        disp('Not a valid tree');
         keyboard;
-        pause;
     end
 end
