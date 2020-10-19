@@ -82,7 +82,6 @@ function setupOnce(testCase)
     % Setting up
     GlobalSwitches;
     GlobalValues;
-    addpath('debugging', '.');
 
     % Root and left child are sibling 1, right child is sibling 2
     % Leaves are at time 0, internal node at 1, root at 2 and Adam at 3
@@ -285,7 +284,7 @@ function setupOnce(testCase)
         'sibling', {1, 2, 1, 1, 1, 2, 1, 2, 2,  1, 2, 1, 1, 2, 2, 1, 2, 1, 2, []}, ...
         'mark', {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
 end
-
-function teardownOnce(testCase)
-    rmpath('debugging', '.');
-end
+%
+% function teardownOnce(testCase)
+%     rmpath('debugging', '.');
+% end

@@ -13,17 +13,18 @@ function [t2] = housekeeping(s1, s2)
     while ~done
         a2 = getLeafArray(t2, r);
         [c1, c2] = ismember(a1, a2, 'rows');
-        i2 = c1 & (i1 ~= c2);
+        i2 = find(c1 & (i1 ~= c2), 1);
+        % i2 = c1 & (i1 ~= c2);
         if any(i2)
-            i = find(i2, 1);
-            % t2:c2(i) is playing same role as s1:i so t2:i and t2:c2(i)
-            t2 = swapNodes(t2, i, c2(i));
+            % i = find(i2, 1);
+            % t2:c2(i2) has same role as s1:i2 so we swap t2:i2 and t2:c2(i2)
+            t2 = swapNodes(t2, i2, c2(i2));
         else
             done = true;
         end
     end
     % TODO: remove this after further testing
-    if (equaltrees(s2, t2) == 0)
+    if equaltrees(s2, t2) == 0
         disp('Trees do not match after housekeeping');
         keyboard;
     end
