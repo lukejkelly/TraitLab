@@ -1,20 +1,21 @@
-% TODO: We assume that s1 was only ever a valid modification of s2 so leaves
-% and Adam have the same indices in both, as do all nodes within a clade. We
-% should implement more general housekeeping which does not make these
-% assumptions and also updates the corresponding state variables
+% We assume that s1 was only ever a valid modification of s2 so leaves and Adam
+% have the same indices in both, as do all nodes within a clade
+% TODO: We should implement more general housekeeping without these assumptions
 
-function [t2] = housekeeping(s1, s2)
+function nstate2 = housekeeping(state1, state2)
+    global LEAF ANST ROOT
     % Match indices of nodes with common descendent leaves (indexed by .Name)
+    s1 = state1.tree;
+    s2 = state2.tree;
     t2 = s2;
-    r = {s1([s1.type] == 0).Name}; % {s1.Name};
+    r = {s1([s1.type] == 0).Name};  % Reference list of leaf names
     a1 = getLeafArray(s1, r);
     i1 = (1:length(s1))';
     done = false;
     while ~done
         a2 = getLeafArray(t2, r);
         [c1, c2] = ismember(a1, a2, 'rows');
-        i2 = find(c1 & (i1 ~= c2), 1);
-        % i2 = c1 & (i1 ~= c2);
+        i2 = find(c1 & (i1 ~= c2), 1);  % i2 = c1 & (i1 ~= c2);
         if any(i2)
             % i = find(i2, 1);
             % t2:c2(i2) has same role as s1:i2 so we swap t2:i2 and t2:c2(i2)
@@ -28,9 +29,22 @@ function [t2] = housekeeping(s1, s2)
         disp('Trees do not match after housekeeping');
         keyboard;
     end
+    % Update state variables
+    nstate2 = state2;
+    nstate2.tree = t2;
+    nstate2.leaves = find([t2.type] == LEAF);
+    nstate2.root = find([t2.type] == ROOT);
+    nstate2.nodes = [find([t2.type] == ANST), nstate2.root];
+    nstate2.cat(:) = cellfun(@length, {nstate2.tree.catloc});
+    nstate2 = UpdateClades(nstate2, [nstate2.leaves, nstate2.nodes], ...
+                           length(nstate2.claderoot));
+    if ~all(isequaln(nstate2.claderoot, state1.claderoot))
+        disp('Clade roots do not match after housekeeping');
+        keyboard;
+    end
 end
 
-function [a] = getLeafArray(s, r, a, l)
+function a = getLeafArray(s, r, a, l)
     % Starting at node l and working towards the leaves of s, a indicates the
     % the leaves (identified by name) beneath each node according to the
     % reference list r
@@ -51,7 +65,6 @@ function [a] = getLeafArray(s, r, a, l)
         a(l, :) = sum(a(s(l).child, :));
     end
 end
-
 
 function t = swapNodes(s, j, k)
     % Swap subtree-parent role of nodes j and k
