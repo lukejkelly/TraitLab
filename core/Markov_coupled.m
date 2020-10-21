@@ -17,11 +17,19 @@ function [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, state_x, .
         drawnow;
         STOPRUN = get(gcbo,'UserData');
         if STOPRUN
-            %calculate proportion accepted for each update type
-            pa=zeros(mcmc.update.Nmvs,1);
-            pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
+            % %calculate proportion accepted for each update type
+            % pa=zeros(mcmc.update.Nmvs,1);
+            % pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
+            pa_x = acct_x ./ prop;
+            pa_y = acct_y ./ prop;
             return
         end
+
+        % Common roles across trees have common indices
+        state_y = housekeeping(state_x, state_y);
+        % For now we assume that state_x.tree was only ever a valid modification
+        % of state_y so leaves and Adam have the same indices in both, as do all
+        % nodes within a clade
 
         % MCMC acceptance probability
         u_mh = rand;

@@ -1,23 +1,12 @@
-function [] = batchTraitLab_coupled(run_file, i_chains, n_workers)
-% Run coupled MCMC samplers for input run_file and output IDs i_chains in
-%  parallel across n_workers (if specified)
-    if nargin == 2
-        for i = i_chains
-            batchTraitLab_coupled_run(run_file, num2str(i));
-        end
-    else
-        if isempty(gcp('nocreate'))
-            pool = parpool(n_workers);
-        end
-        parfor i = i_chains
-            batchTraitLab_coupled_run(run_file, num2str(i));
-        end
-        delete(pool);
+function batchTraitLab_coupled(run_file, i_chains)
+% Run coupled MCMC samplers for input run_file and output IDs i_chains
+    for i = i_chains
+        batchTraitLab_coupled_run(run_file, num2str(i));
     end
 end
 
 % Worker function
-function [] = batchTraitLab_coupled_run(run_file, output_file_name_app)
+function batchTraitLab_coupled_run(run_file, output_file_name_app)
 
 GlobalSwitches
 GlobalValues
@@ -72,7 +61,7 @@ end
 
 % Add appendix to output file name when doing multiple runs
 if ~isempty(output_file_name_app)
-    Output_file_name = [Output_file_name, '_', output_file_name_app];
+    Output_file_name = [Output_file_name, '-', output_file_name_app];
 end
 
 
