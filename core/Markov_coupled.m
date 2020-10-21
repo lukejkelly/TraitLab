@@ -1,5 +1,5 @@
-function [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, state_x, ...
-                                                 state_y, ignoreearlywarn)
+function [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, ...
+    state_x, state_y, ignoreearlywarn)
 % [state,pa] = Markov(mcmc,model,state)
 % written by GKN
 % last modified by RJR on 07/05/07
@@ -40,17 +40,23 @@ function [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, state_x, .
         prop(MV)=prop(MV)+1;
 
         % MCMC updates
-        rng_state = rng;
-        [state_x, succ_x] = Markov_coupled_crn(mcmc, model, state_x, ...
-                                               ignoreearlywarn, MV, u_mh);
+        if ismember(MV, [8, 21]) %[8, 16, 19:21])
+            % Attempt maximal coupling
+            [state_x, succ_x, state_y, succ_y] = Markov_coupled_maximal(...
+                mcmc, model, state_x, state_y, ignoreearlywarn, MV, u_mh);
+        else
+            % Common random number coupling
+            rng_state = rng;
+            [state_x, succ_x] = Markov_coupled_crn(mcmc, model, state_x, ...
+                ignoreearlywarn, MV, u_mh);
+            rng(rng_state);
+            [state_y, succ_y] = Markov_coupled_crn(mcmc, model, state_y, ...
+                ignoreearlywarn, MV, u_mh);
+            % Uncoupled chains may make different calls to rng
+            rng('shuffle');
+        end
         acct_x(MV) = acct_x(MV) + succ_x;
-        rng(rng_state);
-        [state_y, succ_y] = Markov_coupled_crn(mcmc, model, state_y, ...
-                                               ignoreearlywarn, MV, u_mh);
         acct_y(MV) = acct_y(MV) + succ_y;
-
-        % Uncoupled chains may make different calls to rng
-        rng('shuffle');
     end
     pa_x = acct_x ./ prop;
     pa_y = acct_y ./ prop;
