@@ -1,19 +1,20 @@
-function batchTraitLab_coupled(run_file, i_chains)
+function batchTraitLabCoupled(run_file, i_chains)
 % Run coupled MCMC samplers for input run_file and output IDs i_chains
     rng('shuffle');
     for i = i_chains
         fprintf('\n\nStarting chain %i\n\n', i);
-        batchTraitLab_coupled_run(run_file, num2str(i));
+        batchTraitLabCoupledRun(run_file, num2str(i));
     end
 end
 
 % Worker function
-function batchTraitLab_coupled_run(run_file, output_file_name_app)
+function batchTraitLabCoupledRun(run_file, output_file_name_app)
 
 GlobalSwitches
 GlobalValues
 addpath('core') % Luke 05/10/2017
 addpath('guifiles') %commented out GKN Feb 08; added back in RJR�16�Mar 2011
+addpath('coupling')
 
 % Clear persistent variables in SDLT code. LUKE 24/3/20
 clear logLkd2_m patternCounts patternMeans
@@ -416,6 +417,6 @@ fsu.VARYBETA = VARYBETA;
 fsu.MCMCINITBETA = MCMCINITBETA;
 fsu.ISBETARANDOM = ISBETARANDOM;
 
-runmcmc_coupled(fsu);
+runmcmcCoupled(fsu);
 
 end

@@ -1,2 +1,2 @@
-addpath core guifiles borrowing debugging;
+addpath core guifiles borrowing debugging coupling;
 addpath(pwd);
