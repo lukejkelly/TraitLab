@@ -1,4 +1,4 @@
-function runmcmc_coupled(fsu,handles,h)
+function runmcmcCoupled(fsu,handles,h)
 
 %global GRAPH JUSTS JUSTT LEAF QUIET ANST STOPRUN TESTSS WRITEXI
 GlobalSwitches;
@@ -89,8 +89,8 @@ for t=start:finish
     %update the Markov chain (mcmc.subsample) steps
     atime=cputime;
     ignoreearlywarn= (t<=3); % Ignore warnings which are not alarming when they occur early in the chain. RJR 12/06/11.
-    [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, state_x, ...
-                                                    state_y, ignoreearlywarn);
+    [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, state_x, ...
+                                                   state_y, ignoreearlywarn);
     btime=cputime-atime;
 
     if STOPRUN
