@@ -40,10 +40,13 @@ function [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, ...
         prop(MV)=prop(MV)+1;
 
         % MCMC updates
-        if ismember(MV, [8, 21]) %[8, 16, 19:21])
+        if ismember(MV, [8, 15, 16, 17, 19, 21])
             % Attempt maximal coupling
             [state_x, succ_x, state_y, succ_y] = Markov_coupled_maximal(...
                 mcmc, model, state_x, state_y, ignoreearlywarn, MV, u_mh);
+            % if succ_x && succ_y
+            %     fprintf('Successful coupling on %i\n', MV);
+            % end
         else
             % Common random number coupling
             rng_state = rng;

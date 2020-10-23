@@ -1,7 +1,6 @@
 function [state_x, succ_x, state_y, succ_y] = Markov_coupled_maximal(mcmc, ...
     model, state_x, state_y, ignoreearlywarn, MV, u_mh)
     % Maximal coupling of scalar parameter proposal and acceptance steps
-    % Currently MV = 8 (mu) or 21 (beta)
 
     global DEPNU VARYMU DONTMOVECATS BORROWING VARYBETA
 
@@ -12,15 +11,14 @@ function [state_x, succ_x, state_y, succ_y] = Markov_coupled_maximal(mcmc, ...
 
     TOPOLOGY = 0;
 
-    % Prototypes for coupling
+    % Prototypes for coupling proposals
     rp = @(v) v * (mcmc.update.del + rand * mcmc.update.deldel);
     dp = @(u, v) (v * mcmc.update.del <= u ...
                   && u <= v * (mcmc.update.del + mcmc.update.deldel)) ...
                  / (v * mcmc.update.deldel);
-
     switch MV
         case 8
-            update='Vary mu';
+            update = 'Vary mu';
             if ~VARYMU
                 disp('vary mu?');
                 keyboard;
@@ -46,12 +44,125 @@ function [state_x, succ_x, state_y, succ_y] = Markov_coupled_maximal(mcmc, ...
                 nstate_x.nu = state_x.nu / var_x;
                 nstate_y.nu = state_y.nu / var_y;
             end
-            if DONTMOVECATS && nstate_x.mu < 1e-5
-                OK_x = 0;
+
+            OK_x = ~(DONTMOVECATS && nstate_x.mu < 1e-5);
+            OK_y = ~(DONTMOVECATS && nstate_y.mu < 1e-5);
+        case 15
+            update = 'Vary rho';
+
+            rx = @() rp(state_x.rho);
+            dx = @(x) dp(x, state_x.rho);
+            ry = @() rp(state_y.rho);
+            dy = @(y) dp(y, state_y.rho);
+
+            [nstate_x.rho, nstate_y.rho] = coupling_maximal(rx, dx, ry, dy);
+
+            var_x = nstate_x.rho / state_x.rho;
+            var_y = nstate_y.rho / state_y.rho;
+
+            logq_x = -log(var_x);
+            logq_y = -log(var_y);
+
+            U_x = [];
+            U_y = [];
+        case 16
+            update = 'Vary kappa';
+
+            rx = @() rp(state_x.kappa);
+            dx = @(x) dp(x, state_x.kappa);
+            ry = @() rp(state_y.kappa);
+            dy = @(y) dp(y, state_y.kappa);
+
+            [nstate_x.kappa, nstate_y.kappa] = coupling_maximal(rx, dx, ry, dy);
+
+            var_x = nstate_x.kappa / state_x.kappa;
+            var_y = nstate_y.kappa / state_y.kappa;
+
+            logq_x = -log(var_x);
+            logq_y = -log(var_y);
+
+            U_x = state_x.nodes;
+            U_y = state_y.nodes;
+
+            OK_x = ((0.25 <= nstate_x.kappa) && (nstate_x.kappa <= 1));
+            OK_y = ((0.25 <= nstate_y.kappa) && (nstate_y.kappa <= 1));
+
+            if OK_x && DEPNU
+                nstate_x.nu = state_x.nu / var_x;
             end
-            if DONTMOVECATS && nstate_y.mu < 1e-5
-                OK_y = 0;
+            if OK_y && DEPNU
+                nstate_y.nu = state_y.nu / var_y;
             end
+        case 17
+            update = 'Vary lambda';
+
+            rx = @() rp(state_x.lambda);
+            dx = @(x) dp(x, state_x.lambda);
+            ry = @() rp(state_y.lambda);
+            dy = @(y) dp(y, state_y.lambda);
+
+            [nstate_x.lambda, nstate_y.lambda] = coupling_maximal(rx, dx, ry, dy);
+
+            var_x = nstate_x.lambda / state_x.lambda;
+            var_y = nstate_y.lambda / state_y.lambda;
+
+            logq_x = -log(var_x);
+            logq_y = -log(var_y);
+
+            U_x = state_x.nodes;
+            U_y = state_y.nodes;
+
+            if DEPNU
+                nstate_x.nu=state_x.nu * var_x;
+                nstate_y.nu=state_y.nu * var_y;
+            end
+        case 19
+            update = 'Vary XI for one leaf';
+            % Same leaf indices in both x and y after housekeeping
+            leaf = randsample(state_x.leaves, 1); % state_x.leaves(ceil(rand * length(state.leaves)));
+
+            rx = @() 1 - rp(1 - state_x.tree(leaf).xi);
+            dx = @(x) dp(1 - x, 1 - state_x.tree(leaf).xi);
+            ry = @() 1 - rp(1 - state_y.tree(leaf).xi);
+            dy = @(y) dp(1 - y, 1 - state_y.tree(leaf).xi);
+
+            [nstate_x.tree(leaf).xi, nstate_y.tree(leaf).xi] ...
+                = coupling_maximal(rx, dx, ry, dy);
+
+            var_x = (1 - nstate_x.tree(leaf).xi) / (1 - state_x.tree(leaf).xi);
+            var_y = (1 - nstate_y.tree(leaf).xi) / (1 - state_y.tree(leaf).xi);
+
+            logq_x = -log(var_x);
+            logq_y = -log(var_y);
+
+            U_x = above(leaf, state_x.tree, state_x.root);
+            U_y = above(leaf, state_y.tree, state_y.root);
+
+            OK_x = nstate_x.tree(leaf).xi >= 0;
+            OK_y = nstate_y.tree(leaf).xi >= 0;
+        % case 20
+        %     update = 'Vary XI for all leaves';
+        %     % Same leaf indices after housekeeping
+        %     % I'm judging by the break rather than continue in the original
+        %     % version that we do all or nothing here
+        %     V = [];
+        %     variation = mcmc.update.del+rand*mcmc.update.deldel;
+        %     logq = -2 * log(variation); % logq=2*log(variation);
+        %     for i = state.leaves
+        %         if state.tree(i).xi < 1
+        %             c = variation * (1 - state.tree(i).xi);
+        %             if c <= 1
+        %                 nstate.tree(i).xi = 1-c;
+        %                 logq = logq + log(variation);
+        %                 V = [V, i];
+        %             else
+        %                 OK = 0;
+        %                 break;
+        %             end
+        %         end
+        %     end
+        %     U=above(V,state.tree,state.root);
+        %%%%%%
         case 21
             update = 'Vary beta';
             if ~VARYBETA && BORROWING
@@ -74,6 +185,8 @@ function [state_x, succ_x, state_y, succ_y] = Markov_coupled_maximal(mcmc, ...
 
             U_x = state_x.nodes;
             U_y = state_y.nodes;
+        otherwise
+            error('Not implemented');
     end
 
     [state_x, succ_x] = updateState(update, model, u_mh, TOPOLOGY, logq_x, ...
@@ -143,15 +256,21 @@ end
 
 % Sampling from a maximal coupling of two distributions
 function [x, y] = coupling_maximal(rp, dp, rq, dq)
+    % TODO: densities on log scale
     x = rp();
     if rand * dp(x) <= dq(x)
         y = x;
     else
         y = nan;
+        n = 0;
         while isnan(y)
             ys = rq();
             if rand * dq(ys) > dp(ys)
                 y = ys;
+            end
+            n = n + 1;
+            if n == 1000
+                keyboard;
             end
         end
     end

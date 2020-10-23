@@ -1,6 +1,8 @@
 function batchTraitLab_coupled(run_file, i_chains)
 % Run coupled MCMC samplers for input run_file and output IDs i_chains
+    rng('shuffle');
     for i = i_chains
+        fprintf('\n\nStarting chain %i\n\n', i);
         batchTraitLab_coupled_run(run_file, num2str(i));
     end
 end
