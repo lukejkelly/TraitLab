@@ -1,6 +1,6 @@
 function [x, y] = maximalCoupling(rp, dp, rq, dq)
-    % Sampling from a maximal coupling of distributions p and q
-    % TODO: densities on log scale
+    % Sampling from a maximal coupling of p and q
+    % rp generates a draw from p, dp is the corresponding density; q likewise
     x = rp();
     if rand * dp(x) <= dq(x)
         y = x;

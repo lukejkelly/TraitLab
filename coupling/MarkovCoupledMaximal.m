@@ -11,11 +11,6 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
 
     TOPOLOGY = 0;
 
-    % Prototypes for coupling proposals
-    rp = @(v) v * (mcmc.update.del + rand * mcmc.update.deldel);
-    dp = @(u, v) (v * mcmc.update.del <= u ...
-                  && u <= v * (mcmc.update.del + mcmc.update.deldel)) ...
-                 / (v * mcmc.update.deldel);
     switch MV
         case 8
             update = 'Vary mu';
@@ -24,12 +19,11 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
                 keyboard;
             end
 
-            rx = @() rp(state_x.mu);
-            dx = @(x) dp(x, state_x.mu);
-            ry = @() rp(state_y.mu);
-            dy = @(y) dp(y, state_y.mu);
-
-            [nstate_x.mu, nstate_y.mu] = maximalCoupling(rx, dx, ry, dy);
+            [nstate_x.mu, nstate_y.mu] = maximalCouplingUniformScaling(...
+                state_x.mu, ...
+                state_y.mu, ...
+                mcmc.update.del, ...
+                mcmc.update.del + mcmc.update.deldel);
 
             var_x = nstate_x.mu / state_x.mu;
             var_y = nstate_y.mu / state_y.mu;
@@ -50,12 +44,11 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
         case 15
             update = 'Vary rho';
 
-            rx = @() rp(state_x.rho);
-            dx = @(x) dp(x, state_x.rho);
-            ry = @() rp(state_y.rho);
-            dy = @(y) dp(y, state_y.rho);
-
-            [nstate_x.rho, nstate_y.rho] = maximalCoupling(rx, dx, ry, dy);
+            [nstate_x.rho, nstate_y.rho] = maximalCouplingUniformScaling(...
+                state_x.rho, ...
+                state_y.rho, ...
+                mcmc.update.del, ...
+                mcmc.update.del + mcmc.update.deldel);
 
             var_x = nstate_x.rho / state_x.rho;
             var_y = nstate_y.rho / state_y.rho;
@@ -68,12 +61,11 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
         case 16
             update = 'Vary kappa';
 
-            rx = @() rp(state_x.kappa);
-            dx = @(x) dp(x, state_x.kappa);
-            ry = @() rp(state_y.kappa);
-            dy = @(y) dp(y, state_y.kappa);
-
-            [nstate_x.kappa, nstate_y.kappa] = maximalCoupling(rx, dx, ry, dy);
+            [nstate_x.kappa, nstate_y.kappa] = maximalCouplingUniformScaling(...
+                state_x.kappa, ...
+                state_y.kappa, ...
+                mcmc.update.del, ...
+                mcmc.update.del + mcmc.update.deldel);
 
             var_x = nstate_x.kappa / state_x.kappa;
             var_y = nstate_y.kappa / state_y.kappa;
@@ -96,12 +88,12 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
         case 17
             update = 'Vary lambda';
 
-            rx = @() rp(state_x.lambda);
-            dx = @(x) dp(x, state_x.lambda);
-            ry = @() rp(state_y.lambda);
-            dy = @(y) dp(y, state_y.lambda);
-
-            [nstate_x.lambda, nstate_y.lambda] = maximalCoupling(rx, dx, ry, dy);
+            [nstate_x.lambda, nstate_y.lambda] ...
+                = maximalCouplingUniformScaling(...
+                    state_x.lambda, ...
+                    state_y.lambda, ...
+                    mcmc.update.del, ...
+                    mcmc.update.del + mcmc.update.deldel);
 
             var_x = nstate_x.lambda / state_x.lambda;
             var_y = nstate_y.lambda / state_y.lambda;
@@ -119,15 +111,19 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
         case 19
             update = 'Vary XI for one leaf';
             % Same leaf indices in both x and y after housekeeping
-            leaf = randsample(state_x.leaves, 1); % state_x.leaves(ceil(rand * length(state.leaves)));
+            leaf = randsample(state_x.leaves, 1);
+            % state_x.leaves(ceil(rand * length(state.leaves)));
 
-            rx = @() 1 - rp(1 - state_x.tree(leaf).xi);
-            dx = @(x) dp(1 - x, 1 - state_x.tree(leaf).xi);
-            ry = @() 1 - rp(1 - state_y.tree(leaf).xi);
-            dy = @(y) dp(1 - y, 1 - state_y.tree(leaf).xi);
+            % xi'_tilde = 1 - xi' = U(del, del + deldel) * (1 - xi)
+            [nstate_x_tree_leaf_xi_tilde, nstate_y_tree_leaf_xi_tilde] ...
+                = maximalCouplingUniformScaling(...
+                    1 - state_x.tree(leaf).xi, ...
+                    1 - state_y.tree(leaf).xi, ...
+                    mcmc.update.del, ...
+                    mcmc.update.del + mcmc.update.deldel);
 
-            [nstate_x.tree(leaf).xi, nstate_y.tree(leaf).xi] ...
-                = maximalCoupling(rx, dx, ry, dy);
+            nstate_x.tree(leaf).xi = 1 - nstate_x_tree_leaf_xi_tilde;
+            nstate_y.tree(leaf).xi = 1 - nstate_y_tree_leaf_xi_tilde;
 
             var_x = (1 - nstate_x.tree(leaf).xi) / (1 - state_x.tree(leaf).xi);
             var_y = (1 - nstate_y.tree(leaf).xi) / (1 - state_y.tree(leaf).xi);
@@ -147,12 +143,11 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
                 keyboard;
             end
 
-            rx = @() rp(state_x.beta);
-            dx = @(x) dp(x, state_x.beta);
-            ry = @() rp(state_y.beta);
-            dy = @(y) dp(y, state_y.beta);
-
-            [nstate_x.beta, nstate_y.beta] = maximalCoupling(rx, dx, ry, dy);
+            [nstate_x.beta, nstate_y.beta] = maximalCouplingUniformScaling(...
+                state_x.beta, ...
+                state_y.beta, ...
+                mcmc.update.del, ...
+                mcmc.update.del + mcmc.update.deldel);
 
             var_x = nstate_x.beta / state_x.beta;
             var_y = nstate_y.beta / state_y.beta;
