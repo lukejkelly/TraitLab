@@ -1,4 +1,7 @@
-function [state,pa] = Markov(mcmc,model,state,ignoreearlywarn)
+function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn, iters)
+% Modification of Markov to sequentially draw iters sample from prior
+% Log likelihood terms are only calculated on exit
+
 % [state,pa] = Markov(mcmc,model,state)
 % written by GKN
 % last modified by RJR on 07/05/07
@@ -10,7 +13,7 @@ if nargin<=3, ignoreearlywarn=0; end
 acct=zeros(mcmc.update.Nmvs,1);
 prop=zeros(mcmc.update.Nmvs,1);
 
-for t=1:(mcmc.subsample)
+for t=1:iters % (mcmc.subsample)
 
     drawnow;
     STOPRUN = get(gcbo,'UserData');
@@ -263,13 +266,13 @@ for t=1:(mcmc.subsample)
         end
         [nstate, OK]=MarkRcurs(nstate,U,TOPOLOGY,ignoreearlywarn);
 
-        % Likelihood calculations.
-        if BORROWING
-            [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate); % LUKE
-        else
-            nstate.loglkd     = LogLkd(nstate);
-            nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
-        end
+        % % Likelihood calculations.
+        % if BORROWING
+        %     [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate); % LUKE
+        % else
+        %     nstate.loglkd     = LogLkd(nstate);
+        %     nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
+        % end
 
         % Log-prior for tree and catastrophes.
         nstate.logprior = LogPrior(model.prior, nstate);
@@ -278,11 +281,12 @@ for t=1:(mcmc.subsample)
         logpp = LogPriorParm(state, nstate);
 
         % Log-Hastings ratio in acceptance step.
-        logr = nstate.logprior - state.logprior + nstate.loglkd - state.loglkd + logq + logpp;
+        logr = nstate.logprior - state.logprior ... % + nstate.loglkd - state.loglkd
+               + logq + logpp;
 
         % Acceptance step.
         %GKN Jan 08 to handle big tree, llkd is -inf so do random walk (3rd OR)
-        if ( (logr>0) || (log(rand)<logr) || isinf(state.loglkd) )
+        if ( (logr>0) || (log(rand)<logr) ) % || isinf(state.loglkd) )
             state=nstate;
             acct(MV)=acct(MV)+1;
         end
@@ -307,3 +311,11 @@ end
 %pa=zeros(mcmc.update.Nmvs,1);
 %pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
 pa=acct./prop; %Changed to display NaN when the update was not proposed. RJR 19/03/09
+
+% Likelihood calculations.
+if BORROWING
+    [state.loglkd, state.fullloglkd] = logLkd2(state);
+else
+    state.loglkd     = LogLkd(state);
+    state.fullloglkd = LogLkd(state, state.lambda);
+end
