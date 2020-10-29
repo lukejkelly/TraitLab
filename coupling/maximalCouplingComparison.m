@@ -3,8 +3,8 @@ a = 0.5;
 b = 2;
 
 % Scaling uniform distributions
-xc = 0.2121;
-yc = 0.45;
+xc = 0.9;
+yc = 0.5;
 
 % Setting up
 n = 1e5; nn = 1:n;
@@ -26,10 +26,12 @@ case 'direct'
     [mc(:, 1), mc(:, 2)] = arrayfun(@(~) maximalCoupling(rx, dx, ry, dy), nn);
     [mcl(:, 1), mcl(:, 2)] = arrayfun(@(~) maximalCouplingLog(rx, ldx, ry, ldy), nn);
     [mcus(:, 1), mcus(:, 2)] = arrayfun(@(~) maximalCouplingUniformScaling(xc, yc, a, b), nn);
+
+    ranges = [a, b]' * [xc, yc];
 case 'indirect'
     % Sampling x = 1 - (1 - xc) * U(a, b)
-    xc = max(0, min(1, xc));
-    yc = max(0, min(1, yc));
+    xc = max(0.01, min(0.99, xc));
+    yc = max(0.01, min(0.99, yc));
 
     rx = @() 1 - rp(1 - xc); dx = @(x) dp(1 - x, 1 - xc); ldx = @(x) ldp(1 - x, 1 - xc);
     ry = @() 1 - rp(1 - yc); dy = @(y) dp(1 - y, 1 - yc); ldy = @(y) ldp(1 - y, 1 - yc);
@@ -40,25 +42,26 @@ case 'indirect'
 
     [x_t, y_t] = arrayfun(@(~) maximalCouplingUniformScaling(1 - xc, 1 - yc, a, b), nn);
     mcus =  1 - [x_t', y_t'];
+
+    ranges = 1 - [b, a]' * (1 - [xc, yc]);
 end
 
 figure(1);
 for j = 1:2
-    subplot(2, 2, j);
-    histogram(oracle(:, j), 25, 'FaceAlpha', 0.5, 'EdgeColor', 'none'); hold on;
-    histogram(mc(:, j), 25, 'FaceAlpha', 0.5, 'EdgeColor', 'none');
-    histogram(mcl(:, j), 25, 'FaceAlpha', 0.5, 'EdgeColor', 'none');
-    histogram(mcus(:, j), 25, 'FaceAlpha', 0.5, 'EdgeColor', 'none'); hold off;
+    subplot(1, 2, j);
+    [n1, e1] = histcounts(oracle(:, j), 101, 'Normalization', 'cdf');
+    [n2, e2] = histcounts(mc(:, j), 101, 'Normalization', 'cdf');
+    [n3, e3] = histcounts(mcl(:, j), 101, 'Normalization', 'cdf');
+    [n4, e4] = histcounts(mcus(:, j), 101, 'Normalization', 'cdf');
 
-    subplot(2, 2, 2 + j);
-    ecdf(oracle(:, j)); hold on;
-    ecdf(mc(:, j));
-    ecdf(mcl(:, j));
-    ecdf(mcus(:, j)); hold off;
+    plot([e1; e2; e3; e4]', [zeros(1, 4); [n1; n2; n3; n4]'], ':', ...
+        'LineWidth', 2); hold on;
+    plot(ranges(:, j), [0, 1], '--', 'LineWidth', 2); hold off
+    axis('tight');
 end
 legend
 
-if isequal(type, 'direct') && (a * xc <= b * yc || a * yc <= b * xc)
+if isequal(type, 'direct') && ~(b * xc < a * yc || b * yc < a * xc)
     if xc <= yc
         ol = (b * xc - a * yc) / (yc * (b - a));
     else

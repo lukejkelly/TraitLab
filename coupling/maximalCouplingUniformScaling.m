@@ -12,7 +12,7 @@ function [x, y] = maximalCouplingUniformScaling(xc, yc, a, b)
     if ismembertol(xc, yc)
         % Already coupled
         [x, y] = deal(rp());
-    elseif ~(a * xc < b * yc || a * yc < b * xc)
+    elseif (b * xc < a * yc || b * yc < a * xc)
         % No overlap
         x = rp();
         y = rq();
