@@ -40,21 +40,11 @@ function [x, y] = maximalCouplingUniformScaling(xc, yc, a, b)
     end
 end
 
-
 % Prototypes for coupling
 function u = prototypeSample(v, a, b)
     % Sample u ~ Unif(va, vb)
     u = v * (a + rand * (b - a));
 end
-
-% function d = prototypeDensity(u, v, a, b)
-%     % Density of u ~ Unif(va, vb)
-%     if (v * a <= u && u <= v * b)
-%         d = 1 / (v * (b - a));
-%     else
-%         d = 0;
-%     end
-% end
 
 function ld = prototypeLogDensity(u, v, a, b)
     % Log density of u ~ Unif(va, vb)

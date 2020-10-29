@@ -14,10 +14,12 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
     switch MV
         case 1
             update='RW node time between parent time and oldest child time';
-            [i,newage,logq]=Schoose(state);
-            [nstate,U,TOPOLOGY]=Supdate(state,i,newage);
-            % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-            if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
+            [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
+                = SchooseCoupledMaximal(state_x, state_y);
+            if BORROWING
+                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
+                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
+            end
         case 8
             update = 'Vary mu';
             if ~VARYMU
