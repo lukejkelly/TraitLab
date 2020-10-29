@@ -312,6 +312,12 @@ end
 %pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
 pa=acct./prop; %Changed to display NaN when the update was not proposed. RJR 19/03/09
 
+% Priors on mu and beta are very weak and large values slow down the likelihood
+% calculation and mixing of the chain, so let's ensure they're still small-ish
+% TODO: come up with a better way of doing this
+state.mu = mod(state.mu, 1);
+state.beta = mod(state.beta, 1);
+
 % Likelihood calculations.
 if BORROWING
     [state.loglkd, state.fullloglkd] = logLkd2(state);
