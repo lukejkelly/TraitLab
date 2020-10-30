@@ -1,5 +1,4 @@
 function tests = housekeepingTest
-    % Unit-testing likelihood calculations in patternCounts
     tests = functiontests(localfunctions);
 end
 
