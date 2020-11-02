@@ -1,4 +1,4 @@
-function [i, j, k, newage, logq] = Bchoose(state, mt, THETA, prior)
+function [i, j, k, newage, logq] = BchooseCoupledMaximal(state, mt, THETA, prior)
 
     global ROOT WIDE OTHER
     N = 2 * state.NS - 1;
@@ -13,17 +13,17 @@ function [i, j, k, newage, logq] = Bchoose(state, mt, THETA, prior)
     iP = s(i).parent;
     iT = s(i).time;
 
-    if mt==WIDE
-        if prior.isclade,
-            r=[];
-            for a = 1:(2*state.NS)
+    if mt == WIDE
+        if prior.isclade
+            r = [];
+            for a = 1:(2 * state.NS)
                 if s(a).type < ROOT ...
                     && length(s(a).clade) >= length(s(iP).clade) ...
                     && length(s(s(a).parent).clade) >= length(s(iP).clade) ...
                     && isempty(setdiff(s(iP).clade, s(a).clade)) ...
                     && isempty(setdiff(s(s(a).parent).clade, s(iP).clade))
                     r = [r, a];
-                end;
+                end
             end
             N = length(r);
         else
