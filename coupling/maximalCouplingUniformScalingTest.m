@@ -133,15 +133,15 @@ function compareDistributions(testCase, indep, mc, mcl, mcus, ranges, ol)
         plot(ranges(:, j), [0, 1], '--', 'LineWidth', 2); hold off
         title(sprintf('U(%g, %g)', ranges(1, j), ranges(2, j)));
     end
-    legend('indep', 'mc', 'mcus', 'mcl', 'exact');
+    legend('indep', 'mc', 'mcl', 'mcus', 'exact');
     suptitle(sprintf('Exact and empirical CDFs'));
     fmt = ' %-6.4g %-6.4g %-6.4g %-6.4g\n';
-    fprintf('Sample ranges:                 min_x  max_x  min_y  max_y\n');
-    fprintf(['theoretical:                  ', fmt], ranges);
-    fprintf(['independent                   ', fmt], getRanges(indep));
-    fprintf(['maximalCoupling:              ', fmt], getRanges(mc));
-    fprintf(['maximalCouplingLog:           ', fmt], getRanges(mcl));
-    fprintf(['maximalCouplingUniformScaling:', fmt], getRanges(mcus));
+    fprintf('Sample ranges                 min_x  max_x  min_y  max_y\n');
+    fprintf(['theoretical                  ', fmt], ranges);
+    fprintf(['independent                  ', fmt], getRanges(indep));
+    fprintf(['maximalCoupling              ', fmt], getRanges(mc));
+    fprintf(['maximalCouplingLog           ', fmt], getRanges(mcl));
+    fprintf(['maximalCouplingUniformScaling', fmt], getRanges(mcus));
 
     v1 = input('Do these CDFs and ranges match? Reply 1 for yes... ');
     assertTrue(testCase, v1 == 1);
@@ -151,7 +151,7 @@ function compareDistributions(testCase, indep, mc, mcl, mcus, ranges, ol)
     fprintf('theoretical                   = %g\n', ol);
     fprintf('maximalCoupling               = %g\n', propMatch(mc));
     fprintf('maximalCouplingLog            = %g\n', propMatch(mcl));
-    fprintf('maximalCouplingUniformScaling = %g\n', propMatch(mcus)),
+    fprintf('maximalCouplingUniformScaling = %g\n', propMatch(mcus));
 
     v2 = input('Are these proportions the same? Reply 1 for yes... ');
     assertTrue(testCase, v2 == 1);
