@@ -5,7 +5,7 @@ function [x, y] = maximalCouplingShiftedExponential(a_p, a_q, theta)
     % Overlap
     log_min_PQ = -theta * abs(a_p - a_q);
 
-    if log(rand) < log_min_PQ
+    if log(rand) <= log_min_PQ
         % Coupling
         x = sampleShiftedExponential(max(a_p, a_q), theta);
         y = x;

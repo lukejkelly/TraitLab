@@ -1,5 +1,5 @@
 function [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
-     = SchooseCoupledMaximal(state_x, state_y)
+        = SchooseCoupledMaximal(state_x, state_y)
 
     % Housekeeping means root is the same in both x and y, internal nodes
     % labelled with the same set of indices
