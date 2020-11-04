@@ -4,9 +4,9 @@ function tests = maximalCouplingShiftedExponentialTest
 end
 
 function samplingTest(testCase)
-    a_p = [1, 10, 1000];
-    a_q = [10, 10, 100];
-    theta = [0.1, 0.01, 0.001];
+    a_p = [1, 10, 1000, 1000];
+    a_q = [10, 10, 100, 1100];
+    theta = [0.1, 0.01, 0.001, 0.01];
     for i = 1:length(theta)
         compareDistributions(testCase, a_p(i), a_q(i), theta(i));
     end
@@ -46,27 +46,32 @@ function compareDistributions(testCase, a_p, a_q, theta)
     % Overlap
     ol = exp(-theta * abs(a_p - a_q));
 
-
     % Plotting empirical and actual CDFs
     clf();
     for j = 1:2
-        subplot(1, 2, j);
-        [n1, e1] = histcounts(indep(:, j), 101, 'Normalization', 'cdf');
-        [n2, e2] = histcounts(mcl(:, j), 101, 'Normalization', 'cdf');
-        [n3, e3] = histcounts(mcse(:, j), 101, 'Normalization', 'cdf');
+        [~, edges] = histcounts([indep(:, j), mcl(:, j), mcse(:, j)]);
+        n1 = histcounts(indep(:, j), edges, 'Normalization', 'cdf');
+        n2 = histcounts(mcl(:, j), edges, 'Normalization', 'cdf');
+        n3 = histcounts(mcse(:, j), edges, 'Normalization', 'cdf');
 
-        semilogx([e1; e2; e3]', [zeros(1, 3); [n1; n2; n3]'], ':', ...
+        subplot(2, 2, j);
+        semilogx(edges, [zeros(1, 3); [n1; n2; n3]'], ':', ...
             'LineWidth', 2);
         if j == 1
             r = a_p;
         else
             r = a_q;
         end
-        title(sprintf('ExpS(%g, %g)', theta, r));
-    end
+        title(sprintf('$\\mathrm{shift} = %g$', r), 'Interpreter', 'latex');
+        legend('indep', 'mcl', 'mcse', 'Location', 'southeast');
 
-    legend('indep', 'mcl', 'mcse');
-    suptitle(sprintf('Exact and empirical CDFs'));
+        subplot(2, 2, j + 2);
+        semilogx(edges, [zeros(1, 2); (n1 - [n2; n3])']);
+        legend('$ \mathrm{indep} - \mathrm{mcl} $', ...
+               '$ \mathrm{indep} - \mathrm{mcse} $', 'Interpreter', 'latex');
+    end
+    set(suptitle(sprintf('Empirical CDFs of shifted Exp($ %g $) samples', ...
+                 theta)), 'Interpreter', 'latex');
     fmt = ' %-6.4g %-6.4g\n';
     fprintf('Sample minima:                min_x  min_y\n');
     fprintf(['actual                       ', fmt], a_p, a_q);
@@ -78,6 +83,7 @@ function compareDistributions(testCase, a_p, a_q, theta)
     assertTrue(testCase, v1 == 1);
 
     % Proportion of matching samples
+    assertTrue(testCase, propMatch(indep) == 0);
     fprintf('Proportion of matching samples\n');
     fprintf('theoretical                       = %g\n', ol);
     fprintf('maximalCouplingLog                = %g\n', propMatch(mcl));
