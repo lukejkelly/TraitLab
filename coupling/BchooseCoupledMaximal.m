@@ -254,11 +254,6 @@ function [logq] = getCoupling1Parameter(i, jT, s, newage, THETA)
     old_range = PiPT - old_minage;
 
     logq = delta * THETA - log(THETA * old_range);
-    if ~ismembertol(logq, log(exp(delta * THETA) / (THETA * old_range)))
-        disp(logq);
-        disp(logq - log(exp(delta * THETA) / (THETA * old_range)));
-        error('Numerical or coding error');
-    end
 end
 
 function [new_minage, kT, logq] = getCoupling2Parameters(i, j, k, s, THETA)
@@ -284,11 +279,6 @@ function [new_minage, kT, logq] = getCoupling2Parameters(i, j, k, s, THETA)
     % Sampling is the same but logq depends on whether iP was root
     if s(PiP).type == ROOT
         logq = (CiPT - s(iP).time) * THETA + log(new_range) + log(THETA);
-        if ~ismembertol(logq, log(exp((CiPT - s(iP).time) * THETA) * new_range * THETA))
-            disp(logq);
-            disp(logq - log(exp((CiPT - s(iP).time) * THETA) * new_range * THETA));
-            error('Expressions not matching');
-        end
     else
         logq = log(new_range) - log(old_range);
     end
