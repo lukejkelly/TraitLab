@@ -28,6 +28,8 @@ function [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
             r_x = getWideCandidatesClade(i, s_x);
             r_y = getWideCandidatesClade(i, s_y);
             if ~isequaln(r_x, r_y)
+                disp(r_x);
+                disp(r_y);
                 error('Destination edge sets should be identical');
             end
             r = r_x;
@@ -42,6 +44,7 @@ function [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
         % If j_x is the root in x then j_y = j_x is the root in y
         if any([s_x(j_x).type, s_x(j_x).type] == ROOT) ...
             && (j_x ~= j_y || s_x(j_x).type ~= s_x(j_x).type)
+            disp([j_x, j_y]);
             error('Root indices should match');
         end
     end
@@ -252,6 +255,8 @@ function [logq] = getCoupling1Parameter(i, jT, s, newage, THETA)
 
     logq = delta * THETA - log(THETA * old_range);
     if ~ismembertol(logq, log(exp(delta * THETA) / (THETA * old_range)))
+        disp(logq);
+        disp(logq - log(exp(delta * THETA) / (THETA * old_range)));
         error('Numerical or coding error');
     end
 end
@@ -280,7 +285,9 @@ function [new_minage, kT, logq] = getCoupling2Parameters(i, j, k, s, THETA)
     if s(PiP).type == ROOT
         logq = (CiPT - s(iP).time) * THETA + log(new_range) + log(THETA);
         if ~ismembertol(logq, log(exp((CiPT - s(iP).time) * THETA) * new_range * THETA))
-            Error('Expressions not matching');
+            disp(logq);
+            disp(logq - log(exp((CiPT - s(iP).time) * THETA) * new_range * THETA));
+            error('Expressions not matching');
         end
     else
         logq = log(new_range) - log(old_range);
