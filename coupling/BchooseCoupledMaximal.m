@@ -30,6 +30,7 @@ function [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
             if ~isequaln(r_x, r_y)
                 disp(r_x);
                 disp(r_y);
+                save(sprintf('output/%d.mat', yyyymmdd(datetime)));
                 error('Destination edge sets should be identical');
             end
             r = r_x;
