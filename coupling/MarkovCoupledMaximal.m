@@ -14,8 +14,12 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
     switch MV
         case 1
             update='RW node time between parent time and oldest child time';
-            [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
+            [i, newage_x, newage_y, logq_x, logq_y] ...
                 = SchooseCoupledMaximal(state_x, state_y);
+            % Supdate always returns TOPOLOGY = 0 so we ignore it
+            [nstate_x, U_x, ~] = Supdate(state_x, i, newage_x);
+            [nstate_y, U_y, ~] = Supdate(state_y, i, newage_y);
+
             if BORROWING
                 logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
                 logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
