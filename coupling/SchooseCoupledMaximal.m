@@ -12,7 +12,7 @@ function [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
         % newage ~ U[(iT + jT) / 2, 2 * iT - jT]
         [newage_x, newage_y] = maximalCouplingUniform(a_x, b_x, a_y, b_y);
 
-        % Sampling densities are (3 / 2) / (iT or newage - jT)
+        % Sampling densities are (2 / 3) / (iT or newage - jT)
         logq_x = log(iT_x - jT_x) - log(newage_x - jT_x);
         logq_y = log(iT_y - jT_y) - log(newage_y - jT_y);
     else
