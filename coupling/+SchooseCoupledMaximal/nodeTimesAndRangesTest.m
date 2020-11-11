@@ -1,4 +1,4 @@
-function tests = SchooseNodeTimesAndRangesTest
+function tests = nodeTimesAndRangesTest
     % Unit-testing various maximal coupling functions
     tests = functiontests(localfunctions);
 end
@@ -8,7 +8,8 @@ function rootTest(testCase)
     state = testCase.TestData.state;
     i = find([state.tree.type] == ROOT);
 
-    [iTObs, kTObs, jTObs, aObs, bObs] = SchooseNodeTimesAndRanges(i, state);
+    [iTObs, kTObs, jTObs, aObs, bObs] ...
+        = SchooseCoupledMaximal.nodeTimesAndRanges(i, state);
     assertEqual(testCase, iTObs, state.tree(i).time);
     assertEqual(testCase, kTObs, state.tree([state.tree.type] == ADAM).time);
     assertEqual(testCase, jTObs, ...
@@ -30,7 +31,8 @@ function anstTest(testCase)
     global ANST
     state = testCase.TestData.state;
     for i = find([state.tree.type] == ANST)
-        [iTObs, kTObs, jTObs, aObs, bObs] = SchooseNodeTimesAndRanges(i, state);
+        [iTObs, kTObs, jTObs, aObs, bObs] ...
+            = SchooseCoupledMaximal.nodeTimesAndRanges(i, state);
         assertEqual(testCase, iTObs, state.tree(i).time);
         assertEqual(testCase, kTObs, state.tree(state.tree(i).parent).time);
         assertEqual(testCase, jTObs, ...

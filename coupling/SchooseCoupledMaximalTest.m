@@ -127,8 +127,8 @@ function coupledTest(testCase)
     overlapObs = coupled ./ visited;
     overlapExp = getOverlap(state_x, state_y);
 
-    fmt = '%-6.4g %-6.4g %+-6.4g\n';
-    fprintf('obs    exp    diff\n');
+    fprintf('obs     exp     diff\n');
+    fmt = '%-.4f  %-.4f  %+-.4f\n';
     fprintf(fmt, [overlapObs; overlapExp; overlapObs - overlapExp]);
     v = input(['Do these proportions of coupled samples match? ', ...
                'Reply 1 for yes... ']);
@@ -163,8 +163,10 @@ function overlap = getOverlap(state_x, state_y)
     overlap = nan(1, length(state_x.nodes));
     for ind = 1:length(state_x.nodes)
         i = state_x.nodes(ind);
-        [~, kT_x, jT_x, a_x, b_x] = SchooseNodeTimesAndRanges(i, state_x);
-        [~, kT_y, jT_y, a_y, b_y] = SchooseNodeTimesAndRanges(i, state_y);
+        [~, kT_x, jT_x, a_x, b_x] ...
+            = SchooseCoupledMaximal.nodeTimesAndRanges(i, state_x);
+        [~, kT_y, jT_y, a_y, b_y] ...
+            = SchooseCoupledMaximal.nodeTimesAndRanges(i, state_y);
 
         if i == state_x.root
             overlap(ind) = max(0, min(b_x, b_y) - max(a_x, a_y)) ...

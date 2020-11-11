@@ -3,11 +3,12 @@ function [i, newage_x, newage_y, logq_x, logq_y] ...
 
     % Housekeeping means root is the same in both x and y, internal nodes
     % labelled with the same set of indices
-    % TODO: remove i = randsample(state_x.nodes, 1);
     i = state_x.nodes(ceil(rand * (state_x.NS - 1)));
 
-    [iT_x, kT_x, jT_x, a_x, b_x] = SchooseNodeTimesAndRanges(i, state_x);
-    [iT_y, kT_y, jT_y, a_y, b_y] = SchooseNodeTimesAndRanges(i, state_y);
+    [iT_x, kT_x, jT_x, a_x, b_x] ...
+        = SchooseCoupledMaximal.nodeTimesAndRanges(i, state_x);
+    [iT_y, kT_y, jT_y, a_y, b_y] ...
+        = SchooseCoupledMaximal.nodeTimesAndRanges(i, state_y);
 
     if i == state_x.root
         % newage ~ U[(iT + jT) / 2, 2 * iT - jT]
