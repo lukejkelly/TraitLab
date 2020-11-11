@@ -1,5 +1,5 @@
 function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
-    model, state_x, state_y, ignoreearlywarn, MV, u_mh)
+        model, state_x, state_y, ignoreearlywarn, MV, u_mh)
     % Maximal coupling of scalar parameter proposal and acceptance steps
 
     global NARROW WIDE DEPNU VARYMU DONTMOVECATS BORROWING VARYBETA
@@ -32,17 +32,26 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
                 update = 'Reconnect an edge into an edge chosen UAR over the tree';
                 mt = WIDE;
             end
-            [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
+            [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
                 = BchooseCoupledMaximal(state_x, state_y, mt, ...
                                         mcmc.update.theta, model.prior);
+            % Bupdate always returns TOPOLOGY = 1 so we ignore it below
             TOPOLOGY = 1;
-            OK_x = ~isempty(nstate_x);
-            OK_y = ~isempty(nstate_y);
-            if OK_x && BORROWING
-                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
+            OK_x = ~isempty(newage_x);
+            if OK_x
+                [nstate_x, U_x, ~] = Bupdate(state_x, i, j_x, k_x, newage_x);
+                if BORROWING
+                    logq_x = logq_x ...
+                             + catastropheScalingFactor(state_x, nstate_x);
+                end
             end
-            if OK_y && BORROWING
-                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
+            OK_y = ~isempty(newage_y);
+            if OK_y
+                [nstate_y, U_y, ~] = Bupdate(state_y, i, j_y, k_y, newage_y);
+                if BORROWING
+                    logq_y = logq_y ...
+                             + catastropheScalingFactor(state_y, nstate_y);
+                end
             end
         case 8
             update = 'Vary mu';

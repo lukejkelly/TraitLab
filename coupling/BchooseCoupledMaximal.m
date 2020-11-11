@@ -1,4 +1,4 @@
-function [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
+function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
         = BchooseCoupledMaximal(state_x, state_y, mt, THETA, prior)
 
     % Housekeeping means that Adam, root, clade roots and leaves have same
@@ -58,28 +58,18 @@ function [nstate_x, nstate_y, logq_x, logq_y, U_x, U_y] ...
             = sampleCoupling(i, j_x, j_y, k_x, k_y, s_x, s_y, THETA);
     else
         % Attempt to sample from marginal node times
-        if ~FAIL_x
+        if FAIL_x
+            newage_x = [];
+            logq_x = -Inf;
+        else
             [newage_x, logq_x] = sampleMarginal(i, j_x, k_x, s_x, THETA);
         end
-        if ~FAIL_y
+        if FAIL_y
+            newage_y = [];
+            logq_y = -Inf;
+        else
             [newage_y, logq_y] = sampleMarginal(i, j_y, k_y, s_y, THETA);
         end
-    end
-
-    % Part IV: create new state
-    if FAIL_x
-        nstate_x = [];
-        logq_x = -Inf;
-        U_x = [];
-    else
-        [nstate_x, U_x] = Bupdate(state_x, i, j_x, k_x, newage_x);
-    end
-    if FAIL_y
-        nstate_y = [];
-        logq_y = [];
-        U_y = [];
-    else
-        [nstate_y, U_y] = Bupdate(state_y, i, j_y, k_y, newage_y);
     end
 end
 
