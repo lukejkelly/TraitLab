@@ -5,7 +5,7 @@ end
 
 function rootTest(testCase)
     global ANST ROOT ADAM
-    state = testCase.TestData.state;
+    state.tree = ExpTree(10, 1);
     i = find([state.tree.type] == ROOT);
 
     [iTObs, kTObs, jTObs, aObs, bObs] ...
@@ -29,7 +29,7 @@ end
 
 function anstTest(testCase)
     global ANST
-    state = testCase.TestData.state;
+    state.tree = ExpTree(10, 1);
     for i = find([state.tree.type] == ANST)
         [iTObs, kTObs, jTObs, aObs, bObs] ...
             = SchooseCoupledMaximal.nodeTimesAndRanges(i, state);
@@ -51,10 +51,9 @@ function anstTest(testCase)
     end
 end
 
-function setupOnce(testCase)
+function setupOnce(~)
     GlobalSwitches;
     GlobalValues;
-    testCase.TestData.state.tree = ExpTree(10, 1);
 end
 
 function [iT, kT, jT, a, b] = getExpected(i, s)

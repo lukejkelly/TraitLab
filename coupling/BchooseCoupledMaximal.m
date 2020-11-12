@@ -36,7 +36,7 @@ function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
             r = r_x;
             N = length(r);
         else
-            r = 1:N;
+            r = 1:N; % TODO: Why does this allow root but above does not?
         end
         r = r(randperm(N));
         [j_x, k_x, FAIL_x] ...
@@ -45,12 +45,15 @@ function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
             = BchooseCoupledMaximal.getWideDestination(i, r, N, s_y);
 
         % If j_x is the root in x then j_y = j_x is the root in y
-        if ~(FAIL_x && FAIL_y) ...
+        % TODO: remove this check
+        if ~(FAIL_x || FAIL_y) ...
             && any([s_x(j_x).type, s_x(j_x).type] == ROOT) ...
             && (j_x ~= j_y || s_x(j_x).type ~= s_x(j_x).type)
             disp([j_x, j_y]);
             error('Root indices should match');
         end
+    otherwise
+        error('Move type must be NARROW or WIDE')
     end
 
     % Part III: sample new node time
