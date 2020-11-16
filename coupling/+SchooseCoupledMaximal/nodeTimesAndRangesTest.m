@@ -1,5 +1,4 @@
 function tests = nodeTimesAndRangesTest
-    % Unit-testing various maximal coupling functions
     tests = functiontests(localfunctions);
 end
 

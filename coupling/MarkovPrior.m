@@ -315,8 +315,8 @@ pa=acct./prop; %Changed to display NaN when the update was not proposed. RJR 19/
 % Priors on mu and beta are very weak and large values slow down the likelihood
 % calculation and mixing of the chain, so let's ensure they're still small-ish
 % TODO: come up with a better way of doing this
-state.mu = 1e-5 + rand * 1e-3;
-state.beta = 1e-5 + rand * 1e-3;
+% state.mu = 1e-5 + rand * 1e-3;
+% state.beta = 1e-5 + rand * 1e-3;
 
 % Likelihood calculations.
 if BORROWING

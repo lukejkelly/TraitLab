@@ -1,16 +1,15 @@
 function tests = getWideCandidatesCladeTest
-    % Unit-testing various maximal coupling functions
-    tests = functiontests(localfunctions);
-end
-
-function cladesYesTest(testCase)
-    % Create struct of elegible destinations for SPR moves <pa(i), i)> grafted
-    % onto <pa(a), a> so pa(a) becomes a child of pa(a) and sibling of a
+    % Elegible destinations for SPR moves <pa(i), i)> grafted onto <pa(a), a>
+    % so pa(a) becomes a child of pa(a) and sibling of a
     % For each node i we want the nodes a such that
     %     cl(pa(a)) = cl[pa(i)] SUBSET cl(a)
     % In other words, pa(i) is as constrained as pa(a) and least as constrained
     % as node a, which also cannot be the root
     % We ignore time information for now
+    tests = functiontests(localfunctions);
+end
+
+function cladesYesTest(testCase)
     global LEAF ANST
 
     s = BchooseCoupledMaximal.state10('Yes');

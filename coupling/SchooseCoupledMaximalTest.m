@@ -1,5 +1,4 @@
 function tests = SchooseCoupledMaximalTest
-    % Unit-testing various maximal coupling functions
     tests = functiontests(localfunctions);
 end
 
