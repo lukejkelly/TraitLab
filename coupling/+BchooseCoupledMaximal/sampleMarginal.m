@@ -1,8 +1,8 @@
 function [newage, logq] = sampleMarginal(i, j, k, s, THETA)
     global OTHER ROOT
 
-    iT = s(i).time;
     iP = s(i).parent;
+    iT = s(i).time;
 
     if s(j).type == ROOT
 
