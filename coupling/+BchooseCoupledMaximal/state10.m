@@ -1,4 +1,4 @@
-function s = state10(cladeStatus)
+function [s, state] = state10(cladeStatus)
     % Return the below tree with or without clade information
 
     % Root node (1) has age 1000, Adam node is (20)
@@ -26,7 +26,8 @@ function s = state10(cladeStatus)
     % CLADE NAME = c3 ROOTMIN = 200 ROOTMAX = 500 TAXA = 6 , 7 , 8 , 9 , 10;
     % CLADE NAME = c4                             TAXA = 9 , 10;
 
-    filePath = fullfile('coupling', 'BchooseCoupledMaximal', ...
+    filePath = fullfile('coupling', '+BchooseCoupledMaximal', ...
                         sprintf('state10-clades%s.mat', cladeStatus));
-    s = getfield(load(filePath), 'state', 'tree');
+    state = getfield(load(filePath), 'state');
+    s = state.tree;
 end

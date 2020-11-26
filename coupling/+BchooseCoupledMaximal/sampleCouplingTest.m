@@ -192,7 +192,7 @@ end
 
 function [s, nReps, newageObs, newageExp] = getTree10Params(clades)
     s = BchooseCoupledMaximal.state10(clades);
-    nReps = 1e3;
+    nReps = 5e4;
     [newageObs, newageExp] = deal(nan(nReps, 1));
 end
 
