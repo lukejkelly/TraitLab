@@ -1,4 +1,4 @@
-function [new_minage, kT, logq] = getCoupling2Parameters(i, j, k, s, THETA)
+function [new_minage, kT, logq] = getUniformParameters(i, j, k, s, THETA)
     global OTHER ROOT
 
     iT = s(i).time;

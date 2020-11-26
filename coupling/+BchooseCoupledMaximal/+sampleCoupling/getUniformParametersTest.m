@@ -1,4 +1,4 @@
-function tests = getCoupling2ParametersTest
+function tests = getUniformParametersTest
     tests = functiontests(localfunctions);
 end
 
@@ -26,7 +26,7 @@ function iPRootYesTest(testCase)
             k = s(j).parent;
 
             [new_minageObs, kTObs, logqObs] ...
-                = BchooseCoupledMaximal.sampleCoupling.getCoupling2Parameters(...
+                = BchooseCoupledMaximal.sampleCoupling.getUniformParameters(...
                     i, j, k, s, THETA);
 
             new_minageExp = max(iT, s(j).time);
@@ -62,7 +62,7 @@ function iPRootNoTest(testCase)
             k = s(j).parent;
 
             [new_minageObs, kTObs, logqObs] ...
-                = BchooseCoupledMaximal.sampleCoupling.getCoupling2Parameters(...
+                = BchooseCoupledMaximal.sampleCoupling.getUniformParameters(...
                     i, j, k, s, THETA);
 
             new_minageExp = max(iT, s(j).time);

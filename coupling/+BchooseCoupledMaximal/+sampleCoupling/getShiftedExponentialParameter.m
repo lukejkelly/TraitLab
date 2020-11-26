@@ -1,4 +1,4 @@
-function logq = getCoupling1Parameter(i, jT, s, newage, THETA)
+function logq = getShiftedExponentialParameter(i, jT, s, newage, THETA)
     global OTHER
 
     delta = newage - jT;

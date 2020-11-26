@@ -1,4 +1,4 @@
-function tests = getCoupling1ParameterTest
+function tests = getShiftedExponentialParameterTest
     % Destination branch is always <Adam, Root>
     tests = functiontests(localfunctions);
 end
