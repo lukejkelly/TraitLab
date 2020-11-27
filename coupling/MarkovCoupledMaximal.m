@@ -206,8 +206,16 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
             error('Not implemented');
     end
 
-    [state_x, succ_x] = MarkovUpdateState(update, model, u_mh, TOPOLOGY, ...
-        logq_x, state_x, nstate_x, OK_x, U_x, ignoreearlywarn);
-    [state_y, succ_y] = MarkovUpdateState(update, model, u_mh, TOPOLOGY, ...
-        logq_y, state_y, nstate_y, OK_y, U_y, ignoreearlywarn);
+    if OK_x
+        [state_x, succ_x] = MarkovUpdateState(update, model, u_mh, TOPOLOGY, ...
+            logq_x, state_x, nstate_x, OK_x, U_x, ignoreearlywarn);
+    else
+        succ_x = 0;
+    end
+    if OK_y
+        [state_y, succ_y] = MarkovUpdateState(update, model, u_mh, TOPOLOGY, ...
+            logq_y, state_y, nstate_y, OK_y, U_y, ignoreearlywarn);
+    else
+        succ_y = 0;
+    end
 end
