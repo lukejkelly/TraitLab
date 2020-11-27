@@ -106,7 +106,7 @@ end
 function [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(...
         clades, moveType)
     global NARROW WIDE
-    s = BchooseCoupledMaximal.state10(clades);
+    s = BchooseCoupledMaximal.state10a(clades);
     state.tree = s;
     state.NS = length(state.tree) / 2;
     switch moveType

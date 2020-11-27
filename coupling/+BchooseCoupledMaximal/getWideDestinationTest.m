@@ -5,7 +5,7 @@ end
 function cladesYesTest(testCase)
     global ANST
 
-    s = BchooseCoupledMaximal.state10('Yes');
+    s = BchooseCoupledMaximal.state10a('Yes');
     for i = find([s.type] <= ANST)
         r_i = BchooseCoupledMaximal.getWideCandidatesClade(i, s);
         N_i = length(r_i);
@@ -46,7 +46,7 @@ end
 function cladesNoTest(testCase)
     global ANST ROOT
 
-    s = BchooseCoupledMaximal.state10('No');
+    s = BchooseCoupledMaximal.state10a('No');
     r = find([s.type] <= ROOT);
     N = length(r);
     for i = find([s.type] <= ANST)

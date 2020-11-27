@@ -12,7 +12,7 @@ end
 function cladesYesTest(testCase)
     global LEAF ANST
 
-    s = BchooseCoupledMaximal.state10('Yes');
+    s = BchooseCoupledMaximal.state10a('Yes');
 
     rExp = cell(size(s));
     rExp{1} = [];
@@ -48,7 +48,7 @@ function cladesNoTest(testCase)
     % each case
     global LEAF ANST
 
-    s = BchooseCoupledMaximal.state10('No');
+    s = BchooseCoupledMaximal.state10a('No');
 
     rExp = find(ismember([s.type], [LEAF, ANST]));
     for i = find(ismember([s.type], [LEAF, ANST]))

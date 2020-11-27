@@ -191,7 +191,7 @@ function setupOnce(~)
 end
 
 function [s, nReps, newageObs, newageExp] = getTree10Params(clades)
-    s = BchooseCoupledMaximal.state10(clades);
+    s = BchooseCoupledMaximal.state10a(clades);
     nReps = 5e4;
     [newageObs, newageExp] = deal(nan(nReps, 1));
 end

@@ -54,12 +54,12 @@ function compareDistributions(testCase, a, b, c, theta)
         if a <= c
             % supp min(p, q) = [c, b]
             oExp = max(0, z - c) / (b - a) + exp(-theta * (max(z - c, 0))) ...
-                - exp(-theta * (b - c));
+                   - exp(-theta * (b - c));
         else
             % c < a < b
             % supp min(p, q) = [a, b]
             oExp = max(0, z - a) / (b - a) + exp(-theta * (max(z, a) - c)) ...
-                - exp(-theta * (b - c));
+                   - exp(-theta * (b - c));
         end
     end
     fprintf('Proportion of coupling events\n');

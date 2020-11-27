@@ -7,7 +7,7 @@ function iPRootYesTest(testCase)
     global ROOT OTHER
     THETA = testCase.TestData.THETA;
 
-    s = BchooseCoupledMaximal.state10('No');
+    s = BchooseCoupledMaximal.state10a('No');
 
     for i = find(arrayfun(@(a) ~isempty(s(a).parent) ...
                           && s(s(a).parent).type == ROOT, 1:length(s)))
@@ -45,7 +45,7 @@ function iPRootNoTest(testCase)
     global ROOT OTHER
     THETA = testCase.TestData.THETA;
 
-    s = BchooseCoupledMaximal.state10('No');
+    s = BchooseCoupledMaximal.state10a('No');
 
     for i = find(arrayfun(@(a) ~isempty(s(a).parent) ...
                           && s(s(a).parent).type < ROOT, 1:length(s)))

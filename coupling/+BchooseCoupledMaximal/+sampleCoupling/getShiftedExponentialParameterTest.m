@@ -7,7 +7,7 @@ function jRootYesTest(testCase)
     global ROOT
     THETA = 0.01;
 
-    s = BchooseCoupledMaximal.state10('No');
+    s = BchooseCoupledMaximal.state10a('No');
 
     j = find([s.type] == ROOT);
     jT = s(j).time;

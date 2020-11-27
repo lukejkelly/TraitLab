@@ -88,8 +88,8 @@ end
 
 function [state_x, state_y, mt, prior, nReps] = getParams(clades, moveType, flip)
     global NARROW WIDE
-    [~, state_x] = BchooseCoupledMaximal.state10(clades);
-    [~, state_y] = BchooseCoupledMaximal.state10a(clades);
+    [~, state_x] = BchooseCoupledMaximal.state10a(clades);
+    [~, state_y] = BchooseCoupledMaximal.state10b(clades);
     if strcmp(flip, 'Yes')
         [state_x, state_y] = deal(state_y, state_x);
     end
