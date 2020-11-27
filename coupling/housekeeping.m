@@ -26,8 +26,8 @@ function nstate2 = housekeeping(state1, state2)
     end
     % TODO: remove this after further testing
     if equaltrees(s2, t2) == 0
-        disp('Trees do not match after housekeeping');
-        keyboard;
+        save('coupling/housekeeping-state.mat');
+        error('Trees do not match after housekeeping');
     end
     % Update state variables
     nstate2 = state2;
@@ -39,8 +39,8 @@ function nstate2 = housekeeping(state1, state2)
     nstate2 = UpdateClades(nstate2, [nstate2.leaves, nstate2.nodes], ...
                            length(nstate2.claderoot));
     if ~all(isequaln(nstate2.claderoot, state1.claderoot))
-        disp('Clade roots do not match after housekeeping');
-        keyboard;
+        save('coupling/housekeeping-error.mat')
+        error('Clade roots do not match after housekeeping');
     end
 end
 
@@ -119,7 +119,7 @@ function t = swapNodes(s, j, k)
     % TODO: remove this after further testing
     result = checktree(t, size(s, 2) / 2);
     if ~isempty(result)
-        disp('Not a valid tree');
-        keyboard;
+        save('coupling/housekeeping-error.mat')
+        error('Not a valid tree');
     end
 end
