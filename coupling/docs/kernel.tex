@@ -1,0 +1,233 @@
+\documentclass[11pt,a4paper]{article}
+
+% Setting up.
+\usepackage[margin=1in]{geometry}
+\usepackage{amsthm,amsmath,amsfonts,amssymb,mathtools}
+\usepackage[authoryear,round]{natbib}
+\usepackage{parskip}
+
+\usepackage[sfdefault]{FiraSans}
+\usepackage{eucal}
+\usepackage{palatino}
+\usepackage[T1]{fontenc}
+
+\usepackage{xcolor,color,colortbl}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{subcaption}
+
+\usepackage{graphicx}
+
+\usepackage[framed]{matlab-prettifier}
+\lstMakeShortInline"
+\lstset{style=Matlab-editor,
+        basicstyle=\mlttfamily,
+        % escapechar=",
+        mlshowsectionrules=true}
+
+% Some macros
+\newcommand{\edge}[2]{\langle#1, #2\rangle}
+\newcommand{\pa}{\mathrm{pa}}
+\newcommand{\sib}{\mathrm{s}}
+\newcommand{\off}{\mathrm{o}}
+\newcommand{\cla}{\mathrm{c}}
+
+\newcommand{\Exp}[1]{\mathrm{Exp}(#1)}
+% \newcommand{\Unif}[2]{\mathrm{U}[#1, #2]}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+
+\DeclareMathOperator*{\Unif}{\mathrm{Unif}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\supp}{supp}
+
+\title{\vspace{-2.5cm} Coupled kernel in TraitLab}
+\author{Luke Kelly}
+% \date{December 2020}
+
+\begin{document}
+
+\maketitle
+
+%%
+\section*{Code structure}
+
+Enter via "batchTraitLabCoupled" which calls "runmcmcCoupled" which creates the initial states "x" and "y" by sampling from the prior, then advances the "x" chain by sampling from its marginal kernel.
+
+\lstinputlisting[title = {Snippet of runmcmcCoupled},linerange={41-59}]{../runmcmcCoupled.m}
+
+The main loop of "runmcmcCoupled" then calls "MarkovCoupled" which directs the chains to the common random number or maximal coupling kernels depending on the move type.
+
+\lstinputlisting[title = {Snippet of MarkovCoupled},linerange={21-55}]{../MarkovCoupled.m}
+
+The "housekeeping" code gets the leaves beneath each node, then for each node in "state_x.tree" it checks if any node does the same role in "state_y.tree" then relabels the nodes accordingly; finally, it updates the state-level variables.
+
+%%
+\section*{Common random number couplings}
+
+"MarkovCoupledCommon" is a straightforward modification of "Markov" to take the MH acceptance probability as an argument to both kernels. As we can see in "MarkovCoupled", above, the RNG is initialised to the same state before each call to "MarkovCoupledCommon".
+
+%%
+\section*{Maximal couplings}
+
+"MarkovCoupledMaximal" has a similar structure to "MarkovCoupledCommon" but with marginal updates replaced by joint ones.
+
+Before proceeding, let's define some notation. Let $ s $ denote a tree on leaves $ L $, with ancestral nodes $ A $, root $ R $, all taking labels in $ V = [2 \abs{L} - 1] $, and an Adam node $ 2 \abs{L} $. For $ i \in V $, let $ \pa(i) $ denote its parent (and $ \pa^2(i) $ its grandparent), $ \sib(i) $ its sibling, and $ \off(i) $ its offspring, if they exist. Let $ t_i $ denote the time of node $ i $ and $ \edge{\pa(i)}{i} $ the edge into $ i $ from its parent. Let $ \cla(i) $ denote the set of clades constraining $ i $. We denote $ \Exp{\theta; t} $ an exponential random variable with rate $ \theta $ conditioned to to be greater than $ t $.
+
+In all cases, we return the same (log-)proposal ratios as the marginal sampler.
+
+\subsection*{Rescaling node times}
+
+\lstinputlisting[title = {Snippet of MarkovCoupledMaximal},linerange={15-21}]{../MarkovCoupledMaximal.m}
+
+"Schoose" operates on a tree "s" as follows: sample $ i \sim \mathrm{Unif}{A \cup R} $ and let $ t_j = \max_{j' \in \off(i)} t_{j'} $,
+\begin{itemize}
+    \item "if" $ i = R $,
+    \[
+        t_i' \sim \Unif\left[\frac{(t_i + t_j)}{2}, 2(t_i - t_j)\right]
+            = t_i + \Unif\left[-\frac{(t_i - t_j)}{2}, t_i - t_j\right]
+    \]
+    \item "else" $ t_i' \sim \Unif[t_j, t_{\pa(i)}] $.
+\end{itemize}
+For coupled chains $ x $ and $ y $, both trees have the same root index through housekeeping ($ R^{(x)} =  R^{(y)} $) so we just need to couple sampling new node times and return the same ratios of proposal distributions as in "Schoose".
+
+\lstinputlisting[title = {Snippet of SchooseCoupledMaximal},linerange={6-25}]{../SchooseCoupledMaximal.m}
+
+%%
+\subsection*{SPR moves}
+
+For a node $ i $, we reattach its parent $ \pa(i) $ to $ \edge{k}{j} $, where
+\begin{itemize}
+    \item "if mt == NARROW", then $ \edge{k}{j} = \pa^2(i) $ and $ j = \sib(\pa(i)) $
+    \item "else" $ \edge{k}{j} $ is chosen uniformly(-ish) across the tree.
+\end{itemize}
+
+\lstinputlisting[title = {Snippet of MarkovCoupledMaximal},linerange={35-37}]{../MarkovCoupledMaximal.m}
+
+In all cases, $ i \sim \Unif\{A\} $. For a "NARROW" move in "Bchoose",
+\begin{enumerate}
+    \item "if" $ \pa(i) = R $, the move fails (as $ \sib(\pa(i)) = \emptyset $) and the function exits\footnote{We could account for this in step 1 so $ 2 / \abs{A} $ of the narrow moves fail unneccessarily.}
+    \item "else" $ k = \pa^2(i) $ and $ j = \sib(\pa(i)) $
+    \item $ t_{\pa(i)}' \sim \Unif[t_i \vee t_j, t_k] $.
+\end{enumerate}
+For a "WIDE" move in "Bchoose", we need to account for clade constraints.
+\begin{enumerate}
+    \item Get a set $ r $ of possible destination edges indexed by the offspring node
+    \begin{itemize}
+        \item "if" clades then $ r = \{l \in V: \cla(\pa(l)) = \cla(\pa(i)) \subseteq \cla(l)\} $; that is, the set of nodes whose parent is as constrained as $ \pa(i) $\footnote{This is much simpler than what's in the code}
+        \item "else" we let "r = V"\footnote{This includes the edge between Adam and $ R $ whereas the clades move doesn't, even if the constraint there is on a leaf.}
+    \end{itemize}
+    \item Select a destination edge
+    \begin{itemize}
+        \item "if" $ \abs{r} \leq 4 $, then the move fails and the function exits
+        \item "else" $ \edge{k}{j} \sim \Unif\{l \in r : t_{\pa(r)} > t_i, i \neq r, i \neq \pa(r)\} $, the set of edges whose parent is older than $ i $ and don't connect to it
+    \end{itemize}
+    \item "if" $ \pa(i) = k $ or $ \pa(i) = j $ then the function fails and exits\footnote{This is another point where we could have possibly have selected a valid destination but chose this one first}
+    \item Propose a new time for $ \pa(i) $
+    \begin{itemize}
+        \item "if j == R", then $ t_{\pa(i)}' = t_j + \Exp{\theta} $
+        \item "else" same as "NARROW" move with a different ratio of proposal distributions if "k == R"
+    \end{itemize}
+\end{enumerate}
+With "BchooseCoupledMaximal", we need to account for all combinations of failures, move types and destination edge locations.
+\begin{enumerate}
+    \item Select the destination edge. Either or both chains can fail at this stage.
+    \begin{itemize}
+        \item "if mt == NARROW", then $ \edge{k^{(x)}}{j^{(x)}} $ may or may not be the same as $ \edge{k^{(y)}}{j^{(y)}} $; as in "Bchoose" this move for $ x $ if $ \pa(i^{(x)}) = R^{(x)} $, and likewise for $ y $
+        \item "if mt == WIDE" then $ i $ is in the same clade group in both $ x $ and $ y $ through housekeeping so $ r = r^{(x)} = r^{(y)} $. Rather then letting each chain choose randomly from $ r $, we couple the move by shuffling $ r $ then each chain moves through it in the same order: if the same edge is a candidate in each then they'll both select it, provided one hasn't already chosen an earlier one which the other couldn't move to.
+    \end{itemize}
+    \item Propose node times (I discuss the actual sampling mechanisms below)
+    \begin{itemize}
+        \item "if" neither chain has failed, sample from a coupling
+        \begin{itemize}
+            \item "if" $ j^{(x)} = j^{(y)} = R $, then
+            \[
+                (t_{\pa(i)}^{(x)}, t_{\pa(i)}^{(y)}) \sim \Gamma\big(\Exp{\theta; t_j^{(x)}}, \Exp{\theta; t_j^{(y)}}\big),
+            \]
+            both new ages Exponential above respective current root.
+            \item "elseif" $ j^{(x)} = R $, then draw new age in x from Shifted Exponential and y from Uniform,
+            \[
+                (t_{\pa(i)}^{(x)}, t_{\pa(i)}^{(y)}) \sim \Gamma\big(\Exp{\theta; t_j^{(x)}}, \Unif[t_i^{(y)} \vee t_j^{(y)}, t_k^{(y)}]\big)
+            \]
+            \item "elseif" $ j^{(y)} = R $, then draw new age in x from Uniform and y from Shifted Exponential
+            \item "else", both new ages uniform,
+            \[
+                (t_{\pa(i)}^{(x)}, t_{\pa(i)}^{(y)}) \sim \Gamma\big(\Unif[t_i^{(x)} \vee t_j^{(x)}, t_k^{(x)}], \Unif[t_i^{(y)} \vee t_j^{(y)}, t_k^{(y)}]\big),
+            \]
+            ratio of proposals depends on whether $ \pa(i) $ is the root or not.
+        \end{itemize}
+        \item "elseif" one chain has failed then draw $ t_{\pa(i)}' $ in the other from the marginal sampler (same as "Bchoose")
+    \end{itemize}
+\end{enumerate}
+
+%%
+\subsection*{Moves on scalar parameters}
+
+These are covered in the section below.
+
+
+%%
+\section*{Sampling couplings}
+
+We use two approaches to sample $ X \sim p $ and $ Y \sim q $ from a maximal coupling.
+\begin{itemize}
+    \item Sample from overlap or sample independently
+    \begin{enumerate}
+        \item With probability $ [p \wedge q] = \int (p \wedge q)(\mathrm{d} x) $,
+        \[
+            X \leftarrow Y \sim \frac{p \wedge q}{[p \wedge q]}
+        \]
+        \item Otherwise
+        \[
+            X \sim \frac{p - p \wedge q}{1 - [p \wedge q]}
+            \quad \text{and} \quad
+            Y \sim \frac{q - p \wedge q}{1 - [p \wedge q]}.
+        \]
+    \end{enumerate}
+    \item Sample $ X $ and do rejection sampling for $ Y $ (described in code below)
+\end{itemize}
+
+%%
+\subsection*{Two Shifted Exponential distributions}
+
+We have $ p = \Exp{\theta; a_p} $ and $ q = \Exp{\theta; a_q} $.
+
+With probability $ [p \wedge q] = \exp(-\theta \abs{a_p - a_q}) $, we couple and
+\[
+X \leftarrow Y \sim \Exp{\theta; a_p \vee a_q}.
+\]
+Otherwise, sample independently. Let $ \Exp{\theta; c, d} $ denote an Exponential($ \theta $) distribution truncated to $ [c, d) $. Now, if $ a_p < a_q $, then
+\begin{alignat*}{3}
+    X &\sim \Exp{\theta; a_p, a_q}
+        &=& a_p - \theta^{-1} \log[1 - U_x (1 - e^{-\theta (a_q - a_p)})], \\
+    Y &\sim \Exp{\theta; a_q}
+        &=& a_q - \theta^{-1} \log(U_y),
+\end{alignat*}
+where $ U_x, U_y \sim \Unif[0, 1] $. If $ a_q < a_p $ then we change the sampling distributions appropriately.
+
+%%
+\subsection*{Uniform and Shifted Exponential}
+
+Suppose $ X \sim p = \Unif[a, b] $ and $ Y \sim q = \Exp{\theta; c} $. In this setting we use a "while" loop to sample from the coupling using the recipe in Pierre's JRSS B paper.
+
+\lstinputlisting[title = {Snippet of maximalCouplingLog},linerange={4-15}]{../maximalCouplingLog.m}
+
+%%
+\subsection*{Uniform scaling moves}
+
+These are for coupling proposals such as $ \mu' = \mu \times \Unif[\delta^{-1}, \delta] $.
+
+\lstinputlisting[title = {Snippet of maximalCouplingUniformScaling}]{../maximalCouplingUniformScaling.m}
+
+%%
+\subsection*{Uniform and Uniform}
+
+Same as Uniform and Shifted Exponential but with appropriate sampling and density functions.
+
+
+%%
+% \bibliographystyle{plainnat}%
+% \bibliography{references}%
+
+\end{document}
