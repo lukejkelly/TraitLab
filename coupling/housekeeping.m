@@ -32,9 +32,24 @@ function nstate2 = housekeeping(state1, state2)
     % Update state variables
     nstate2 = state2;
     nstate2.tree = t2;
-    nstate2.leaves = find([t2.type] == LEAF);
-    nstate2.root = find([t2.type] == ROOT);
-    nstate2.nodes = [find([t2.type] == ANST), nstate2.root];
+    if all(sort(find([t2.type] == LEAF)) == sort(state1.leaves))
+        % TODO: check if ordering every matches
+        nstate2.leaves = state1.leaves;
+    else
+        error('Leaf sets do not match after housekeeping');
+    end
+    if find([t2.type] == ROOT) == state1.root
+        % TODO: check if ordering every matches
+        nstate2.root = state1.root;
+    else
+        error('Roots do not match after housekeeping');
+    end
+    if all(sort([find([t2.type] == ANST), nstate2.root]) == sort(state1.nodes))
+        % TODO: check if ordering every matches
+        nstate2.nodes = state1.nodes;
+    else
+        error('Internal nodes do not match after housekeeping');
+    end
     nstate2.cat(:) = cellfun(@length, {nstate2.tree.catloc});
     nstate2 = UpdateClades(nstate2, [nstate2.leaves, nstate2.nodes], ...
                            length(nstate2.claderoot));

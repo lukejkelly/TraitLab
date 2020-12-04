@@ -20,6 +20,7 @@ function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
 
         % Common roles across trees have common indices
         state_y = housekeeping(state_x, state_y);
+        state_y.tree = superHousekeeping(state_x.tree, state_y.tree);
         % For now we assume that state_x.tree was only ever a valid modification
         % of state_y so leaves and Adam have the same indices in both, as do all
         % nodes within a clade
