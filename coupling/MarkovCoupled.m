@@ -26,7 +26,6 @@ function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
         % same state then nodes within a clade will form the same set of indices
         % in both x and y even if they have not coupled
         state_y = housekeeping(state_x, state_y);
-        state_y.tree = superHousekeeping(state_x.tree, state_y.tree);
 
         % MCMC acceptance probability
         u_mh = rand;

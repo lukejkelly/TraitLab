@@ -1,5 +1,5 @@
-function s2 = superHousekeeping(s1, s2)
-    % Update sibling information
+function s2 = matchSiblings(s1, s2)
+    % Update sibling ordering in s2 to match s1
     global ANST ROOT;
 
     nodes = find(ismember([s1.type], [ANST, ROOT]));
@@ -11,7 +11,10 @@ function s2 = superHousekeeping(s1, s2)
         % If children are the same but in the opposite order in s2 then flip
         if isequal(s1(i).child, fliplr(s2(i).child))
             s2(i).child = fliplr(s2(i).child);
-            [s2(s2(i).child).sibling] = deal(s2(fliplr(s2(i).child)).sibling);
+            if ~isequal([s2(fliplr(s2(i).child)).sibling], 1:2)
+                error('Sibling indices do not match');
+            end
+            [s2(s2(i).child).sibling] = deal(1, 2);
         end
     end
 end

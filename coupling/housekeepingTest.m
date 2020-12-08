@@ -260,7 +260,25 @@ function setupOnce(testCase)
     [s5.sibling] = deal([], 1, 1, 2, 2, 1);
     testCase.TestData.s5 = s5;
 
-    % t5s1 is similar to s1 but with different sibling orders and leaf times
+    % This is not longer the case now that we do matchSibling housekeeping too
+    % % t5s1 is similar to s1 but with different sibling orders and leaf times
+    % % 6
+    % % |
+    % % 5 — 3.3
+    % % |
+    % % 4 — 1.1
+    % % |
+    % % 2.2
+    % t5s1 = emptyTreeStruct(6);
+    % [t5s1.Name] = deal('1', '2', '3', '', '', 'Adam');
+    % [t5s1.parent] = deal(4, 4, 5, 5, 6, []);
+    % [t5s1.child] = deal([], [], [], [2, 1], [4, 3], 5);
+    % [t5s1.type] = deal(0, 0, 0, 1, 2, 3);
+    % [t5s1.time] = deal(0.3, 0.2, 0.1, 1, 2, 3);
+    % [t5s1.sibling] = deal(2, 1, 2, 1, 1, []);
+    % testCase.TestData.t5s1 = t5s1;
+
+    % t5s1 is similar to s1 but with different leaf times
     % 6
     % |
     % 5 — 3.3
@@ -271,10 +289,10 @@ function setupOnce(testCase)
     t5s1 = emptyTreeStruct(6);
     [t5s1.Name] = deal('1', '2', '3', '', '', 'Adam');
     [t5s1.parent] = deal(4, 4, 5, 5, 6, []);
-    [t5s1.child] = deal([], [], [], [2, 1], [4, 3], 5);
+    [t5s1.child] = deal([], [], [], [1, 2], [4, 3], 5);
     [t5s1.type] = deal(0, 0, 0, 1, 2, 3);
     [t5s1.time] = deal(0.3, 0.2, 0.1, 1, 2, 3);
-    [t5s1.sibling] = deal(2, 1, 2, 1, 1, []);
+    [t5s1.sibling] = deal(1, 2, 2, 1, 1, []);
     testCase.TestData.t5s1 = t5s1;
 
     % Clade constraint for previous trees
