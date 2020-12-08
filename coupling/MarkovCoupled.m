@@ -18,12 +18,15 @@ function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
             return
         end
 
-        % Common roles across trees have common indices
+        % Roots of subtrees common to both x and y have same indices
+        % If a the same node has the same offspring in both then child/sibling
+        % indices are the same
+        % Leaves and Adam have same indices in both x and y
+        % If x and y were both initialised with valid modifications from the
+        % same state then nodes within a clade will form the same set of indices
+        % in both x and y even if they have not coupled
         state_y = housekeeping(state_x, state_y);
         state_y.tree = superHousekeeping(state_x.tree, state_y.tree);
-        % For now we assume that state_x.tree was only ever a valid modification
-        % of state_y so leaves and Adam have the same indices in both, as do all
-        % nodes within a clade
 
         % MCMC acceptance probability
         u_mh = rand;
@@ -49,7 +52,7 @@ function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
             rng(rng_state);
             [state_y, succ_y] = MarkovCoupledCommon(mcmc, model, state_y, ...
                 ignoreearlywarn, MV, u_mh);
-            % Uncoupled chains may make different calls to rng
+            % Uncoupled chains may make different number of calls to rng
             rng('shuffle');
         end
         acct_x(MV) = acct_x(MV) + succ_x;

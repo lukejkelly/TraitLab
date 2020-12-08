@@ -1,6 +1,6 @@
 function [x, y] = maximalCouplingUniformScaling(xc, yc, a, b)
     % Sample (x, y) from a maximal coupling of p = U(a * xc, b * xc) and ...
-    % q = U(a * xc, b * xc)
+    % q = U(a * yc, b * yc)
 
     % Sampling and log density functions
     rp = @() prototypeSample(xc, a, b);
