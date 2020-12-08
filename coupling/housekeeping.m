@@ -3,7 +3,7 @@
 % TODO: We should implement more general housekeeping without these assumptions
 
 function nstate2 = housekeeping(state1, state2)
-    global LEAF ANST ROOT
+    global LEAF ANST ROOT BORROWING
     % Match indices of nodes with common descendent leaves (indexed by .Name)
     s1 = state1.tree;
     s2 = state2.tree;
@@ -58,5 +58,9 @@ function nstate2 = housekeeping(state1, state2)
     if ~all(isequaln(nstate2.claderoot, state1.claderoot))
         save('coupling/housekeeping-error.mat')
         error('Clade roots do not match after housekeeping');
+    end
+     % Update node likelihood information
+    if ~BORROWING
+        nstate2 = MarkRcurs(nstate2, [nstate2.leaves, nstate2.nodes], 1);
     end
 end
