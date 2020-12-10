@@ -241,7 +241,7 @@ With "BchooseCoupledMaximal", we need to account for all combinations of failure
             \item In "Bchoose", we repeatedly draw $ j \sim \Unif(r) $ and set $ k = \pa(j) $ until $ t_k > t_i $ and $ i \neq j \neq k $
             \item We couple this move through a similar process to common random numbers. Initially $ r $ is sorted so we shuffle it before passing it to "BchooseCoupledMaximal.getWideDestination" which is similar to "Bchoose" but goes through the shuffled $ r $ in order looking for valid destinations
             \item As each chain moves through the candidate destination set in the same order, then if an edge is valid in both and is considered the both chains will select it. In practice, an edge may be invalid for one state as time ranges do not overlap so the move can fail in one state and succeed in another
-            \item I do not think this requires an extra Jacobian term as it's equivalent to the marginal move.
+            \item I do not think this requires an extra Jacobian term as it's equivalent to the marginal move and we're doing it using common random numbers so do not need to evaluate the probability mass function
         \end{itemize}
     \end{itemize}
     \item Propose node times (I discuss the actual sampling mechanisms below)
