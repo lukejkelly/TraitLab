@@ -55,27 +55,32 @@ function compareAllDistributions(testCase, clades, moveType, flip)
     parNames = {'i', 'j', 'k', 'newage', 'logq'};
     for i = 1:5
         subplot(5, 2, 2 * i - 1);
-        drawECDFs(xObs(:, i), xExp(:, i), sprintf('x: %s', parNames{i}));
+        drawECDFs(xObs(:, i), xExp(:, i), sprintf('x: %s', parNames{i}), i < 4);
         subplot(5, 2, 2 * i);
-        drawECDFs(yObs(:, i), yExp(:, i), sprintf('y: %s', parNames{i}));
+        drawECDFs(yObs(:, i), yExp(:, i), sprintf('y: %s', parNames{i}), i < 4);
     end
     fprintf('clades: %s\nmove type: %s\nflip: %s\nsamples: %g\n', ...
-        clades, moveType, flip, nReps);
+            clades, moveType, flip, nReps);
     fprintf('Histograms do not reach 1 if any moves fail\n');
     v = input('Do the CDFs in the figure match? Reply 1 for yes... ');
     assertEqual(testCase, v, 1);
 end
 
-function drawECDFs(xObs, xExp, figTitle)
-    nBins = 50;
-    [edges, nObs, nExp] = deal(zeros(nBins + 1, 1));
-    [~, edges(:)] = histcounts([xObs, xExp], nBins);
-    nObs(2:end) = histcounts(xObs, edges, 'Normalization', 'cdf');
-    nExp(2:end) = histcounts(xExp, edges, 'Normalization', 'cdf');
+function drawECDFs(xObs, xExp, figTitle, binIntegers)
+    if binIntegers
+        [~, edges] = histcounts([xObs, xExp], 'BinMethod', 'integers');
+    else
+        [~, edges] = histcounts([xObs, xExp], 50);
+    end
+    edges = edges(:);
+    nObs = histcounts(xObs, edges, 'Normalization', 'cdf');
+    nExp = histcounts(xExp, edges, 'Normalization', 'cdf');
+    binCentres = conv(edges, [0.5, 0.5], 'valid');
     yyaxis left;
-    plot(edges, nObs, '-b', edges, nExp, ':g', 'LineWidth', 2);
+    plot(binCentres, nObs, '-b', binCentres, nExp, ':g', 'LineWidth', 2);
+    ylim([0, 1]);
     yyaxis right;
-    plot(edges, nObs - nExp, '-.r', 'LineWidth', 2);
+    plot(binCentres, nObs - nExp, '-.r', 'LineWidth', 2);
     legend('Obs', 'Exp', 'Diff', 'Location', 'SouthEast');
     axis('tight');
     title(figTitle);
