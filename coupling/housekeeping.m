@@ -11,6 +11,7 @@ function nstate2 = housekeeping(state1, state2)
     r = {s1([s1.type] == 0).Name};  % Reference list of leaf names
     a1 = housekeeping.getLeafArray(s1, r);
     i1 = (1:length(s1))';
+    j2 = 1:length(s2);
     done = false;
     while ~done
         a2 = housekeeping.getLeafArray(t2, r);
@@ -20,6 +21,7 @@ function nstate2 = housekeeping(state1, state2)
             % i = find(i2, 1);
             % t2:c2(i2) has same role as s1:i2 so we swap t2:i2 and t2:c2(i2)
             t2 = housekeeping.swapNodes(t2, i2, c2(i2));
+            j2([i2, c2(i2)]) = j2([c2(i2), i2]);
         else
             done = true;
         end
@@ -52,7 +54,10 @@ function nstate2 = housekeeping(state1, state2)
     else
         error('Internal nodes do not match after housekeeping');
     end
-    nstate2.cat(:) = cellfun(@length, {nstate2.tree.catloc});
+    nstate2.cat = nstate2.cat(j2);
+    if BORROWING && any(nstate2.cat ~= cellfun(@length, {nstate2.tree.catloc}'))
+        error('Catastrophes do not match');
+    end
     nstate2 = UpdateClades(nstate2, [nstate2.leaves, nstate2.nodes], ...
                            length(nstate2.claderoot));
     if ~all(isequaln(nstate2.claderoot, state1.claderoot))
@@ -63,4 +68,11 @@ function nstate2 = housekeeping(state1, state2)
     if ~BORROWING
         nstate2 = MarkRcurs(nstate2, [nstate2.leaves, nstate2.nodes], 1);
     end
+    % if BORROWING && ~ismembertol(nstate2.loglkd, logLkd2(nstate2))
+    %     keyboard;
+    % elseif ~BORROWING && ~ismembertol(nstate2.loglkd, LogLkd(nstate2))
+    %     keyboard;
+    % elseif check(state1) || check(state2) || check(nstate2)
+    %     keyboard;
+    % end
 end
