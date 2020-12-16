@@ -1,3 +1,15 @@
+# Coupled phylogenetic MCMC
+
+To run an analysis, start _Matlab_ in the top-level directory (location of `startup.m` which sets paths) of _TraitLabSDLT-coupled_ and execute
+```Matlab
+batchTraitLabCoupled('<path to .par file>', <inds>);
+```
+This in turns called `runmcmcCoupled`. This will run `length(inds)` pairs of chains (`x` and `y`), their outputs files identified by `-i_{x,y}` before the file extension for each `i` in `inds`.
+
+The GUI has not yet been updated to run coupled analyses.
+
+---
+
 # TraitLab with lateral transfer.
 
 ## Description
