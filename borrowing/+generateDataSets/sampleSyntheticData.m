@@ -27,13 +27,15 @@ function sampleSyntheticData(s, lambda, mu, beta)
 
     % Write to Nexus file
     % sFile = stype2nexus(s, '', 'BOTH', '', clades);
-    sFile = stype2nexus(s, 'Estimate coupling distributions', 'DATA', '');
 
     [file_dir, nex_stem] = generateDataSets.fileDest(L, root_time, lambda, ...
                                                       mu, beta);
-    file_nex = sprintf('%s.nex', nex_stem);
 
-    fid = fopen(fullfile(file_dir, 'data', file_nex), 'w');
-    fprintf(fid, sFile);
+    fid = fopen(fullfile(file_dir, 'data', sprintf('%s.nex', nex_stem)), 'w');
+    fprintf(fid, stype2nexus(s, 'Estimate coupling distributions', 'DATA', ''));
+    fclose(fid);
+
+    fid = fopen(fullfile(file_dir, 'data', sprintf('%s.tree', nex_stem)), 'w');
+    fprintf(fid, stype2nexus(s, '', 'TREE', ''));
     fclose(fid);
 end
