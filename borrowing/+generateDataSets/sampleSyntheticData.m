@@ -32,10 +32,6 @@ function sampleSyntheticData(s, lambda, mu, beta)
                                                       mu, beta);
 
     fid = fopen(fullfile(file_dir, 'data', sprintf('%s.nex', nex_stem)), 'w');
-    fprintf(fid, stype2nexus(s, 'Estimate coupling distributions', 'DATA', ''));
-    fclose(fid);
-
-    fid = fopen(fullfile(file_dir, 'data', sprintf('%s.tree', nex_stem)), 'w');
-    fprintf(fid, stype2nexus(s, '', 'TREE', ''));
+    fprintf(fid, stype2nexus(s, 'Estimate coupling distributions', 'BOTH', ''));
     fclose(fid);
 end
