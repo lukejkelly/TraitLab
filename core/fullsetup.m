@@ -115,15 +115,17 @@ mcmc.runlength=fsu.RUNLENGTH;
 mcmc.subsample=fsu.SUBSAMPLE;
 mcmc.gather=GATHER;
 
-%% Luke 3/4/20: Replacing old RNG format. However, this is too far into the code
-%% as some of the initialisation functions (e.g. pop) called before this use the
-%% random number generators so will be moved in a future version
+%% Luke 3/4/20: Replacing old RNG format
+%% TODO: Move RNG seeding to start of code
 if mcmc.initial.seedrand
+    warning(['Setting specified RNG seed is too far into the code as some', ...
+             'of the initialisation functions (e.g. pop) called before', ...
+             'this use the RNG']);
     % use given seed
-   rng(fsu.SEED);
+    rng(fsu.SEED);
 else
     % reset generator to random state
-   rng(sum(100 * clock));
+   rng('shuffle'); % rng(sum(100 * clock));
 end
 
 if mcmc.monitor.on
