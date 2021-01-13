@@ -1,12 +1,18 @@
+function batchTraitLab(run_file, output_file_name_app)
+% Run marginal MCMC sampler for input run_file and (if specified) append
+% output_file_name_app to output filenames
+
 GlobalSwitches
 GlobalValues
 addpath('core') % Luke 05/10/2017
 addpath('guifiles') %commented out GKN Feb 08; added back in RJR�16�Mar 2011
 
+rng('shuffle');
+
 % Clear persistent variables in SDLT code. LUKE 24/3/20
 clear logLkd2_m patternCounts patternMeans
 
-a = readrunfile('batchtlinput.txt');
+a = readrunfile(run_file);
 for i = 1:length(a{1})
     switch a{1}{i}
         case {'Data_file_name','Output_file_name','Output_path_name'}
@@ -40,6 +46,10 @@ if ~isempty(x) && x == length(Output_file_name)-3
     Output_file_name = Output_file_name(1:x-1);
 end
 
+% Add appendix to output file name when doing multiple runs
+if nargin == 2
+    Output_file_name = [Output_file_name, '-', num2str(output_file_name_app)];
+end
 
 % make sure dont overwrite old run
 if exist([Output_path_name Output_file_name '.nex'],'file') && ~strcmp('tloutput',Output_file_name)
@@ -391,3 +401,5 @@ fsu.MCMCINITBETA = MCMCINITBETA;
 fsu.ISBETARANDOM = ISBETARANDOM;
 
 runmcmc(fsu);
+
+end
