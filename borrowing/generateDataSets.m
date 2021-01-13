@@ -1,18 +1,9 @@
 GlobalSwitches; GlobalValues;
 
-list_L = 4:2:12;
-list_root_time = 1e3;
-
+% Run (untracked in git) script to get parameters
+generateDataSets.paramConfig;
 [grid_L, grid_root_time] = ndgrid(list_L, list_root_time);
-
-list_lambda = [0.05, 0.1, 0.2];
-list_mu = 5e-4;
-list_beta = 0; % 5e-4;
-
 [grid_lambda, grid_mu, grid_beta] = ndgrid(list_lambda, list_mu, list_beta);
-
-grid_run_length = [5e5, 5e6];
-grid_sample_interval = [5e2, 5e3];
 
 if numel(grid_run_length) ~= 2 || numel(grid_sample_interval) ~= 2
     error('Edit makeSubmitFile to account for this');
@@ -37,6 +28,9 @@ for i = 1:numel(grid_L)
     end
 end
 
+generateDataSets.writeConfig(dest_dir, list_L, list_root_time, list_lambda, ...
+    list_mu, list_beta, grid_run_length, grid_sample_interval);
 generateDataSets.makeSubmitFile(dest_dir, list_L, list_root_time, ...
     list_lambda, list_mu, list_beta, grid_run_length, grid_sample_interval);
-generateDataSets.makeJobFile(dest_dir);
+generateDataSets.makeJobFile(dest_dir, 'a');
+generateDataSets.makeJobFile(dest_dir, 'b');

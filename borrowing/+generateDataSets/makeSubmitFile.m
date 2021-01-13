@@ -15,26 +15,26 @@ function makeSubmitFile(dest_dir, list_L, list_root_time, list_lambda, ...
     fprintf(fid, 'for L in%s; do\n', sprintf(' %d', list_L));
 
     fprintf(fid, '%s', repmat(' ', 1, 4));
-    fprintf(fid, 'for ROOT_TIME in%s; do\n', sprintf(' %.0e', list_root_time));
+    fprintf(fid, 'for ROOT_TIME in%s; do\n', sprintf(' %e', list_root_time));
 
     fprintf(fid, '%s', repmat(' ', 1, 8));
-    fprintf(fid, 'for LAMBDA in%s; do\n', sprintf(' %.0e', list_lambda));
+    fprintf(fid, 'for LAMBDA in%s; do\n', sprintf(' %e', list_lambda));
 
     fprintf(fid, '%s', repmat(' ', 1, 12));
-    fprintf(fid, 'for MU in%s; do\n', sprintf(' %.0e', list_mu));
+    fprintf(fid, 'for MU in%s; do\n', sprintf(' %e', list_mu));
 
     fprintf(fid, '%s', repmat(' ', 1, 16));
-    fprintf(fid, 'for BETA in%s; do\n', sprintf(' %.0e', list_beta));
+    fprintf(fid, 'for BETA in%s; do\n', sprintf(' %e', list_beta));
 
     fprintf(fid, '%s', repmat(' ', 1, 20));
     fprintf(fid, ...
-            'qsub %s %s %s,RUN_LENGTH=%.0e,SAMPLE_INTERVAL=%.0e job.pbs\n', ...
+            'qsub %s %s %s,RUN_LENGTH=%e,SAMPLE_INTERVAL=%e job-a.pbs\n', ...
             job_name, pars_a, var_list, grid_run_length(1), ...
             grid_sample_interval(1));
 
     fprintf(fid, '%s', repmat(' ', 1, 20));
     fprintf(fid, ...
-            'qsub %s %s %s,RUN_LENGTH=%.0e,SAMPLE_INTERVAL=%.0e job.pbs\n', ...
+            'qsub %s %s %s,RUN_LENGTH=%e,SAMPLE_INTERVAL=%e job-b.pbs\n', ...
             job_name, pars_b, var_list, grid_run_length(2), ...
             grid_sample_interval(2));
 
