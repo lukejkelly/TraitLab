@@ -1,14 +1,6 @@
-function batchTraitLabCoupled(run_file, i_chains)
-% Run coupled MCMC samplers for input run_file and output IDs i_chains
-    rng('shuffle');
-    for i = i_chains
-        fprintf('\n\nStarting chain %i\n\n', i);
-        batchTraitLabCoupledRun(run_file, num2str(i));
-    end
-end
-
-% Worker function
-function batchTraitLabCoupledRun(run_file, output_file_name_app)
+function batchTraitLabCoupled(run_file, output_file_name_app)
+% Run coupled MCMC samplers for input run_file and (if specified) append
+% output_file_name_app to output filenames
 
 GlobalSwitches
 GlobalValues
@@ -16,19 +8,12 @@ addpath('core') % Luke 05/10/2017
 addpath('guifiles') %commented out GKN Feb 08; added back in RJR�16�Mar 2011
 addpath('coupling')
 
+rng('shuffle');
+
 % Clear persistent variables in SDLT code. LUKE 24/3/20
 clear logLkd2_m patternCounts patternMeans
 
-if nargin == 0
-    [run_file, output_file_name_app] = deal([]);
-end
-
-if isempty(run_file)
-    a = readrunfile('batchtlinput.txt');
-else
-    a = readrunfile(run_file);
-end
-
+a = readrunfile(run_file);
 for i = 1:length(a{1})
     switch a{1}{i}
         case {'Data_file_name','Output_file_name','Output_path_name'}
@@ -63,10 +48,9 @@ if ~isempty(x) && x == length(Output_file_name)-3
 end
 
 % Add appendix to output file name when doing multiple runs
-if ~isempty(output_file_name_app)
-    Output_file_name = [Output_file_name, '-', output_file_name_app];
+if nargin == 2
+    Output_file_name = [Output_file_name, '-', num2str(output_file_name_app)];
 end
-
 
 % make sure dont overwrite old run
 if exist([Output_path_name Output_file_name '.nex'],'file') && ~strcmp('tloutput',Output_file_name)
