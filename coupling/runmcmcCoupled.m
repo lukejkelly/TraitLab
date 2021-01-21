@@ -110,6 +110,8 @@ for t=start:finish
                                    pa_x, model, data);
     handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, t, ...
                                    pa_y, model, data);
+
+    % TODO: Put a coupling check here
 end
 
 if mcmc.monitor.on

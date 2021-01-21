@@ -1,5 +1,5 @@
 function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
-                                            ignoreearlywarn, MV, u_mh)
+                                             ignoreearlywarn, MV, u_mh)
     global WIDE NARROW DEPNU VARYP ADAM VARYLAMBDA VARYMU TESTUP DONTMOVECATS BORROWING VARYBETA
 
     %compute the candidate state

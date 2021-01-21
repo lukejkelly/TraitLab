@@ -1,14 +1,14 @@
-function tests = SchooseNodeTimesAndRangesTest
-    % Unit-testing various maximal coupling functions
+function tests = nodeTimesAndRangesTest
     tests = functiontests(localfunctions);
 end
 
 function rootTest(testCase)
     global ANST ROOT ADAM
-    state = testCase.TestData.state;
+    state.tree = ExpTree(10, 1);
     i = find([state.tree.type] == ROOT);
 
-    [iTObs, kTObs, jTObs, aObs, bObs] = SchooseNodeTimesAndRanges(i, state);
+    [iTObs, kTObs, jTObs, aObs, bObs] ...
+        = SchooseCoupledMaximal.nodeTimesAndRanges(i, state);
     assertEqual(testCase, iTObs, state.tree(i).time);
     assertEqual(testCase, kTObs, state.tree([state.tree.type] == ADAM).time);
     assertEqual(testCase, jTObs, ...
@@ -28,9 +28,10 @@ end
 
 function anstTest(testCase)
     global ANST
-    state = testCase.TestData.state;
+    state.tree = ExpTree(10, 1);
     for i = find([state.tree.type] == ANST)
-        [iTObs, kTObs, jTObs, aObs, bObs] = SchooseNodeTimesAndRanges(i, state);
+        [iTObs, kTObs, jTObs, aObs, bObs] ...
+            = SchooseCoupledMaximal.nodeTimesAndRanges(i, state);
         assertEqual(testCase, iTObs, state.tree(i).time);
         assertEqual(testCase, kTObs, state.tree(state.tree(i).parent).time);
         assertEqual(testCase, jTObs, ...
@@ -49,10 +50,9 @@ function anstTest(testCase)
     end
 end
 
-function setupOnce(testCase)
+function setupOnce(~)
     GlobalSwitches;
     GlobalValues;
-    testCase.TestData.state.tree = ExpTree(10, 1);
 end
 
 function [iT, kT, jT, a, b] = getExpected(i, s)

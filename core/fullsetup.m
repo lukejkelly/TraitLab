@@ -119,9 +119,10 @@ mcmc.gather=GATHER;
 %% TODO: Move RNG seeding to start of code
 if mcmc.initial.seedrand
     warning(['Setting specified RNG seed is too far into the code as some', ...
-             'of the initialisation functions (e.g. pop) called before this']);
+             'of the initialisation functions (e.g. pop) called before', ...
+             'this use the RNG']);
     % use given seed
-   rng(fsu.SEED);
+    rng(fsu.SEED);
 else
     % reset generator to random state
    rng('shuffle'); % rng(sum(100 * clock));
