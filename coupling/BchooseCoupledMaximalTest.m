@@ -62,8 +62,14 @@ function compareAllDistributions(testCase, clades, moveType, flip)
     fprintf('clades: %s\nmove type: %s\nflip: %s\nsamples: %g\n', ...
             clades, moveType, flip, nReps);
     fprintf('Histograms do not reach 1 if any moves fail\n');
-    v = input('Do the CDFs in the figure match? Reply 1 for yes... ');
-    assertEqual(testCase, v, 1);
+    v1 = input('Do the CDFs in the figure match? Reply 1 for yes... ');
+    assertEqual(testCase, v1, 1);
+
+    drawIndividualECDFs(state_x, xObs, xExp, 'x');
+    drawIndividualECDFs(state_y, yObs, yExp, 'y');
+    v2 = input('Do the CDFs in the figure match? Reply 1 for yes... ');
+    assertEqual(testCase, v2, 1);
+
 end
 
 function drawECDFs(xObs, xExp, figTitle, binIntegers)
@@ -86,9 +92,58 @@ function drawECDFs(xObs, xExp, figTitle, binIntegers)
     title(figTitle);
 end
 
+function drawIndividualECDFs(state, xObs, xExp, figVar)
+    % Plot distribution of t_pa(i)' against pa(i)
+    pObs = [state.tree(xObs(:, 1)).parent];
+    tObs = xObs(:, 4);
+    pExp = [state.tree(xExp(:, 1)).parent];
+    tExp = xExp(:, 4);
+
+    np = state.NS - 1;
+    uObs = unique(pObs);
+    uExp = unique(pExp);
+    if any(np ~= [length(uObs), length(uExp)]) || ~all(uObs == uExp) ...
+           || ~all(sort(state.nodes) == uObs)
+        error('Coverage does not overlap');
+    end
+
+    if strcmp(figVar, 'x')
+        figInds = 1:2:(2 * np - 1);
+    else
+        figInds = 2:2:(2 * np);
+    end
+    for i = 1:np
+        subplot(np, 2, figInds(i));
+        tObs_i = tObs(pObs == uObs(i));
+        tExp_i = tExp(pExp == uExp(i));
+        [~, edges] = histcounts([tObs_i; tExp_i], 50);
+        nObs = histcounts(tObs_i, edges, 'Normalization', 'cdf');
+        nExp = histcounts(tExp_i, edges, 'Normalization', 'cdf');
+        binCentres = conv(edges, [0.5, 0.5], 'valid');
+        yyaxis left;
+        plot(binCentres, nObs, '-b', binCentres, nExp, ':g', 'LineWidth', 2);
+        ylim([0, 1]);
+        yyaxis right;
+        plot(binCentres, nObs - nExp, '-.r', 'LineWidth', 2);
+        legend('Obs', 'Exp', 'Diff', 'Location', 'SouthEast');
+        axis('tight');
+        title(sprintf('%s: pa(i) = %d', figVar, uObs(i)));
+    end
+end
+
 function setupOnce(~)
     GlobalSwitches;
     GlobalValues;
+    global BORROWING
+    if isempty(BORROWING)
+        BORROWING = 0;
+    end
+    global MCMCCAT
+    if isempty(MCMCCAT)
+        MCMCCAT = 0;
+    elseif MCMCCAT == 1
+        error('Code has not been checked for catastrophes');
+    end
 end
 
 function [state_x, state_y, mt, prior, nReps] = getParams(clades, moveType, flip)
