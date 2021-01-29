@@ -11,6 +11,7 @@ function writeConfig(dest_dir, list_L, list_root_time, list_lambda, ...
     fprintf(fid, 'list_beta <- c(%s)\n', format_list(list_beta, '%e'));
     fprintf(fid, 'grid_run_length <- c(%s)\n', format_list(grid_run_length, '%e'));
     fprintf(fid, 'grid_sample_interval <- c(%s)\n', format_list(grid_sample_interval, '%e'));
+    fprintf(fid, 'grid_c <- seq_len(100)\n');
 
     fclose(fid);
 
