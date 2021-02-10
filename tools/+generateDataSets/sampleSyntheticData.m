@@ -20,6 +20,13 @@ function sampleSyntheticData(s, lambda, mu, beta)
     end
 
     % % Make some clades
+    % global LEAF
+    % i = randsample(find([s.type] == LEAF), 1);
+    % j = randsample(setdiff(find([s.type] == LEAF), [i, s(i).sibling]), 1);
+    % clades = {struct('name', 'dummy_clade', ...
+    %                  'rootrange', [], ...
+    %                  'adamrange', [], ...
+    %                  'language', {{num2str(i), num2str(j)}})};
     % clades = {struct('name', 'root_clade', ...
     %                  'rootrange', [750, 1250], ...
     %                  'adamrange', [], ...
@@ -29,9 +36,10 @@ function sampleSyntheticData(s, lambda, mu, beta)
     % sFile = stype2nexus(s, '', 'BOTH', '', clades);
 
     [file_dir, nex_stem] = generateDataSets.fileDest(L, root_time, lambda, ...
-                                                      mu, beta);
+                                                     mu, beta);
 
     fid = fopen(fullfile(file_dir, 'data', sprintf('%s.nex', nex_stem)), 'w');
     fprintf(fid, stype2nexus(s, 'Estimate coupling distributions', 'BOTH', ''));
+    % fprintf(fid, stype2nexus(s, 'Estimate coupling distributions', 'BOTH', '', clades));
     fclose(fid);
 end

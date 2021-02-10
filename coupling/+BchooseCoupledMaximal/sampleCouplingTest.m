@@ -16,7 +16,7 @@ function moveNarrowStayCoupled(testCase, clades)
     [s, nReps, newageCoupling, newageMarginal] = getTree10Params(clades);
     nRep = 1;
     while nRep <= nReps
-        i = BchooseCoupledMaximal.sampleSubtree(s);
+        i = sampleSubtree(s);
         [j, k, FAIL] = BchooseCoupledMaximal.getNarrowDestination(i, s);
         if ~FAIL
             THETA = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
@@ -39,7 +39,7 @@ function cladesNoMoveWideStayCoupledTest(testCase)
     [s, nReps, newageCoupling, newageMarginal] = getTree10Params('No');
     nRep = 1;
     while nRep <= nReps
-        i = BchooseCoupledMaximal.sampleSubtree(s);
+        i = sampleSubtree(s);
         r = 1:(length(s) - 1);
         [j, k, FAIL] = BchooseCoupledMaximal.getWideDestination(i, r, ...
                                                                 length(r), s);
@@ -65,7 +65,7 @@ function cladesYesMoveWideStayCoupledTest(testCase)
     [s, nReps, newageCoupling, newageMarginal] = getTree10Params('Yes');
     nRep = 1;
     while nRep <= nReps
-        i = BchooseCoupledMaximal.sampleSubtree(s);
+        i = sampleSubtree(s);
         r = BchooseCoupledMaximal.getWideCandidatesClade(i, s);
         [j, k, FAIL] = BchooseCoupledMaximal.getWideDestination(i, r, ...
                                                                 length(r), s);
@@ -92,7 +92,7 @@ function narrowCouplingTest(testCase)
     [s_x, s_y, nRep, nReps, matchCount, matchAttempt] = getTrees5Params();
     [logq_xObs, logq_yObs, logq_xExp, logq_yExp] = deal(nan(nReps, 1));
     while nRep <= nReps
-        i = BchooseCoupledMaximal.sampleSubtree(s_x);
+        i = sampleSubtree(s_x);
         [j_x, k_x, FAIL_x] = BchooseCoupledMaximal.getNarrowDestination(i, s_x);
         [j_y, k_y, FAIL_y] = BchooseCoupledMaximal.getNarrowDestination(i, s_y);
         if ~(FAIL_x || FAIL_y)
@@ -141,7 +141,7 @@ function wideCouplingCladesNoTest(testCase)
     [s_x, s_y, nRep, nReps, matchCount, matchAttempt] = getTrees5Params();
     N = length(s_x) - 1;
     while nRep <= nReps
-        i = BchooseCoupledMaximal.sampleSubtree(s_x);
+        i = sampleSubtree(s_x);
         r = randperm(N);
         [j_x, k_x, FAIL_x] ...
             = BchooseCoupledMaximal.getWideDestination(i, r, N, s_x);
@@ -217,4 +217,14 @@ function [s_x, s_y, nRep, nReps, matchCount, matchAttempt] = getTrees5Params()
     nRep = 1;
     nReps = 5e5;
     [matchCount, matchAttempt] = deal(zeros(size(s_x)));
+end
+
+function i = sampleSubtree(s)
+    % Get valid i for Bchoose, not Echoose > NARROW, only used for testing
+    global ROOT
+    N = length(s) - 1;
+    i = ceil(N * rand);
+    while s(i).type == ROOT
+       i = ceil(N * rand);
+    end
 end

@@ -1,7 +1,9 @@
+addpath tools
 GlobalSwitches; GlobalValues;
 
-% Run (untracked in git) script to get parameters
+% Run script to get parameters
 generateDataSets.paramConfig;
+
 [grid_L, grid_root_time] = ndgrid(list_L, list_root_time);
 [grid_lambda, grid_mu, grid_beta] = ndgrid(list_lambda, list_mu, list_beta);
 
