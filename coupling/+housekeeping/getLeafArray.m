@@ -1,7 +1,9 @@
 function a = getLeafArray(s, r, a, l)
-    % Starting at node l and working towards the leaves of s, a indicates the
-    % the leaves (identified by name) beneath each node according to the
-    % reference list r
+    % Starting at node l (root or lower) and working towards the leaves of s,
+    % a indicates the leaves (identified by name) beneath each node according to
+    % the reference list r; that is, a is a |s|x|a| array with a_ij = 1 if leaf
+    % r_j is beneath node s_i
+
     global LEAF ROOT;
 
     if nargin == 2
