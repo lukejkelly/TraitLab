@@ -2,9 +2,24 @@
 
 To run an analysis, start _Matlab_ in the top-level directory (location of `startup.m` which sets paths) of _TraitLabSDLT-coupled_ and execute
 ```Matlab
-batchTraitLabCoupled('<path to .par file>', <inds>);
+batchTraitLabCoupled('<path to .par file>', <ind>);
 ```
-This in turns called `runmcmcCoupled`. This will run `length(inds)` pairs of chains (`x` and `y`), their outputs files identified by `-i_{x,y}` before the file extension for each `i` in `inds`.
+The `.par` file now requires fields for borrowing.
+
+This in turns called `runmcmcCoupled` which will run
+ * a pair of coupled chains `x` and `y` coupled at lag `l`
+ * append `-{x,y}-<ind>` to the output filename specified in the run file.
+All the relevant code is in `coupling/`.
+
+The current development branch is `maximal` and will be until I finish testing `MarkovCoupled`, `MarkovCoupledCommon`, `MarkovCoupledMaximal`, `MarkovPrior`. I don't expect any issues having debugged them by hand already, just that I can't write straightforward testing code.
+
+Scripts to generate synthetic data sets and `.par` files, as well as the `bash` and `qsub` scripts to run them on the CEREMADE server, are located in `tools`. They currently assume my directory structure so they need to be updated. A separate repo, `CoupledPhylogeneticAnalyses` contains scripts to analyse the output.
+
+I still need to update the run file to take the lag as an argument, currently its hard-coded.
+
+The `TraitLabSDLT` repo is upstream from `TraitLabSDLT` so any changes to non-`coupling/` code should be made there and merged here.
+
+The unit tests which check distributions are quite slow as they run for a large number of iterations and require the user to verify that the ECDFs are sufficiently close.
 
 The GUI has not yet been updated to run coupled analyses.
 
