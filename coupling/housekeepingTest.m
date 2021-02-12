@@ -132,18 +132,16 @@ end
 % Helper functions
 function checkHousekeeping(testCase, stateObs, stateExp)
     % Compare tree variables
-    tfn = {'Name', 'parent', 'child', 'type', 'time', 'sibling'};
     sObs = stateObs.tree;
     sExp = stateExp.tree;
-    for j = 1:length(tfn)
-        assertTrue(testCase, all(cellfun(@(a, b) isequaln(a, b), ...
-                                         {sObs.(tfn{j})}, {sExp.(tfn{j})})));
+    for tfn = {'Name', 'parent', 'child', 'type', 'time', 'sibling'}
+        assertEqual(testCase, {sObs.(tfn{:})}, {sExp.(tfn{:})});
     end
-    assertTrue(testCase, equaltrees(sObs, sExp) == 1);
+    assertEqual(testCase, equaltrees(sObs, sExp), 1);
     % Compare state variables
     sfn = {'leaves', 'root', 'nodes', 'cat', 'claderoot'};
     for j = 1:length(sfn)
-        assertTrue(testCase, all(stateObs.(sfn{j}) == stateExp.(sfn{j})));
+        assertEqual(testCase, stateObs.(sfn{j}), stateExp.(sfn{j}));
     end
 end
 
