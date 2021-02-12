@@ -3,21 +3,27 @@ function t = swapNodes(s, j, k)
     % ns_j and ns_k are the new sibling roles for j and k after swapping
     % Almost identical to core/swap.m but preserving sibling order
 
-    % Only special case is j has k as parent
+    % TODO: remove after further testing
+    if j == k
+        error('We should not be trying to swap a node with itself');
+    end
+
+    % Order so only special case is j has k as parent
     if isequaln(s(k).parent, j)
+        % If k's parent is j then swap j and k
         [j, k] = deal(k, j);
     end
 
-    t = s;
     sj = s(j);
     sk = s(k);
 
     % Exchange node fields
+    t = s;
     t(j) = sk;
     t(k) = sj;
 
     % Update nodes depending on how j and k relate
-    if ~isequaln(sj.parent, k)
+    if isempty(sj.parent) || sj.parent ~= k
         % k is not j's parent in s
         if ~isempty(sj.parent)
             t(sj.parent).child(sj.sibling) = k;
