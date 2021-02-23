@@ -11,7 +11,8 @@ if nargin>0
     % intialise variables
     [data,model,state,handles.output,mcmc]=fullsetup(fsu);
 
-    save outIC;
+    % LJK 23/2/21 not implemented for coupled MCMC
+    % save outIC;
 
     if fromgui
         set(h,'Interruptible','off');
@@ -70,8 +71,8 @@ if nargin>0
     % Saving state for later goodness-of-fit testing
     if exist('SAVESTATES', 'var') && ~isempty(SAVESTATES) && SAVESTATES == 1
         error('This still needs to be implemented');
-        % [~, ~] = mkdir('saveStates');
-        % save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, 0), 'state');
+        [~, ~] = mkdir('saveStates');
+        save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, 0), 'state');
     end
 else
 
@@ -83,16 +84,18 @@ else
 
 end
 
-if mcmc.gather, lastsave=timestarted; save outMC; end
+% LJK 23/2/21 not implemented for coupled MCMC
+% if mcmc.gather, lastsave=timestarted; save outMC; end
 
 for t=start:finish
 
     borrowing_check(state_x);
     borrowing_check(state_y);
 
-    if mcmc.gather
-        if etime(clock,lastsave)>3600, save outMC; lastsave=clock; end
-    end
+    % LJK 23/2/21 not implemented for coupled MCMC
+    % if mcmc.gather
+    %     if etime(clock,lastsave)>3600, save outMC; lastsave=clock; end
+    % end
 
     %update the Markov chain (mcmc.subsample) steps
     atime=cputime;
@@ -129,7 +132,8 @@ if fromgui
     set(h,'Interruptible','on');
 end
 
-save outMC;
+% LJK 23/2/21 not implemented for coupled MCMC
+% save outMC;
 
 %writeoutput(handles.output);
 
