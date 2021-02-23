@@ -40,9 +40,10 @@ if nargin>0
 
     [state_x, state_y] = deal(state);
     % Advance each chain by iters draws from prior
-    prior_iters = 1e4;
-    [state_x, ~] = MarkovPrior(mcmc, model, state_x, 1, prior_iters);
-    [state_y, ~] = MarkovPrior(mcmc, model, state_y, 1, prior_iters);
+    mcmc_prior = mcmc;
+    mcmc_prior.subsample = 1e4;
+    [state_x, ~] = MarkovPrior(mcmc_prior, model, state_x, 1);
+    [state_y, ~] = MarkovPrior(mcmc_prior, model, state_y, 1);
 
     % Write initial states
     [handles_x, handles_y] = deal(handles);
