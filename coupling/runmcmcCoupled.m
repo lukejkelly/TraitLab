@@ -40,9 +40,9 @@ if nargin>0
 
     [state_x, state_y] = deal(state);
     % Advance each chain by iters draws from prior
-    iters = 1e4;
-    [state_x, ~] = MarkovPrior(mcmc, model, state_x, 1, iters);
-    [state_y, ~] = MarkovPrior(mcmc, model, state_y, 1, iters);
+    prior_iters = 1e4;
+    [state_x, ~] = MarkovPrior(mcmc, model, state_x, 1, prior_iters);
+    [state_y, ~] = MarkovPrior(mcmc, model, state_y, 1, prior_iters);
 
     % Write initial states
     [handles_x, handles_y] = deal(handles);
@@ -52,8 +52,10 @@ if nargin>0
     handles_x = write_initial_state(handles_x, state_x, fsu);
     handles_y = write_initial_state(handles_y, state_y, fsu);
 
-    % Advance x chain by lag = mcmc.subsample steps
-    [state_x, pa_x] = Markov(mcmc, model, state_x, 1);
+    % Advance x chain by lag = fsu.COUPLINGLAG steps
+    mcmc_lag = mcmc;
+    mcmc_lag.subsample = fsu.COUPLINGLAG;
+    [state_x, pa_x] = Markov(mcmc_lag, model, state_x, 1);
     handles_x = write_mcmc_outputs(handles_x, state_x, 0, fsu, 1, pa_x, ...
                                    model, data);
 
