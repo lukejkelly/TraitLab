@@ -54,13 +54,6 @@ if nargin>0
     handles_x = write_initial_state(handles_x, state_x, fsu);
     handles_y = write_initial_state(handles_y, state_y, fsu);
 
-    % Advance x chain by lag = fsu.COUPLINGLAG steps
-    mcmc_lag = mcmc;
-    mcmc_lag.subsample = fsu.COUPLINGLAG;
-    [state_x, pa_x] = Markov(mcmc_lag, model, state_x, 1);
-    handles_x = write_mcmc_outputs(handles_x, state_x, 0, fsu, 1, pa_x, ...
-                                   model, data);
-
     finish=floor(mcmc.runlength/mcmc.subsample);
     timestarted = clock;
 
@@ -87,11 +80,21 @@ end
 % LJK 23/2/21 not implemented for coupled MCMC
 % if mcmc.gather, lastsave=timestarted; save outMC; end
 
-% for t=start:finish
-t = start;
-% currently, state_x is at t - s (y at t - l - s) so the last time couplingCheck
-% passes is the iteration before they couple and are written to file
-while t <= finish || ~checkCoupling(state_x, state_y)
+% Advance x chain by lag steps
+lag_subsample = fsu.COUPLINGLAG / mcmc.subsample;
+for t = start:lag_subsample
+    borrowing_check(state_x);
+    atime = cputime;
+    ignoreearlywarn = (t <= 3);
+    [state_x, pa_x] = Markov(mcmc, model, state_x, ignoreearlywarn);
+    btime = cputime - atime;
+    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, t, pa_x, ...
+                                   model, data);
+end
+
+% Run chain until x reaches finish iterations or coupling, whichever is largest
+while t < finish || ~checkCoupling(state_x, state_y)
+    t = t + 1;
 
     borrowing_check(state_x);
     borrowing_check(state_y);
@@ -116,12 +119,10 @@ while t <= finish || ~checkCoupling(state_x, state_y)
     end
 
     % Write outputs and update handles
-    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, t + 1, ...
-                                   pa_x, model, data);
-    handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, t, ...
-                                   pa_y, model, data);
-
-    t = t + 1;
+    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, ...
+                                   t, pa_x, model, data);
+    handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, ...
+                                   t - lag_subsample, pa_y, model, data);
 end
 
 if mcmc.monitor.on
