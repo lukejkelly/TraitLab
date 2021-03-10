@@ -87,7 +87,11 @@ end
 % LJK 23/2/21 not implemented for coupled MCMC
 % if mcmc.gather, lastsave=timestarted; save outMC; end
 
-for t=start:finish
+% for t=start:finish
+t = start;
+% currently, state_x is at t - s (y at t - l - s) so the last time couplingCheck
+% passes is the iteration before they couple and are written to file
+while t <= finish || ~checkCoupling(state_x, state_y)
 
     borrowing_check(state_x);
     borrowing_check(state_y);
@@ -117,7 +121,7 @@ for t=start:finish
     handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, t, ...
                                    pa_y, model, data);
 
-    % TODO: Put a coupling check here
+    t = t + 1;
 end
 
 if mcmc.monitor.on

@@ -317,8 +317,9 @@ if ~exist('Omit_clade_ages_list'), Omit_clade_ages_list=''; end  % For backwards
 % Coupling LJK 19/2/21
 COUPLING = Coupled_markov_chains;
 COUPLINGLAG = Coupling_lag;
-if COUPLING && (isnan(COUPLINGLAG) || COUPLINGLAG < 1 || mod(COUPLINGLAG, 1) ~= 0)
-    error('Coupling lag should be a positive integer')
+if COUPLING && (isnan(COUPLINGLAG) || COUPLINGLAG < 1 ...
+                || mod(COUPLINGLAG / Sample_interval, 1) ~= 0)
+    error('Coupling lag should be an integer multiple of sample interval')
 end
 
 %write the control variables into structures used by fullsetup
