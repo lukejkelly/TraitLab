@@ -1,6 +1,6 @@
 function batchTraitLab(run_file, output_file_name_app)
-% Run marginal MCMC sampler for input run_file and (if specified) append
-% output_file_name_app to output filenames
+% Run marginal/coupled MCMC sampler for input run_file and append
+% output_file_name_app to output filenames (if specified)
 
 GlobalSwitches
 GlobalValues
@@ -314,8 +314,13 @@ if ~exist('Omit_clade_ages_list'), Omit_clade_ages_list=''; end  % For backwards
  PS=1;
  IP=1;
 
-
-
+% Coupling LJK 19/2/21
+COUPLING = Coupled_markov_chains;
+COUPLINGLAG = Coupling_lag;
+if COUPLING && (isnan(COUPLINGLAG) || COUPLINGLAG < 1 ...
+                || mod(COUPLINGLAG / Sample_interval, 1) ~= 0)
+    error('Coupling lag should be an integer multiple of sample interval')
+end
 
 %write the control variables into structures used by fullsetup
 fsu=pop('fsu');
@@ -400,6 +405,13 @@ fsu.VARYBETA = VARYBETA;
 fsu.MCMCINITBETA = MCMCINITBETA;
 fsu.ISBETARANDOM = ISBETARANDOM;
 
-runmcmc(fsu);
+% Coupling LJK 19/2/21
+fsu.COUPLING = COUPLING;
+fsu.COUPLINGLAG = COUPLINGLAG;
+if fsu.COUPLING
+    runmcmcCoupled(fsu);
+else
+    runmcmc(fsu);
+end
 
 end

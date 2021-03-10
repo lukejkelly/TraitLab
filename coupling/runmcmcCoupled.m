@@ -11,7 +11,8 @@ if nargin>0
     % intialise variables
     [data,model,state,handles.output,mcmc]=fullsetup(fsu);
 
-    save outIC;
+    % LJK 23/2/21 not implemented for coupled MCMC
+    % save outIC;
 
     if fromgui
         set(h,'Interruptible','off');
@@ -40,9 +41,10 @@ if nargin>0
 
     [state_x, state_y] = deal(state);
     % Advance each chain by iters draws from prior
-    iters = 1e4;
-    [state_x, ~] = MarkovPrior(mcmc, model, state_x, 1, iters);
-    [state_y, ~] = MarkovPrior(mcmc, model, state_y, 1, iters);
+    mcmc_prior = mcmc;
+    mcmc_prior.subsample = 1e4;
+    [state_x, ~] = MarkovPrior(mcmc_prior, model, state_x, 1);
+    [state_y, ~] = MarkovPrior(mcmc_prior, model, state_y, 1);
 
     % Write initial states
     [handles_x, handles_y] = deal(handles);
@@ -51,11 +53,6 @@ if nargin>0
 
     handles_x = write_initial_state(handles_x, state_x, fsu);
     handles_y = write_initial_state(handles_y, state_y, fsu);
-
-    % Advance x chain by lag = mcmc.subsample steps
-    [state_x, pa_x] = Markov(mcmc, model, state_x, 1);
-    handles_x = write_mcmc_outputs(handles_x, state_x, 0, fsu, 1, pa_x, ...
-                                   model, data);
 
     finish=floor(mcmc.runlength/mcmc.subsample);
     timestarted = clock;
@@ -67,8 +64,8 @@ if nargin>0
     % Saving state for later goodness-of-fit testing
     if exist('SAVESTATES', 'var') && ~isempty(SAVESTATES) && SAVESTATES == 1
         error('This still needs to be implemented');
-        % [~, ~] = mkdir('saveStates');
-        % save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, 0), 'state');
+        [~, ~] = mkdir('saveStates');
+        save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, 0), 'state');
     end
 else
 
@@ -80,16 +77,32 @@ else
 
 end
 
-if mcmc.gather, lastsave=timestarted; save outMC; end
+% LJK 23/2/21 not implemented for coupled MCMC
+% if mcmc.gather, lastsave=timestarted; save outMC; end
 
-for t=start:finish
+% Advance x chain by lag steps
+lag_subsample = fsu.COUPLINGLAG / mcmc.subsample;
+for t = start:lag_subsample
+    borrowing_check(state_x);
+    atime = cputime;
+    ignoreearlywarn = (t <= 3);
+    [state_x, pa_x] = Markov(mcmc, model, state_x, ignoreearlywarn);
+    btime = cputime - atime;
+    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, t, pa_x, ...
+                                   model, data);
+end
+
+% Run chain until x reaches finish iterations or coupling, whichever is largest
+while t < finish || ~checkCoupling(state_x, state_y)
+    t = t + 1;
 
     borrowing_check(state_x);
     borrowing_check(state_y);
 
-    if mcmc.gather
-        if etime(clock,lastsave)>3600, save outMC; lastsave=clock; end
-    end
+    % LJK 23/2/21 not implemented for coupled MCMC
+    % if mcmc.gather
+    %     if etime(clock,lastsave)>3600, save outMC; lastsave=clock; end
+    % end
 
     %update the Markov chain (mcmc.subsample) steps
     atime=cputime;
@@ -106,12 +119,10 @@ for t=start:finish
     end
 
     % Write outputs and update handles
-    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, t + 1, ...
-                                   pa_x, model, data);
-    handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, t, ...
-                                   pa_y, model, data);
-
-    % TODO: Put a coupling check here
+    handles_x = write_mcmc_outputs(handles_x, state_x, btime, fsu, ...
+                                   t, pa_x, model, data);
+    handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, ...
+                                   t - lag_subsample, pa_y, model, data);
 end
 
 if mcmc.monitor.on
@@ -126,7 +137,8 @@ if fromgui
     set(h,'Interruptible','on');
 end
 
-save outMC;
+% LJK 23/2/21 not implemented for coupled MCMC
+% save outMC;
 
 %writeoutput(handles.output);
 

@@ -1,6 +1,6 @@
-function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn, iters)
-% Modification of Markov to sequentially draw iters sample from prior
-% Log likelihood terms are only calculated on exit
+function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn)
+% Modification of Markov to sample from prior by ignoring log-likelihood
+% Log-likelihood terms are only calculated on exit
 
 % [state,pa] = Markov(mcmc,model,state)
 % written by GKN
@@ -13,7 +13,7 @@ if nargin<=3, ignoreearlywarn=0; end
 acct=zeros(mcmc.update.Nmvs,1);
 prop=zeros(mcmc.update.Nmvs,1);
 
-for t=1:iters % (mcmc.subsample)
+for t=1:(mcmc.subsample)
 
     drawnow;
     STOPRUN = get(gcbo,'UserData');
@@ -311,12 +311,6 @@ end
 %pa=zeros(mcmc.update.Nmvs,1);
 %pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
 pa=acct./prop; %Changed to display NaN when the update was not proposed. RJR 19/03/09
-
-% Priors on mu and beta are very weak and large values slow down the likelihood
-% calculation and mixing of the chain, so let's ensure they're still small-ish
-% TODO: come up with a better way of doing this
-% state.mu = 1e-5 + rand * 1e-3;
-% state.beta = 1e-5 + rand * 1e-3;
 
 % Likelihood calculations.
 if BORROWING
