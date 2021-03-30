@@ -2,9 +2,10 @@ function nstate2 = housekeeping(state1, state2)
     % Match indices of nodes with common descendent leaves (indexed by .Name)
     % For each tree, we identify which leaves (ordered by reference list r) are
     % beneath each node using getLeafArray then permute node indices with
-    % swapNodes common subtrees have the same indices in both trees
-    % getLeafArray does not consider at the Adam node as if it's out of position
-    % then it will get swapped anyway
+    % swapNodes
+    % Common subtrees have the same indices in both trees
+    % getLeafArray does not consider the Adam node as if its index is out of
+    % position then it will get swapped anyway
     % We then update sibling information with matchSiblings, if possible, as
     % well as any clades or catastrophes
 
@@ -25,6 +26,12 @@ function nstate2 = housekeeping(state1, state2)
         [c1, c2] = ismember(a1, a2, 'rows');
         i2 = find(c1 & (i1 ~= c2), 1);
         if any(i2)
+            % This move also swaps non-relationship information such as Name and
+            % xi; that is, t(j).Name is now s(k).Name. We do not use internal
+            % node Name or xi information anywhere (that I know of) and leaves
+            % should never swap with internal nodes in MCMC (which uses a
+            % similar operation and has been doing so for years) or housekeeping
+            % so I think we can safely ignore it for checking coupling
             t2 = housekeeping.swapNodes(t2, i2, c2(i2));
             j2([i2, c2(i2)]) = j2([c2(i2), i2]);
         else
@@ -73,7 +80,7 @@ function nstate2 = housekeeping(state1, state2)
         save('coupling/housekeeping-error.mat')
         error('Clade roots do not match after housekeeping');
     end
-    
+
      % Update node likelihood information
     if ~BORROWING
         nstate2 = MarkRcurs(nstate2, [nstate2.leaves, nstate2.nodes], 1);
