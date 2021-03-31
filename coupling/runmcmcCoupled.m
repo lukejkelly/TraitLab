@@ -92,6 +92,9 @@ for t = start:lag_subsample
                                    model, data);
 end
 
+% Housekeeping nodes in y to match x
+state_y = housekeeping(state_x, state_y);
+
 % Run chain until x reaches finish iterations or coupling, whichever is largest
 while t < finish || ~checkCoupling(state_x, state_y)
     t = t + 1;

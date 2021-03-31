@@ -8,6 +8,13 @@ function nstate2 = housekeeping(state1, state2)
     % position then it will get swapped anyway
     % We then update sibling information with matchSiblings, if possible, as
     % well as any clades or catastrophes
+    % Roots of subtrees common to both x and y have same indices
+    % If a the same node has the same offspring in both then child/sibling
+    % indices are the same
+    % Leaves and Adam have same indices in both x and y
+    % If x and y were both initialised with valid modifications from the
+    % same state then nodes within a clade will form the same set of indices
+    % in both x and y even if they have not coupled
 
     global LEAF ANST ROOT BORROWING
 

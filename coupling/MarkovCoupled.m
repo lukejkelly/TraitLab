@@ -18,15 +18,6 @@ function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
             return
         end
 
-        % Roots of subtrees common to both x and y have same indices
-        % If a the same node has the same offspring in both then child/sibling
-        % indices are the same
-        % Leaves and Adam have same indices in both x and y
-        % If x and y were both initialised with valid modifications from the
-        % same state then nodes within a clade will form the same set of indices
-        % in both x and y even if they have not coupled
-        state_y = housekeeping(state_x, state_y);
-
         % MCMC acceptance probability
         u_mh = rand;
 
@@ -54,6 +45,7 @@ function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
             % Uncoupled chains may make different number of calls to rng
             rng('shuffle');
         end
+        state_y = housekeeping(state_x, state_y);
         acct_x(MV) = acct_x(MV) + succ_x;
         acct_y(MV) = acct_y(MV) + succ_y;
     end
