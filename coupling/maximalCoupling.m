@@ -1,5 +1,6 @@
 function [x, y] = maximalCoupling(rp, dp, rq, dq)
-    % Sampling from a maximal coupling of p and q
+    % Sample from a maximal coupling of p and q
+    % Only used for unit-testing other functions
     % rp generates a draw from p, dp is the corresponding density; q likewise
     x = rp();
     if rand * dp(x) <= dq(x)

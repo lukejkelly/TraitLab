@@ -1,6 +1,6 @@
 function [x, y] = maximalCouplingLog(rp, ldp, rq, ldq)
-    % Sampling from a maximal coupling of p and q
-    % Sampling functions rp and rq, ldp and ldq are corresponding log densities
+    % Sampling from a maximal coupling of x ~ p and y ~ q
+    % rp and rq generate samples, ldp and ldq are log densities
     x = rp();
     if log(rand) + ldp(x) <= ldq(x)
         y = x;

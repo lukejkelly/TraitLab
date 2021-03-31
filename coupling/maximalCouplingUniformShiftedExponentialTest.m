@@ -8,15 +8,15 @@ function noOverlapTest(testCase)
 end
 
 function partialOverlap1Test(testCase)
-    compareDistributions(testCase, 1.5, 3, 2, 1);
+    compareDistributions(testCase, 1.5, 3, 2.5, 0.5);
 end
 
 function partialOverlap2Test(testCase)
-    compareDistributions(testCase, 2.5, 3, 2, 1);
+    compareDistributions(testCase, 2.5, 3, 1.5, 1.25);
 end
 
 function partialOverlap3Test(testCase)
-    compareDistributions(testCase, 3, 5, 2, 1);
+    compareDistributions(testCase, 3, 5, 2, 1.5);
 end
 
 function compareDistributions(testCase, a, b, c, theta)
