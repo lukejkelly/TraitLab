@@ -27,6 +27,15 @@ if TESTSS && check(state,data.true.state)
 end
 %write the start-state to the sample bag
 output=initOUTPUT(state,mcmc.update,fsu);
+
+% Luke 01/04/21: adjust mcmc.update (set in initMCMC) if all leaf times are
+% fixed (only set afterwards in initState)
+if all([state.tree.leaf_has_timerange] == 0)
+    mcmc.update.move(11) = 0;
+    mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
+    mcmc.update.cmove = cumsum(mcmc.update.move);
+end
+
 return;
 
 
