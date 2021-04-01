@@ -20,7 +20,6 @@ function coupledTest(testCase)
     load('coupling/MarkovTestCoupled-20210330.mat', 'mcmc', 'model', ...
          'state_x', 'state_y');
     mcmc.subsample = 1;
-    assertTrue(testCase, checkCoupling(state_x, state_y));
     n = 1e3;
     fprintf('\n');
     for i = 1:n
@@ -36,10 +35,9 @@ end
 
 function uncoupledTest(testCase)
     % Already checked during simulations
-    % States from start of runmcmcCoupled main loop before coupling
+    % States from runmcmcCoupled main loop before coupling
     load('coupling/MarkovTestUncoupled-20210331.mat', 'mcmc', 'model', ...
          'state_x', 'state_y');
-    assertFalse(testCase, checkCoupling(state_x, state_y));
     % Uneven move distribution
     [state_x, ~] = Markov(mcmc, model, state_x);
     [state_y, ~] = Markov(mcmc, model, state_y);
