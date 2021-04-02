@@ -149,8 +149,8 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
             U_y = state_y.nodes;
 
             if DEPNU
-                nstate_x.nu=state_x.nu * var_x;
-                nstate_y.nu=state_y.nu * var_y;
+                nstate_x.nu = state_x.nu * var_x;
+                nstate_y.nu = state_y.nu * var_y;
             end
         case 19
             update = 'Vary XI for one leaf';

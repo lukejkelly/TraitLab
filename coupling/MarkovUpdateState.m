@@ -1,5 +1,5 @@
 function [state, succ] = MarkovUpdateState(update, model, u_mh, TOPOLOGY, ...
-    logq, state, nstate, OK, U, ignoreearlywarn)
+        logq, state, nstate, OK, U, ignoreearlywarn)
 
     global TESTUP BORROWING DONTMOVECATS
 
