@@ -1,63 +1,5 @@
-function [state_x, state_y, pa_x, pa_y] = Markov_coupled(mcmc, model, state_x, ...
-                                                 state_y, ignoreearlywarn)
-% [state,pa] = Markov(mcmc,model,state)
-% written by GKN
-% last modified by RJR on 07/05/07
-
-    % global STOPRUN WIDE NARROW DEPNU VARYP ADAM VARYLAMBDA VARYMU TESTUP DONTMOVECATS BORROWING VARYBETA
-    global STOPRUN
-
-    if nargin<=4, ignoreearlywarn=0; end
-
-    [acct_x, acct_y] = deal(zeros(mcmc.update.Nmvs, 1));
-    prop=zeros(mcmc.update.Nmvs,1);
-
-    for t=1:(mcmc.subsample)
-
-        drawnow;
-        STOPRUN = get(gcbo,'UserData');
-        if STOPRUN
-            % %calculate proportion accepted for each update type
-            % pa=zeros(mcmc.update.Nmvs,1);
-            % pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
-            pa_x = acct_x ./ prop;
-            pa_y = acct_y ./ prop;
-            return
-        end
-
-        % Common roles across trees have common indices
-        state_y = housekeeping(state_x, state_y);
-        % For now we assume that state_x.tree was only ever a valid modification
-        % of state_y so leaves and Adam have the same indices in both, as do all
-        % nodes within a clade
-
-        % MCMC acceptance probability
-        u_mh = rand;
-
-        %choose an update type according to the cumulative dbn cmove
-        r=rand;
-        MV=find(r<mcmc.update.cmove,1,'first');
-        prop(MV)=prop(MV)+1;
-
-        % MCMC updates
-        rng_state = rng;
-        [state_x, succ_x] = Markov_coupled_crn(mcmc, model, state_x, ...
-                                               ignoreearlywarn, MV, u_mh);
-        acct_x(MV) = acct_x(MV) + succ_x;
-        rng(rng_state);
-        [state_y, succ_y] = Markov_coupled_crn(mcmc, model, state_y, ...
-                                               ignoreearlywarn, MV, u_mh);
-        acct_y(MV) = acct_y(MV) + succ_y;
-
-        % Uncoupled chains may make different calls to rng
-        rng('shuffle');
-    end
-    pa_x = acct_x ./ prop;
-    pa_y = acct_y ./ prop;
-end
-
-function [state, succ] = Markov_coupled_crn(mcmc, model, state, ...
-                                            ignoreearlywarn, MV, u_mh)
+function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
+                                             ignoreearlywarn, MV, u_mh)
     global WIDE NARROW DEPNU VARYP ADAM VARYLAMBDA VARYMU TESTUP DONTMOVECATS BORROWING VARYBETA
 
     %compute the candidate state
@@ -270,77 +212,10 @@ function [state, succ] = Markov_coupled_crn(mcmc, model, state, ...
         U = state.nodes;
     end % End of move section.
 
-    if OK && model.prior.isclade
-        if TOPOLOGY
-            nstate=UpdateClades(nstate,U,size(model.prior.clade,2));
-        end
-        OK=CladePrior(model.prior,nstate);
-    end
-
-    succ = 0; % Switched to 1 if move accepted
-
     if OK
-
-        if ~all(sort(find([state.tree.type] == 0)) == sort(find([nstate.tree.type] == 0)))
-            disp('Leaf variables mismatch')
-            keyboard; return;
-        end
-
-%         if TOPOLOGY
-%             nstate.length=TreeLength(nstate.tree,nstate.root);
-%         end
-
-        %disp(update);
-        if TOPOLOGY && DONTMOVECATS
-            nstate.cat(:)=1;
-            nstate.cat(nstate.root)=0;
-            nstate.cat(nstate.tree(nstate.root).parent)=0;
-            nstate.ncat=sum(nstate.cat);
-        end
-        [nstate, OK]=MarkRcurs(nstate,U,TOPOLOGY,ignoreearlywarn);
-
-        % Likelihood calculations.
-        if BORROWING
-            [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate); % LUKE
-        else
-            nstate.loglkd     = LogLkd(nstate);
-            nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
-        end
-
-        % Log-prior for tree and catastrophes.
-        nstate.logprior = LogPrior(model.prior, nstate);
-
-        % Log-prior for parameters: mu, beta, etc.
-        logpp = LogPriorParm(state, nstate);
-
-        % Log-Hastings ratio in acceptance step.
-        logr = nstate.logprior - state.logprior + nstate.loglkd - state.loglkd + logq + logpp;
-
-        % Acceptance step.
-        %GKN Jan 08 to handle big tree, llkd is -inf so do random walk (3rd OR)
-        if ( (logr>0) || (log(u_mh)<logr) || isinf(state.loglkd) )
-            state=nstate;
-            succ = 1;
-        end
-
-        if TESTUP && check(state,[])
-            disp(['Error in update:',update]);
-            check(nstate,[])
-            keyboard;pause;
-        end
+        [state, succ] = MarkovUpdateState(update, model, u_mh, TOPOLOGY, ...
+            logq, state, nstate, OK, U, ignoreearlywarn);
+    else
+        succ = 0;
     end
 end
-
-% % % % % %update lambda|g,mu - assumes 1/lambda prior
-% % % % % if ~VARYLAMBDA
-% % % % %     state.lambda=Lambda(state);
-% % % % %     if DEPNU
-% % % % %         state.nu=state.kappa*state.lambda/state.mu;
-% % % % %     end
-% % % % % end
-
-% %calculate proportion accepted for each update type
-% %pa=zeros(mcmc.update.Nmvs,1);
-% %pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
-% pa=acct./prop; %Changed to display NaN when the update was not proposed. RJR 19/03/09
-% % Moved to top-level function LJK 27/4/20

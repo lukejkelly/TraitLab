@@ -1,31 +1,18 @@
-function batchTraitLab_coupled(run_file, i_chains)
-% Run coupled MCMC samplers for input run_file and output IDs i_chains
-    for i = i_chains
-        batchTraitLab_coupled_run(run_file, num2str(i));
-    end
-end
-
-% Worker function
-function batchTraitLab_coupled_run(run_file, output_file_name_app)
+function batchTraitLab(run_file, output_file_name_app)
+% Run marginal/coupled MCMC sampler for input run_file and append
+% output_file_name_app to output filenames (if specified)
 
 GlobalSwitches
 GlobalValues
 addpath('core') % Luke 05/10/2017
 addpath('guifiles') %commented out GKN Feb 08; added back in RJR�16�Mar 2011
 
+rng('shuffle');
+
 % Clear persistent variables in SDLT code. LUKE 24/3/20
 clear logLkd2_m patternCounts patternMeans
 
-if nargin == 0
-    [run_file, output_file_name_app] = deal([]);
-end
-
-if isempty(run_file)
-    a = readrunfile('batchtlinput.txt');
-else
-    a = readrunfile(run_file);
-end
-
+a = readrunfile(run_file);
 for i = 1:length(a{1})
     switch a{1}{i}
         case {'Data_file_name','Output_file_name','Output_path_name'}
@@ -60,12 +47,12 @@ if ~isempty(x) && x == length(Output_file_name)-3
 end
 
 % Add appendix to output file name when doing multiple runs
-if ~isempty(output_file_name_app)
-    Output_file_name = [Output_file_name, '-', output_file_name_app];
+if nargin == 2
+    Output_file_name = [Output_file_name, '-', num2str(output_file_name_app)];
 end
 
-
 % make sure dont overwrite old run
+% TODO: not checked by coupled runs Luke 2/4/21
 if exist([Output_path_name Output_file_name '.nex'],'file') && ~strcmp('tloutput',Output_file_name)
     ok = input(['\n' Output_file_name ' already exists in directory ' Output_path_name '\nType 1 to continue and overwrite it\n> '],'s');
     if ~strcmp(ok,'1')
@@ -328,8 +315,13 @@ if ~exist('Omit_clade_ages_list'), Omit_clade_ages_list=''; end  % For backwards
  PS=1;
  IP=1;
 
-
-
+% Coupling LJK 19/2/21
+COUPLING = Coupled_markov_chains;
+COUPLINGLAG = Coupling_lag;
+if COUPLING && (isnan(COUPLINGLAG) || COUPLINGLAG < 1 ...
+                || mod(COUPLINGLAG / Sample_interval, 1) ~= 0)
+    error('Coupling lag should be an integer multiple of sample interval')
+end
 
 %write the control variables into structures used by fullsetup
 fsu=pop('fsu');
@@ -414,6 +406,13 @@ fsu.VARYBETA = VARYBETA;
 fsu.MCMCINITBETA = MCMCINITBETA;
 fsu.ISBETARANDOM = ISBETARANDOM;
 
-runmcmc_coupled(fsu);
+% Coupling LJK 19/2/21
+fsu.COUPLING = COUPLING;
+fsu.COUPLINGLAG = COUPLINGLAG;
+if fsu.COUPLING
+    runmcmcCoupled(fsu);
+else
+    runmcmc(fsu);
+end
 
 end

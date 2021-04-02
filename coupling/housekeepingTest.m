@@ -1,5 +1,4 @@
 function tests = housekeepingTest
-    % Unit-testing likelihood calculations in patternCounts
     tests = functiontests(localfunctions);
 end
 
@@ -80,21 +79,69 @@ function s6s8Test(testCase)
     checkHousekeeping(testCase, nstate8Obs, nstate8Exp);
 end
 
+function s1s9Test(testCase)
+    % Only root and adam node indices differ
+    prior = popClades();
+    state1 = partialMakeState(prior, testCase.TestData.s1);
+    state9 = partialMakeState(prior, testCase.TestData.s9);
+    nstate9Obs = housekeeping(state1, state9);
+    nstate9Exp = partialMakeState(prior, testCase.TestData.t9s1);
+    checkHousekeeping(testCase, nstate9Obs, nstate9Exp);
+end
+
+function s1s10Test(testCase)
+    % Only adam and internal node indices differ
+    prior = popClades();
+    state1 = partialMakeState(prior, testCase.TestData.s1);
+    state10 = partialMakeState(prior, testCase.TestData.s10);
+    nstate10Obs = housekeeping(state1, state10);
+    nstate10Exp = partialMakeState(prior, testCase.TestData.t10s1);
+    checkHousekeeping(testCase, nstate10Obs, nstate10Exp);
+end
+
+function s1s11Test(testCase)
+    % Only adam and leaf node indices differ
+    prior = popClades();
+    state1 = partialMakeState(prior, testCase.TestData.s1);
+    state11 = partialMakeState(prior, testCase.TestData.s11);
+    nstate11Obs = housekeeping(state1, state11);
+    nstate11Exp = partialMakeState(prior, testCase.TestData.t11s1);
+    checkHousekeeping(testCase, nstate11Obs, nstate11Exp);
+end
+
+function s1s12Test(testCase)
+    % Only root and internal node indices differ
+    prior = popClades();
+    state1 = partialMakeState(prior, testCase.TestData.s1);
+    state12 = partialMakeState(prior, testCase.TestData.s12);
+    nstate12Obs = housekeeping(state1, state12);
+    nstate12Exp = partialMakeState(prior, testCase.TestData.t12s1);
+    checkHousekeeping(testCase, nstate12Obs, nstate12Exp);
+end
+
+function s1s13Test(testCase)
+    % Only root and leaf node indices differ
+    prior = popClades();
+    state1 = partialMakeState(prior, testCase.TestData.s1);
+    state13 = partialMakeState(prior, testCase.TestData.s13);
+    nstate13Obs = housekeeping(state1, state13);
+    nstate13Exp = partialMakeState(prior, testCase.TestData.t13s1);
+    checkHousekeeping(testCase, nstate13Obs, nstate13Exp);
+end
+
 % Helper functions
 function checkHousekeeping(testCase, stateObs, stateExp)
     % Compare tree variables
-    tfn = {'Name', 'parent', 'child', 'type', 'time', 'sibling'};
     sObs = stateObs.tree;
     sExp = stateExp.tree;
-    for j = 1:length(tfn)
-        assertTrue(testCase, all(cellfun(@(a, b) isequaln(a, b), ...
-                                         {sObs.(tfn{j})}, {sExp.(tfn{j})})));
+    for tfn = {'Name', 'parent', 'child', 'type', 'time', 'sibling'}
+        assertEqual(testCase, {sObs.(tfn{:})}, {sExp.(tfn{:})});
     end
-    assertTrue(testCase, equaltrees(sObs, sExp) == 1);
+    assertEqual(testCase, equaltrees(sObs, sExp), 1);
     % Compare state variables
     sfn = {'leaves', 'root', 'nodes', 'cat', 'claderoot'};
     for j = 1:length(sfn)
-        assertTrue(testCase, all(stateObs.(sfn{j}) == stateExp.(sfn{j})));
+        assertEqual(testCase, stateObs.(sfn{j}), stateExp.(sfn{j}));
     end
 end
 
@@ -126,12 +173,14 @@ function setupOnce(testCase)
     GlobalSwitches;
     GlobalValues;
 
-    % Root and left child are sibling 1, right child is sibling 2
-    % Leaves are at time 0, internal node at 1, root at 2 and Adam at 3
-    % TODO: Most of these trees are only used once so move inside test functions
+    global BORROWING
+    testCase.TestData.BORROWING = BORROWING;
+    BORROWING = 1;
 
     emptyTreeStruct = @(n) repmat(TreeNode([], [], [], [], [], []), 1, n);
 
+    % Root and left child are sibling 1, right child is sibling 2
+    % Leaves are at time 0, internal node at 1, root at 2 and Adam at 3
     % s1
     % 6
     % |
@@ -261,21 +310,21 @@ function setupOnce(testCase)
     [s5.sibling] = deal([], 1, 1, 2, 2, 1);
     testCase.TestData.s5 = s5;
 
-    % t5s1 is similar to s1 but with different sibling orders and leaf times
+    % t5s1 is similar to s1 but with different leaf times
     % 6
     % |
     % 5 — 3.3
     % |
-    % 4 — 1.1
+    % 4 — 2.2
     % |
-    % 2.2
+    % 1.1
     t5s1 = emptyTreeStruct(6);
     [t5s1.Name] = deal('1', '2', '3', '', '', 'Adam');
     [t5s1.parent] = deal(4, 4, 5, 5, 6, []);
-    [t5s1.child] = deal([], [], [], [2, 1], [4, 3], 5);
+    [t5s1.child] = deal([], [], [], [1, 2], [4, 3], 5);
     [t5s1.type] = deal(0, 0, 0, 1, 2, 3);
     [t5s1.time] = deal(0.3, 0.2, 0.1, 1, 2, 3);
-    [t5s1.sibling] = deal(2, 1, 2, 1, 1, []);
+    [t5s1.sibling] = deal(1, 2, 2, 1, 1, []);
     testCase.TestData.t5s1 = t5s1;
 
     % Clade constraint for previous trees
@@ -288,24 +337,6 @@ function setupOnce(testCase)
     % s6 is the true tree for 10-leaf synthetic data set with 3 clades (SIM-N)
     % s7 and s8 are the 5e4th and 1e5th iterations of a MCMC respectively
     % initialised at s6
-
-    % % s6 ((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10))))
-    % % s7 ((2, (4, 5)), (1, (3, ((6, 7), (8, (9, 10))))))
-    % % s8 (1, ((2, (4, 5)), (3, ((6, 7), (8, (9, 10))))))
-    %
-    % (
-    %     (1, (2, (4, 5))),
-    %     (3, ((6, 7), (8, (9, 10))))
-    % )
-    %
-    % ((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10))))
-    % ((1, (2, (4, 5))), (3, ((6, 7), (8, (9, 10)))))
-    %
-    % % fStr = 'borrowing/housekeepingTestDataState%i.mat';
-    % % getTree = @(i) getfield(load(sprintf(fStr, i)), 'state', 'tree');
-    % % testCase.TestData.s6 = getTree(6);
-    % % testCase.TestData.s7 = getTree(7);
-    % % testCase.TestData.s8 = getTree(8);
 
     % 1 an outgroup of left subtree
     testCase.TestData.s6 = rnextree(...
@@ -346,4 +377,114 @@ function setupOnce(testCase)
     p6.clade{2}.language = {'8'};
     p6.clade{3}.language = {'6', '7', '8', '9', '10'};
     testCase.TestData.p6 = p6;
+
+    % Only adam and root differ
+    % s9
+    % 5
+    % |
+    % 6 — 3
+    % |
+    % 4 — 2
+    % |
+    % 1
+    s9 = emptyTreeStruct(6);
+    [s9.Name] = deal('1', '2', '3', '', 'Adam', '');
+    [s9.parent] = deal(4, 4, 5, 5, [], 5);
+    [s9.child] = deal([], [], [], [1, 2], 6, [4, 3]);
+    [s9.type] = deal(0, 0, 0, 1, 3, 2);
+    [s9.time] = deal(0, 0, 0, 1, 3, 2);
+    [s9.sibling] = deal(1, 2, 2, 1, [], 1);
+    testCase.TestData.s9 = s9;
+
+    % t9s1 is s1 exactly
+    testCase.TestData.t9s1 = s1;
+
+    % Only adam and internal node differ
+    % s10
+    % 4
+    % |
+    % 5 — 3
+    % |
+    % 6 — 2
+    % |
+    % 1
+    s10 = emptyTreeStruct(6);
+    [s10.Name] = deal('1', '2', '3', 'Adam', '', '');
+    [s10.parent] = deal(4, 4, 5, [], 4, 5);
+    [s10.child] = deal([], [], [], 5, [6, 3], [1, 2]);
+    [s10.type] = deal(0, 0, 0, 3, 2, 1);
+    [s10.time] = deal(0, 0, 0, 3, 2, 1);
+    [s10.sibling] = deal(1, 2, 2, [], 1, 1);
+    testCase.TestData.s10 = s10;
+
+    % t10s1 is s1 exactly
+    testCase.TestData.t10s1 = s1;
+
+    % Only adam and leaf differ
+    % s11
+    % 2
+    % |
+    % 5 — 3
+    % |
+    % 4 — 6.2
+    % |
+    % 1
+    s11 = emptyTreeStruct(6);
+    [s11.Name] = deal('1', 'Adam', '3', '', '', '2');
+    [s11.parent] = deal(4, [], 5, 5, 2, 4);
+    [s11.child] = deal([], 5, [], [1, 6], [4, 3], []);
+    [s11.type] = deal(0, 3, 0, 1, 2, 0);
+    [s11.time] = deal(0, 3, 0, 1, 2, 0);
+    [s11.sibling] = deal(1, [], 2, 1, 1, 2);
+    testCase.TestData.s11 = s11;
+
+    % t11s1 is s1 exactly
+    testCase.TestData.t11s1 = s1;
+
+    % Only root and internal node differ
+    % s12
+    % 6
+    % |
+    % 4 — 3
+    % |
+    % 5 — 2
+    % |
+    % 1
+    s12 = emptyTreeStruct(6);
+    [s12.Name] = deal('1', '2', '3', '', '', 'Adam');
+    [s12.parent] = deal(5, 5, 4, 6, 4, []);
+    [s12.child] = deal([], [], [], [5, 3], [1, 2], 4);
+    [s12.type] = deal(0, 0, 0, 2, 1, 3);
+    [s12.time] = deal(0, 0, 0, 2, 1, 3);
+    [s12.sibling] = deal(1, 2, 2, 1, 1, []);
+    testCase.TestData.s12 = s12;
+
+    % t11s1 is s1 exactly
+    testCase.TestData.t12s1 = s1;
+
+    % Only root and leaf differ
+    % s13
+    % 6
+    % |
+    % 2 — 3
+    % |
+    % 4 — 5.2
+    % |
+    % 1
+    s13 = emptyTreeStruct(6);
+    [s13.Name] = deal('1', '', '3', '', '2', 'Adam');
+    [s13.parent] = deal(4, 6, 2, 2, 4, []);
+    [s13.child] = deal([], [4, 3], [], [1, 5], [], 2);
+    [s13.type] = deal(0, 2, 0, 1, 0, 3);
+    [s13.time] = deal(0, 2, 0, 1, 0, 3);
+    [s13.sibling] = deal(1, 1, 2, 1, 2, []);
+    testCase.TestData.s13 = s13;
+
+    % t11s1 is s1 exactly
+    testCase.TestData.t13s1 = s1;
+end
+
+function teardownOnce(testCase)
+    global BORROWING
+    BORROWING = testCase.TestData.BORROWING;
 end

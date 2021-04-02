@@ -12,5 +12,7 @@ saveStates
 **/*_info
 
 # Matlab and MEX files
-**/*.mat
+outDC.mat
+outIC.mat
+outMC.mat
 **/*.mex*

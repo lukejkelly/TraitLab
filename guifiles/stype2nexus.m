@@ -20,7 +20,7 @@ dodata = 0;
 dotree = 0;
 dotrue = 0;
 
-if nargin == 5;
+if nargin == 5
     doclades = ~isempty(clades) & iscell(clades);
 else
     doclades = 0;
@@ -47,13 +47,13 @@ otherwise
     disp(['Error in stype2nexus: option ' option ' not recognised'])
     ok = 0;
 end
-  
+
 if ok
     leaves = find([s.type]==LEAF);
     if isempty(leaves)
         disp('Error in stype2nexus - tree has no leaves')
         ok = 0;
-    end 
+    end
     % write header
     headerstr = '#NEXUS \n';
     headerstr = [headerstr '[' comments ']\n\n'];
@@ -86,7 +86,7 @@ truestr = 'BEGIN SYNTHESIZE;\n\nPARAMETERS ';
 vals = [true.mu,true.br,true.lambda, true.theta,  true.vocabsize, true.beta ]; % LUKE added beta 04/09/2016.
 truestr = [truestr sprintf('mu = %1.9e\nborrowrate = %1.9e\nlambda = %1.9e\ntheta = %1.9f\nvocabsize = %1.0f\nbeta = %1.9e;\n\n',vals)];
 truestr = [truestr 'END;\n\n'];
-end;
+end
 
 str = sprintf([headerstr datastr cladestr treestr truestr]);
 
@@ -120,13 +120,16 @@ endcol(1:ntax,:) = newline;
 written = 0; chunksize = 100; chunks = floor(nchar/chunksize);
 remain = nchar - chunksize*chunks;
 if chunks==0
-    towrite = [names endcol]';
-    str = [str towrite(:)' '\n\n'];
+    % Luke 21/1/21: when nchar < chunksize, this writes a section with only taxa
+    % names and no data causing the TraitLab to fail; actual data written below
+    % as remain ~= 0
+    % towrite = [names endcol]';
+    % str = [str towrite(:)' '\n\n'];
 else
     for i=1:chunks
         towrite = [names datamatrix(:,(written+1):(i*chunksize)) endcol]';
         str = [str towrite(:)' '\n\n']; %#ok<AGROW>
-        if i==chunks && remain == 0;
+        if i==chunks && remain == 0
             str = str(1:end-4);
         end
         written = written + chunksize;

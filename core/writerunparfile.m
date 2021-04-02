@@ -120,10 +120,13 @@ if fid > 0
     if ~isempty(GAP)
         fprintf(fid,'%%Gaps are treated as ');
         if GAP==MIX, fprintf(fid,'missing data. '); elseif GAP==OUT, fprintf(fid,'absence of trait. '); end
-        fprintf(fid,'To change this, edit GlobalValues.m.');
+        fprintf(fid,'To change this, edit GlobalValues.m.\n\n');
     end
 
-
+    % Coupling and lags LJK 19/2/21
+    fprintf(fid, 'Coupled_markov_chains = %g\n', fsu.COUPLING);
+    fprintf(fid, '%% FOLLOWING IS IGNORED WHEN Coupled_markov_chains == 0\n');
+    fprintf(fid, 'Coupling_lag = %g\n', fsu.COUPLINGLAG);
 
     fclose(fid);
 else
