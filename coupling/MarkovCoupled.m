@@ -1,11 +1,11 @@
-function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
+function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(mcmc, model, ...
     state_x, state_y, ignoreearlywarn)
 
     global STOPRUN
 
     if nargin<=4, ignoreearlywarn=0; end
 
-    [acct_x, acct_y] = deal(zeros(mcmc.update.Nmvs, 1));
+    [acct_x, acct_y, acct_xy] = deal(zeros(mcmc.update.Nmvs, 1));
     prop=zeros(mcmc.update.Nmvs,1);
 
     for t=1:(mcmc.subsample)
@@ -48,7 +48,9 @@ function [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, ...
         state_y = housekeeping(state_x, state_y);
         acct_x(MV) = acct_x(MV) + succ_x;
         acct_y(MV) = acct_y(MV) + succ_y;
+        acct_xy(MV) = acct_xy(MV) + succ_x * succ_y;
     end
     pa_x = acct_x ./ prop;
     pa_y = acct_y ./ prop;
+    pa_xy = acct_xy ./ prop;
 end

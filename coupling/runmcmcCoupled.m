@@ -95,6 +95,10 @@ end
 % Housekeeping nodes in y to match x
 state_y = housekeeping(state_x, state_y);
 
+% Setup proportion accepted by both chains
+writeCouplingProposalsAccepted(zeros(size(pa_x)), handles_x.output.path, ...
+                              [handles_x.output.file, 'y']);
+
 % Run chain until x reaches finish iterations or coupling, whichever is largest
 while t < finish || ~checkCoupling(state_x, state_y)
     t = t + 1;
@@ -110,8 +114,8 @@ while t < finish || ~checkCoupling(state_x, state_y)
     %update the Markov chain (mcmc.subsample) steps
     atime=cputime;
     ignoreearlywarn= (t<=3); % Ignore warnings which are not alarming when they occur early in the chain. RJR 12/06/11.
-    [state_x, state_y, pa_x, pa_y] = MarkovCoupled(mcmc, model, state_x, ...
-                                                   state_y, ignoreearlywarn);
+    [state_x, state_y, pa_x, pa_y, pa_xy] ...
+        = MarkovCoupled(mcmc, model, state_x, state_y, ignoreearlywarn);
     btime=cputime-atime;
 
     if STOPRUN
@@ -126,6 +130,10 @@ while t < finish || ~checkCoupling(state_x, state_y)
                                    t, pa_x, model, data);
     handles_y = write_mcmc_outputs(handles_y, state_y, btime, fsu, ...
                                    t - lag_subsample, pa_y, model, data);
+
+    % Write proportion accepted by both chains
+    writeCouplingProposalsAccepted(pa_xy, handles_x.output.path, ...
+                                   [handles_x.output.file, 'y'], t);
 end
 
 if mcmc.monitor.on
@@ -258,4 +266,18 @@ function [handles] = write_mcmc_outputs(handles, state, btime, fsu, t, pa, ...
         disp('Error from check()');
         keyboard;pause;
     end                               % LUKE (maybe turn this on again)
+end
+
+function writeCouplingProposalsAccepted(pa_xy, outputPath, outputFile, t)
+    fn = [outputPath, outputFile, '.pa'];
+    if nargin == 3
+        fid = fopen(fn, 'w');
+        fprintf(fid, '%s', 't');
+        fprintf(fid, ',%d', 1:length(pa_xy));
+    else
+        fid = fopen(fn, 'a');
+        fprintf(fid, '%d', t);
+        fprintf(fid, ',%.04f', pa_xy);
+    end
+    fprintf(fid, '\n');
 end
