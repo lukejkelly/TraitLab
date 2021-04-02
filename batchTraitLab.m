@@ -52,6 +52,7 @@ if nargin == 2
 end
 
 % make sure dont overwrite old run
+% TODO: not checked by coupled runs Luke 2/4/21
 if exist([Output_path_name Output_file_name '.nex'],'file') && ~strcmp('tloutput',Output_file_name)
     ok = input(['\n' Output_file_name ' already exists in directory ' Output_path_name '\nType 1 to continue and overwrite it\n> '],'s');
     if ~strcmp(ok,'1')
