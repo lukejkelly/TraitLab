@@ -280,4 +280,5 @@ function writeCouplingProposalsAccepted(pa_xy, outputPath, outputFile, t)
         fprintf(fid, ',%.04f', pa_xy);
     end
     fprintf(fid, '\n');
+    fclose(fid);
 end
