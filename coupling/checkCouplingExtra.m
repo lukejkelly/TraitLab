@@ -23,11 +23,9 @@ function t = checkCouplingExtra(state_x, state_y)
             ts(i) = isequaln({state_x.(fi)}, {state_y.(fi)});
         end
         if ~ts(i)
-            fprintf('state %s field not matching\n', fi);
-            fprintf('_x.%s\n', fi);
-            disp({state_x.(fi)});
-            fprintf('_y.%s\n', fi);
-            disp({state_y.(fi)});
+            fprintf('state.%s not matching\n', fi);
+            printNotMatching('x', fi, state_x);
+            printNotMatching('y', fi, state_y);
         end
     end
     t = all(ts);
@@ -63,12 +61,15 @@ function t = compareTrees(state_x, state_y)
             ts(i) = isequaln({s_x.(fi)}, {s_y.(fi)});
         end
         if ~ts(i)
-            fprintf('tree %s field not matching\n', fi);
-            fprintf('_x.%s\n', fi);
-            disp({s_x.(fi)});
-            fprintf('_y.%s\n', fi);
-            disp({s_y.(fi)});
+            fprintf('tree.%s not matching\n', fi);
+            printNotMatching('x', fi, s_x);
+            printNotMatching('y', fi, s_y);
         end
     end
     t = all(ts);
+end
+
+function printNotMatching(d, f, s)
+    t = formattedDisplayText({s.(f)}, 'NumericFormat', 'longg');
+    fprintf('_%s.%s\n%s\n', d, f, t);
 end
