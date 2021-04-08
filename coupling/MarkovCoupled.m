@@ -31,9 +31,6 @@ function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(mcmc, model, ...
             % Attempt maximal coupling
             [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(...
                 mcmc, model, state_x, state_y, ignoreearlywarn, MV, u_mh);
-            % if succ_x && succ_y
-            %     fprintf('Successful coupling on %i\n', MV);
-            % end
         else
             % Common random number coupling
             rng_state = rng;
