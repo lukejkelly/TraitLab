@@ -40,9 +40,13 @@ if nargin>0
     end
 
     [state_x, state_y] = deal(state);
-    % Advance each chain by iters draws from prior
+    % Advance each chain by iters mcmc_prior.subsample from prior
     mcmc_prior = mcmc;
     mcmc_prior.subsample = 1e4;
+    % Do not change scalar parameters
+    mcmc_prior.update.move([8, 15, 17, 21]) = 0;
+    mcmc_prior.update.move = mcmc_prior.update.move ./ sum(mcmc_prior.update.move);
+    mcmc_prior.update.cmove = cumsum(mcmc_prior.update.move);
     [state_x, ~] = MarkovPrior(mcmc_prior, model, state_x, 1);
     [state_y, ~] = MarkovPrior(mcmc_prior, model, state_y, 1);
 
