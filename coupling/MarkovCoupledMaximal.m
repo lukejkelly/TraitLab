@@ -53,6 +53,12 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
                              + catastropheScalingFactor(state_y, nstate_y);
                 end
             end
+        case 6
+            update = 'Rescale whole tree trying to match root times';
+            [var_x, var_y] = RscaleRoot(state_x, state_y, mcmc.update.del, ...
+                                        mcmc.update.del + mcmc.update.deldel);
+            [nstate_x, U_x, ~, OK_x, logq_x] = Rscale(state_x, var_x);
+            [nstate_y, U_y, ~, OK_y, logq_y] = Rscale(state_y, var_y);
         case 8
             update = 'Vary mu';
             if ~VARYMU
