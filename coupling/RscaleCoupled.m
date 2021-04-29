@@ -1,4 +1,4 @@
-function [var_x, var_y] = RscaleRoot(state_x, state_y, a, b)
+function [var_x, var_y] = RscaleCoupled(state_x, state_y, a, b)
     % Function which attempts to maximally couple root times and returns
     % corresponding variation terms, where new_time = var * old_time, for
     % inputting to Rscale
