@@ -36,35 +36,39 @@ function coupledTest(testCase)
     % Proportion of matching samples
     fprintf('Proportion of matching samples after %g trials\n', n_i * n_j);
     fprintf('Housekept trees\n');
-    fprintf('  theoretical                   = %g\n', mean(o1(:)));
-    fprintf('  maximalCouplingUniformScaling = %g\n', mean(c1(:)));
+    fprintf('  Theoretical   = %g\n', mean(o1(:)));
+    fprintf('  RscaleCoupled = %g\n', mean(c1(:)));
     fprintf('Coupled trees\n');
-    fprintf('  theoretical                   = %g\n', mean(o2(:)));
-    fprintf('  maximalCouplingUniformScaling = %g\n', mean(c2(:)));
+    fprintf('  Theoretical   = %g\n', mean(o2(:)));
+    fprintf('  RscaleCoupled = %g\n', mean(c2(:)));
     v = input('Are these proportions the same? Reply 1 for yes... ');
     assertTrue(testCase, v == 1);
 end
 
 function marginalTest(testCase)
     n_i = 1e1;
-    n_j = 1e4;
+    n_j = 1e3;
     a = 0.5;
     b = 2;
-    [x0, y0] = deal(nan(n_i, 1));
     [xc, yc, xm, ym] = deal(nan(n_i, n_j));
     for i = 1:n_i
         [state_x, state_y] = housekeptStates();
-        x0(i) = state_x.tree(state_x.root).time;
-        y0(i) = state_y.tree(state_y.root).time;
+        r = state_x.root;
+        xr = state_x.tree(r).time;
+        yr = state_y.tree(r).time;
+        x0 = min([state_x.tree(state_x.leaves).time]);
+        y0 = min([state_y.tree(state_y.leaves).time]);
         for j = 1:n_j
             [var_xc, var_yc] = RscaleCoupled(state_x, state_y, a, b);
-            xc(i, j) = getNewAge(var_xc, state_x);
-            yc(i, j) = getNewAge(var_yc, state_y);
+            [nstate_xc, ~, ~, ~, ~] = Rscale(state_x, var_xc);
+            [nstate_yc, ~, ~, ~, ~] = Rscale(state_y, var_yc);
+            xc(i, j) = (nstate_xc.tree(r).time - x0) / (xr - x0);
+            yc(i, j) = (nstate_yc.tree(r).time - y0) / (yr - y0);
 
-            [nstate_x, ~, ~, ~, ~] = Rscale(state_x, a + rand * (b - a));
-            [nstate_y, ~, ~, ~, ~] = Rscale(state_y, a + rand * (b - a));
-            xm(i, j) = nstate_x.tree(nstate_x.root).time;
-            ym(i, j) = nstate_y.tree(nstate_y.root).time;
+            [nstate_xm, ~, ~, ~, ~] = Rscale(state_x, a + rand * (b - a));
+            [nstate_ym, ~, ~, ~, ~] = Rscale(state_y, a + rand * (b - a));
+            xm(i, j) = (nstate_xm.tree(r).time - x0) / (xr - x0);
+            ym(i, j) = (nstate_ym.tree(r).time - y0) / (yr - y0);
         end
     end
 
@@ -76,11 +80,12 @@ function marginalTest(testCase)
     [ecdf_ym, x_ym] = ecdf(ym(:));
 
     % Actual CDFs
-    f_cdf = @(t, z) mean((min(max(t, z * a), z * b) - z * a) ./ (z * (b - a)));
-    cdf_xc = arrayfun(@(t) f_cdf(t, x0), x_xc(:));
-    cdf_yc = arrayfun(@(t) f_cdf(t, y0), x_yc(:));
-    cdf_xm = arrayfun(@(t) f_cdf(t, x0), x_xm(:));
-    cdf_ym = arrayfun(@(t) f_cdf(t, y0), x_ym(:));
+    f_cdf = @(t) (min(max(t, a), b) - a) / (b - a);
+
+    cdf_xc = arrayfun(f_cdf, x_xc(:));
+    cdf_yc = arrayfun(f_cdf, x_yc(:));
+    cdf_xm = arrayfun(f_cdf, x_xm(:));
+    cdf_ym = arrayfun(f_cdf, x_ym(:));
 
     % Make figures
     subplot(2, 1, 1);
@@ -97,8 +102,8 @@ function marginalTest(testCase)
         ylabel('Difference from exact CDF');
         legend('coupled', 'marginal');
     end
-    
-    fprintf('Difference from CDF for coupled and marginal samples');
+
+    fprintf('Difference from CDF for coupled and marginal samples\n');
     fprintf('%g draws for each of %g pairs of trees\n', n_j, n_i);
     v = input('Are these plots okay? Reply 1 for yes... ');
     assertTrue(testCase, v == 1);
@@ -118,9 +123,15 @@ function [state_x, state_y] = coupledStates()
 end
 
 function state = dummyState(s)
-    global ROOT
+    global LEAF ROOT
     % Same as makestate but without data and associated calculations
     % Assume catastrophes are already on tree
+    if rand < 0.5
+        % Randomly offset leaves
+        for j = find([s.type] == LEAF)
+            s(j).time = rand * (s(s(j).parent).time - s(j).time);
+        end
+    end
     state = tree2state(s);
     state.claderoot = [];
     state.cat = cellfun('length', {state.tree.catloc});
@@ -134,19 +145,32 @@ end
 % Helper functions
 function ol = getOverlap(state_x, state_y, a, b)
     i = state_x.root;
-    x = state_x.tree(i).time;
-    y = state_y.tree(i).time;
-    min_xy = min(x, y);
-    max_xy = max(x, y);
-    if b * min_xy < a * max_xy
+
+    x_c = state_x.tree(i).time;
+    y_c = state_y.tree(i).time;
+
+    t0_x = min([state_x.tree(state_x.leaves).time]);
+    t0_y = min([state_y.tree(state_y.leaves).time]);
+
+    a_p = t0_x + a * (x_c - t0_x);
+    b_p = t0_x + b * (x_c - t0_x);
+
+    a_q = t0_y + a * (y_c - t0_y);
+    b_q = t0_y + b * (y_c - t0_y);
+
+    max_a = max(a_p, a_q);
+    min_b = min(b_p, b_q);
+
+    if min_b < max_a
         ol = 0;
     else
-        ol = (b * min_xy - a * max_xy) / (max_xy * (b - a));
+        ol = (min_b - max_a) / ((b - a) * max(x_c - t0_x, y_c - t0_y));
     end
 end
 
-function newage = getNewAge(var, state)
-    newage = var * state.tree(state.root).time;
+function newage = getNewAge(rho, state)
+    t0 = min([state.tree(state.leaves).time]);
+    newage = t0 + rho * (state.tree(state.root).time - t0);
 end
 
 function checkRange(testCase, var_x, var_y, a, b)
