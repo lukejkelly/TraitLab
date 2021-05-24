@@ -59,6 +59,17 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
                                            mcmc.update.del + mcmc.update.deldel);
             [nstate_x, U_x, ~, OK_x, logq_x] = Rscale(state_x, var_x);
             [nstate_y, U_y, ~, OK_y, logq_y] = Rscale(state_y, var_y);
+        case 7
+            update='Rescale randomly chosen subtree';
+            [nstate_x, nstate_y, U_x, U_y, logq_x, logq_y, OK_x, OK_y] ...
+                = RscaleSubTreeCoupled(state_x, state_y, mcmc.update.del, ...
+                                       mcmc.update.deldel);
+            if OK_x && BORROWING
+                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
+            end
+            if OK_y && BORROWING
+                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
+            end
         case 8
             update = 'Vary mu';
             if ~VARYMU

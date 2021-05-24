@@ -123,7 +123,7 @@ function [state_x, state_y] = coupledStates()
 end
 
 function state = dummyState(s)
-    global LEAF ROOT
+    global LEAF
     % Same as makestate but without data and associated calculations
     % Assume catastrophes are already on tree
     if rand < 0.5
@@ -139,7 +139,6 @@ function state = dummyState(s)
     state.ncat = sum(state.cat);
     state.length = TreeLength(state.tree, state.root);
     state.kappa = rand;
-    state.root = find([state.tree.type] == ROOT);
 end
 
 % Helper functions

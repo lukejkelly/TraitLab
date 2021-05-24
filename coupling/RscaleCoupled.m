@@ -13,7 +13,7 @@ function [var_x, var_y] = RscaleCoupled(state_x, state_y, a, b)
     old_x = state_x.tree(i).time;
     old_y = state_y.tree(i).time;
 
-    % new ~ min + U(min + a * (old - min), min + b * (old - min))
+    % new ~ U(min + a * (old - min), min + b * (old - min))
     a_p = t0_x + a * (old_x - t0_x);
     b_p = t0_x + b * (old_x - t0_x);
 
