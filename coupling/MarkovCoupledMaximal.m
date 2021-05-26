@@ -100,6 +100,21 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
 
             OK_x = ~(DONTMOVECATS && nstate_x.mu < 1e-5);
             OK_y = ~(DONTMOVECATS && nstate_y.mu < 1e-5);
+        case 12
+            update = 'Rescale top tree';
+            if ~model.prior.isclade
+                error('Move 12 should not be selected if no clades')
+            end
+            [nstate_x, nstate_y, U_x, U_y, logq_x, logq_y, OK_x, OK_y] ...
+                = RscaleTopTreeCoupled(state_x, state_y, model.prior, ...
+                                       mcmc.update.del, mcmc.update.deldel);
+            % Luke 11/05/2016 "Resampling" catastrophes when borrowing
+            if BORROWING && OK_x
+                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
+            end
+            if BORROWING && OK_y
+                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
+            end
         case 15
             update = 'Vary rho';
 

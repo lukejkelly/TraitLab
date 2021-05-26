@@ -1,13 +1,13 @@
-function tests = RscaleSubTreeCoupledTest
+function tests = RscaleTopTreeCoupledTest
     tests = functiontests(localfunctions);
 end
 
 function coupledTest(testCase)
     % Only checking variation terms
-    rangeL = 6:10;
-    theta = 1e-2;
+    load('+RscaleTopTreeCoupledTest/cladePrior.mat', 'prior');
+    rangeL = repelem(6:10, 2);
     n_i = length(rangeL);
-    n_j = 2e4;
+    n_j = 2e3;
     del = 0.5;
     deldel = 1.5;
     a = del;
@@ -16,37 +16,37 @@ function coupledTest(testCase)
     for i = 1:n_i
         L = rangeL(i);
         % Housekept
-        [state_x1, state_y1] = RscaleSubTreeCoupled.unitTests.housekeptStates(L, theta);
+        [state_x1, state_y1] = RscaleTopTreeCoupledTest.housekeptStates(L);
+        r1 = state_x1.root;
         % Coupled
-        [state_x2, state_y2] = RscaleSubTreeCoupled.unitTests.coupledStates(L, theta);
+        [state_x2, state_y2] = RscaleTopTreeCoupledTest.coupledStates(L);
+        r2 = state_x2.root;
         for j = 1:n_j
             % Housekept
-            [nstate_x1, nstate_y1, ~, ~, ~, ~, ~, ~] = RscaleSubTreeCoupled(...
-                state_x1, state_y1, del, deldel);
-            i_x1 = findSubTreeRoot(state_x1, nstate_x1);
-            i_y1 = findSubTreeRoot(state_y1, nstate_y1);
+            [nstate_x1, nstate_y1, ~, ~, ~, ~, ~, ~] = RscaleTopTreeCoupled(...
+                state_x1, state_y1, prior, del, deldel);
 
-            rho_x1 = getRho(i_x1, state_x1, nstate_x1);
-            rho_y1 = getRho(i_y1, state_y1, nstate_y1);
+            rho_x1 = getRho(state_x1, nstate_x1);
+            rho_y1 = getRho(state_y1, nstate_y1);
             checkRange(testCase, rho_x1, rho_y1, a, b);
             assertNotEqual(testCase, rho_x1, rho_y1);
 
-            c1(i, j) = ismembertol(nstate_x1.tree(i_x1).time, nstate_y1.tree(i_y1).time);
-            o1(i, j) = getOverlap(state_x1, state_y1, a, b, i_x1, i_y1);
+            c1(i, j) = ismembertol(nstate_x1.tree(r1).time, ...
+                                   nstate_y1.tree(r1).time);
+            o1(i, j) = getOverlap(state_x1, state_y1, a, b);
 
             % Already coupled
-            [nstate_x2, nstate_y2, ~, ~, ~, ~, ~, ~] = RscaleSubTreeCoupled(...
-                state_x2, state_y2, del, deldel);
-            i2 = findSubTreeRoot(state_x2, nstate_x2);
-            assertEqual(testCase, i2, findSubTreeRoot(state_y2, nstate_y2));
+            [nstate_x2, nstate_y2, ~, ~, ~, ~, ~, ~] = RscaleTopTreeCoupled(...
+                state_x2, state_y2, prior, del, deldel);
 
-            rho_x2 = getRho(i2, state_x2, nstate_x2);
-            rho_y2 = getRho(i2, state_y2, nstate_y2);
+            rho_x2 = getRho(state_x2, nstate_x2);
+            rho_y2 = getRho(state_y2, nstate_y2);
             checkRange(testCase, rho_x2, rho_y2, a, b);
             assertEqual(testCase, rho_x2, rho_y2);
 
-            c2(i, j) = ismembertol(nstate_x2.tree(i2).time, nstate_y2.tree(i2).time);
-            o2(i, j) = getOverlap(state_x2, state_y2, a, b, i2, i2);
+            c2(i, j) = ismembertol(nstate_x2.tree(r2).time, ...
+                                   nstate_y2.tree(r2).time);
+            o2(i, j) = getOverlap(state_x2, state_y2, a, b);
         end
     end
 
@@ -54,19 +54,19 @@ function coupledTest(testCase)
     fprintf('Proportion of matching samples after %g trials\n', n_i * n_j);
     fprintf('Housekept trees\n');
     fprintf('  Theoretical          = %g\n', mean(o1(:)));
-    fprintf('  RscaleSubTreeCoupled = %g\n', mean(c1(:)));
+    fprintf('  RscaleTopTreeCoupled = %g\n', mean(c1(:)));
     fprintf('Coupled trees\n');
     fprintf('  Theoretical          = %g\n', mean(o2(:)));
-    fprintf('  RscaleSubTreeCoupled = %g\n', mean(c2(:)));
+    fprintf('  RscaleTopTreeCoupled = %g\n', mean(c2(:)));
     v = input('Are these proportions the same? Reply 1 for yes... ');
     assertTrue(testCase, v == 1);
 end
 
 function marginalTest(testCase)
-    rangeL = 7:11;
-    theta = 1e-2;
+    load('+RscaleTopTreeCoupledTest/cladePrior.mat', 'prior');
+    rangeL = repelem(9:11, 3);
     n_i = length(rangeL);
-    n_j = 2e4;
+    n_j = 2e3;
     del = 0.5;
     deldel = 1.5;
     a = del;
@@ -74,29 +74,25 @@ function marginalTest(testCase)
     [xc, yc, xm, ym] = deal(nan(n_i, n_j));
     for i = 1:n_i
         L = rangeL(i);
-        [state_x, state_y] = RscaleSubTreeCoupled.unitTests.housekeptStates(L, theta);
+        [state_x, state_y] = RscaleTopTreeCoupledTest.housekeptStates(L);
         for j = 1:n_j
             % Coupled
-            [nstate_xc, nstate_yc, ~, ~, ~, ~, ~, ~] = RscaleSubTreeCoupled(...
-                state_x, state_y, del, deldel);
+            [nstate_xc, nstate_yc, ~, ~, ~, ~, ~, ~] = RscaleTopTreeCoupled(...
+                state_x, state_y, prior, del, deldel);
 
-            i_xc = findSubTreeRoot(state_x, nstate_xc);
-            i_yc = findSubTreeRoot(state_y, nstate_yc);
-            rho_xc = getRho(i_xc, state_x, nstate_xc);
-            rho_yc = getRho(i_yc, state_y, nstate_yc);
+            rho_xc = getRho(state_x, nstate_xc);
+            rho_yc = getRho(state_y, nstate_yc);
             checkRange(testCase, rho_xc, rho_yc, a, b);
 
             xc(i, j) = rho_xc;
             yc(i, j) = rho_yc;
 
             % Marginal
-            [nstate_xm, ~, ~, ~, ~] = RscaleSubTree(state_x, del, deldel);
-            [nstate_ym, ~, ~, ~, ~] = RscaleSubTree(state_y, del, deldel);
+            [nstate_xm, ~, ~, ~, ~] = RscaleTopTree(state_x, prior, del, deldel);
+            [nstate_ym, ~, ~, ~, ~] = RscaleTopTree(state_y, prior, del, deldel);
 
-            i_xm = findSubTreeRoot(state_x, nstate_xm);
-            i_ym = findSubTreeRoot(state_y, nstate_ym);
-            rho_xm = getRho(i_xm, state_x, nstate_xm);
-            rho_ym = getRho(i_ym, state_y, nstate_ym);
+            rho_xm = getRho(state_x, nstate_xm);
+            rho_ym = getRho(state_y, nstate_ym);
             checkRange(testCase, rho_xm, rho_ym, a, b);
 
             xm(i, j) = rho_xm;
@@ -142,13 +138,14 @@ function marginalTest(testCase)
 end
 
 % Helper functions
-function ol = getOverlap(state_x, state_y, a, b, i_x, i_y)
+function ol = getOverlap(state_x, state_y, a, b)
     global LEAF;
-    nu_x = progeny(state_x.tree, i_x, LEAF);
-    nu_y = progeny(state_y.tree, i_y, LEAF);
+    r = state_x.root;
+    nu_x = progeny(state_x.tree, r, LEAF);
+    nu_y = progeny(state_y.tree, r, LEAF);
 
-    x_c = state_x.tree(i_x).time;
-    y_c = state_y.tree(i_y).time;
+    x_c = state_x.tree(r).time;
+    y_c = state_y.tree(r).time;
 
     t0_x = min([state_x.tree(nu_x(1, :)).time]);
     t0_y = min([state_y.tree(nu_y(1, :)).time]);
@@ -169,18 +166,10 @@ function ol = getOverlap(state_x, state_y, a, b, i_x, i_y)
     end
 end
 
-function rho = getRho(i, state, nstate)
-    global LEAF;
-    nu = progeny(state.tree, i, LEAF);
-    t0 = min([state.tree(nu(1, :)).time]);
-    rho = (nstate.tree(i).time - t0) / (state.tree(i).time - t0);
-end
-
-function i = findSubTreeRoot(state, nstate)
-    nInds = state.nodes;
-    sInds = nInds([state.tree(nInds).time] ~= [nstate.tree(nInds).time]);
-    [~, j] = max([state.tree(sInds).time]);
-    i = sInds(j);
+function rho = getRho(state, nstate)
+    r = state.root;
+    t0 = min([state.tree(state.leaves).time]);
+    rho = (nstate.tree(r).time - t0) / (state.tree(r).time - t0);
 end
 
 function checkRange(testCase, var_x, var_y, a, b)
@@ -188,12 +177,11 @@ function checkRange(testCase, var_x, var_y, a, b)
     assertLessThanOrEqual(testCase, [var_x, var_y], b);
 end
 
-
 % Setup and teardown functions
 function setupOnce(testCase)
-    RscaleSubTreeCoupled.unitTests.setupOnce(testCase);
+    RscaleTopTreeCoupledTest.setupOnce(testCase);
 end
 
 function tearDownOnce(testCase)
-    RscaleSubTreeCoupled.unitTests.tearDownOnce(testCase);
+    RscaleTopTreeCoupledTest.tearDownOnce(testCase);
 end

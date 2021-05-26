@@ -114,10 +114,10 @@ function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
         if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==12
         update='Rescale top tree';
-        if model.prior.isclade
-            %keyboard;
-            [nstate,U,TOPOLOGY,logq,OK]=RscaleTopTree(state,model.prior,mcmc.update.del,mcmc.update.deldel);
+        if ~model.prior.isclade
+            error('Move 12 should not be selected if no clades')
         end
+        [nstate,U,TOPOLOGY,logq,OK]=RscaleTopTree(state,model.prior,mcmc.update.del,mcmc.update.deldel);
         % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
         if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==13
