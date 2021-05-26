@@ -53,6 +53,23 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
                              + catastropheScalingFactor(state_y, nstate_y);
                 end
             end
+        case 6
+            update = 'Rescale whole tree trying to match root times';
+            [var_x, var_y] = RscaleCoupled(state_x, state_y, mcmc.update.del, ...
+                                           mcmc.update.del + mcmc.update.deldel);
+            [nstate_x, U_x, ~, OK_x, logq_x] = Rscale(state_x, var_x);
+            [nstate_y, U_y, ~, OK_y, logq_y] = Rscale(state_y, var_y);
+        case 7
+            update='Rescale randomly chosen subtree';
+            [nstate_x, nstate_y, U_x, U_y, logq_x, logq_y, OK_x, OK_y] ...
+                = RscaleSubTreeCoupled(state_x, state_y, mcmc.update.del, ...
+                                       mcmc.update.deldel);
+            if OK_x && BORROWING
+                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
+            end
+            if OK_y && BORROWING
+                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
+            end
         case 8
             update = 'Vary mu';
             if ~VARYMU
@@ -83,6 +100,21 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
 
             OK_x = ~(DONTMOVECATS && nstate_x.mu < 1e-5);
             OK_y = ~(DONTMOVECATS && nstate_y.mu < 1e-5);
+        case 12
+            update = 'Rescale top tree';
+            if ~model.prior.isclade
+                error('Move 12 should not be selected if no clades')
+            end
+            [nstate_x, nstate_y, U_x, U_y, logq_x, logq_y, OK_x, OK_y] ...
+                = RscaleTopTreeCoupled(state_x, state_y, model.prior, ...
+                                       mcmc.update.del, mcmc.update.deldel);
+            % Luke 11/05/2016 "Resampling" catastrophes when borrowing
+            if BORROWING && OK_x
+                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
+            end
+            if BORROWING && OK_y
+                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
+            end
         case 15
             update = 'Vary rho';
 

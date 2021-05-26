@@ -134,7 +134,7 @@ function compareDistributions(testCase, indep, mc, mcl, mcus, ranges, ol)
         title(sprintf('U(%g, %g)', ranges(1, j), ranges(2, j)));
     end
     legend('indep', 'mc', 'mcl', 'mcus', 'exact');
-    suptitle(sprintf('Exact and empirical CDFs'));
+    sgtitle('Exact and empirical CDFs');
     fmt = ' %-6.4g %-6.4g %-6.4g %-6.4g\n';
     fprintf('Sample ranges                 min_x  max_x  min_y  max_y\n');
     fprintf(['theoretical                  ', fmt], ranges);

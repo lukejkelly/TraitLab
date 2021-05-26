@@ -49,29 +49,33 @@ function compareDistributions(testCase, a_p, a_q, theta)
     % Plotting empirical and actual CDFs
     clf();
     for j = 1:2
-        [~, edges] = histcounts([indep(:, j), mcl(:, j), mcse(:, j)]);
-        n1 = histcounts(indep(:, j), edges, 'Normalization', 'cdf');
-        n2 = histcounts(mcl(:, j), edges, 'Normalization', 'cdf');
-        n3 = histcounts(mcse(:, j), edges, 'Normalization', 'cdf');
-
-        subplot(2, 2, j);
-        semilogx(edges, [zeros(1, 3); [n1; n2; n3]'], ':', ...
-            'LineWidth', 2);
         if j == 1
             r = a_p;
         else
             r = a_q;
         end
+
+        [~, edges] = histcounts([indep(:, j), mcl(:, j), mcse(:, j)]);
+        n1 = histcounts(indep(:, j), edges, 'Normalization', 'cdf');
+        n2 = histcounts(mcl(:, j), edges, 'Normalization', 'cdf');
+        n3 = histcounts(mcse(:, j), edges, 'Normalization', 'cdf');
+        n4 = 1 - exp(-theta * (edges - r));
+
+        subplot(2, 2, j);
+        semilogx(edges, [[zeros(1, 3); [n1; n2; n3]'], n4'], ':', ...
+            'LineWidth', 2);
         title(sprintf('$\\mathrm{shift} = %g$', r), 'Interpreter', 'latex');
-        legend('indep', 'mcl', 'mcse', 'Location', 'southeast');
+        legend('indep', 'mcl', 'mcse', 'actual', 'Location', 'southeast');
 
         subplot(2, 2, j + 2);
-        semilogx(edges, [zeros(1, 2); (n1 - [n2; n3])']);
-        legend('$ \mathrm{indep} - \mathrm{mcl} $', ...
-               '$ \mathrm{indep} - \mathrm{mcse} $', 'Interpreter', 'latex');
+        semilogx(edges, [zeros(1, 3); [n1; n2; n3]'] - n4');
+        legend('$ \mathrm{indep} - \mathrm{actual} $', ...
+               '$ \mathrm{mcl} - \mathrm{actual} $', ...
+               '$ \mathrm{mcse} - \mathrm{actual} $', ...
+               'Interpreter', 'latex');
     end
-    set(suptitle(sprintf('Empirical CDFs of shifted Exp($ %g $) samples', ...
-                 theta)), 'Interpreter', 'latex');
+    sgtitle(sprintf('Empirical CDFs of shifted Exp($ %g $) samples', theta), ...
+            'Interpreter', 'latex');
     fmt = ' %-6.4g %-6.4g\n';
     fprintf('Sample minima:                min_x  min_y\n');
     fprintf(['actual                       ', fmt], a_p, a_q);

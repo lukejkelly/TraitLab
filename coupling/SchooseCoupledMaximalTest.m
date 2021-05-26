@@ -2,7 +2,18 @@ function tests = SchooseCoupledMaximalTest
     tests = functiontests(localfunctions);
 end
 
-function parameterTest(testCase)
+function runTest(testCase)
+    global BORROWING MCMCCAT
+    for BORROWING = [0, 1]
+        for MCMCCAT = [0, 1]
+            parameterTests(testCase);
+            remainCoupledTests(testCase);
+            marginalTests(testCase);
+            coupledTests(testCase);
+        end
+    end
+end
+function parameterTests(testCase)
     [state_x, state_y] = dummyStates();
 
     assertEqual(testCase, state_x.root, state_y.root);
@@ -53,7 +64,7 @@ function parameterTest(testCase)
 
 end
 
-function remainCoupledTest(testCase)
+function remainCoupledTests(testCase)
     [state, ~] = dummyStates();
 
     visited = zeros(1, state.NS - 1);
@@ -67,7 +78,7 @@ function remainCoupledTest(testCase)
     end
 end
 
-function marginalTest(testCase)
+function marginalTests(testCase)
     [state_x, state_y] = dummyStates();
 
     n = 1e3;
@@ -106,7 +117,7 @@ function marginalTest(testCase)
     assertEqual(testCase, v, 1);
 end
 
-function coupledTest(testCase)
+function coupledTests(testCase)
     [state_x, state_y] = dummyStates();
 
     assertEqual(testCase, state_x.root, state_y.root);
@@ -115,7 +126,7 @@ function coupledTest(testCase)
 
     [visited, coupled] = deal(zeros(1, state_x.NS - 1));
 
-    while all(visited < 5e2)
+    while all(visited < 5e3)
         [i, newage_x, newage_y, ~, ~] = SchooseCoupledMaximal(state_x, state_y);
         ind = find(state_x.nodes == i);
         visited(ind) = visited(ind) + 1;
@@ -134,9 +145,18 @@ function coupledTest(testCase)
     assertEqual(testCase, v, 1);
 end
 
-function setupOnce(~)
+function setupOnce(testCase)
     GlobalSwitches;
     GlobalValues;
+    global BORROWING MCMCCAT
+    testCase.TestData.BORROWING = BORROWING;
+    testCase.TestData.MCMCCAT = MCMCCAT;
+end
+
+function teardownOnce(testCase)
+    global BORROWING MCMCCAT
+    BORROWING = testCase.TestData.BORROWING;
+    MCMCCAT = testCase.TestData.MCMCCAT;
 end
 
 function [state_x, state_y] = dummyStates()
@@ -155,6 +175,8 @@ function state = dummyState(s)
     state.cat = state.cat(:);
     state.ncat = sum(state.cat);
     state.length = TreeLength(state.tree, state.root);
+    % Added because housekeeping now uses MarkRCurs when BORROWING = 0
+    state.kappa = rand;
 end
 
 
