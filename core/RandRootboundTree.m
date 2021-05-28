@@ -1,4 +1,4 @@
-function s = RandCladeTree(clade,langname, rootmax);
+function s = RandRootboundTree(clade,langname, rootmax)
 % builds a random tree using the coalescent tree building model
 % so that all clades are observed and the times are scaled so that 
 % the age constrains on the clades are observed
