@@ -1,4 +1,4 @@
-function [state_x, state_y] = housekeptStates(L, theta)
+function [state_x, state_y, prior] = housekeptStates(L, theta)
     % Trees need to have the same clades
     global ROOT;
     if nargin == 1

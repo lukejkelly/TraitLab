@@ -7,7 +7,7 @@ function coupledTest(testCase)
     rangeL = 6:10;
     theta = 1e-2;
     n_i = length(rangeL);
-    n_j = 2e4;
+    n_j = 1e4;
     del = 0.5;
     deldel = 1.5;
     a = del;
@@ -26,10 +26,12 @@ function coupledTest(testCase)
             i_x1 = findSubTreeRoot(state_x1, nstate_x1);
             i_y1 = findSubTreeRoot(state_y1, nstate_y1);
 
-            rho_x1 = getRho(i_x1, state_x1, nstate_x1);
-            rho_y1 = getRho(i_y1, state_y1, nstate_y1);
-            checkRange(testCase, rho_x1, rho_y1, a, b);
-            assertNotEqual(testCase, rho_x1, rho_y1);
+            if rand < 1e-2
+                rho_x1 = getRho(i_x1, state_x1, nstate_x1);
+                rho_y1 = getRho(i_y1, state_y1, nstate_y1);
+                checkRange(testCase, rho_x1, rho_y1, a, b);
+                assertNotEqual(testCase, rho_x1, rho_y1);
+            end
 
             c1(i, j) = ismembertol(nstate_x1.tree(i_x1).time, nstate_y1.tree(i_y1).time);
             o1(i, j) = getOverlap(state_x1, state_y1, a, b, i_x1, i_y1);
@@ -40,10 +42,12 @@ function coupledTest(testCase)
             i2 = findSubTreeRoot(state_x2, nstate_x2);
             assertEqual(testCase, i2, findSubTreeRoot(state_y2, nstate_y2));
 
-            rho_x2 = getRho(i2, state_x2, nstate_x2);
-            rho_y2 = getRho(i2, state_y2, nstate_y2);
-            checkRange(testCase, rho_x2, rho_y2, a, b);
-            assertEqual(testCase, rho_x2, rho_y2);
+            if rand < 1e-2
+                rho_x2 = getRho(i2, state_x2, nstate_x2);
+                rho_y2 = getRho(i2, state_y2, nstate_y2);
+                checkRange(testCase, rho_x2, rho_y2, a, b);
+                assertEqual(testCase, rho_x2, rho_y2);
+            end
 
             c2(i, j) = ismembertol(nstate_x2.tree(i2).time, nstate_y2.tree(i2).time);
             o2(i, j) = getOverlap(state_x2, state_y2, a, b, i2, i2);
@@ -66,7 +70,7 @@ function marginalTest(testCase)
     rangeL = 7:11;
     theta = 1e-2;
     n_i = length(rangeL);
-    n_j = 2e4;
+    n_j = 1e4;
     del = 0.5;
     deldel = 1.5;
     a = del;
@@ -84,7 +88,10 @@ function marginalTest(testCase)
             i_yc = findSubTreeRoot(state_y, nstate_yc);
             rho_xc = getRho(i_xc, state_x, nstate_xc);
             rho_yc = getRho(i_yc, state_y, nstate_yc);
-            checkRange(testCase, rho_xc, rho_yc, a, b);
+
+            if rand < 1e-2
+                checkRange(testCase, rho_xc, rho_yc, a, b);
+            end
 
             xc(i, j) = rho_xc;
             yc(i, j) = rho_yc;
@@ -97,7 +104,10 @@ function marginalTest(testCase)
             i_ym = findSubTreeRoot(state_y, nstate_ym);
             rho_xm = getRho(i_xm, state_x, nstate_xm);
             rho_ym = getRho(i_ym, state_y, nstate_ym);
-            checkRange(testCase, rho_xm, rho_ym, a, b);
+
+            if rand < 1e-2
+                checkRange(testCase, rho_xm, rho_ym, a, b);
+            end
 
             xm(i, j) = rho_xm;
             ym(i, j) = rho_ym;
@@ -194,6 +204,6 @@ function setupOnce(testCase)
     RscaleSubTreeCoupled.unitTests.setupOnce(testCase);
 end
 
-function tearDownOnce(testCase)
-    RscaleSubTreeCoupled.unitTests.tearDownOnce(testCase);
+function teardownOnce(testCase)
+    RscaleSubTreeCoupled.unitTests.teardownOnce(testCase);
 end
