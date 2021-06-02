@@ -4,7 +4,6 @@ end
 
 function coupledTest(testCase)
     % Only checking variation terms
-    load('+RscaleTopTreeCoupledTest/cladePrior.mat', 'prior');
     rangeL = repelem(6:10, 2);
     n_i = length(rangeL);
     n_j = 2e3;
@@ -16,15 +15,15 @@ function coupledTest(testCase)
     for i = 1:n_i
         L = rangeL(i);
         % Housekept
-        [state_x1, state_y1] = RscaleTopTreeCoupledTest.housekeptStates(L);
+        [state_x1, state_y1, prior1] = RscaleTopTreeCoupledTest.housekeptStates(L);
         r1 = state_x1.root;
         % Coupled
-        [state_x2, state_y2] = RscaleTopTreeCoupledTest.coupledStates(L);
+        [state_x2, state_y2, prior2] = RscaleTopTreeCoupledTest.coupledStates(L);
         r2 = state_x2.root;
         for j = 1:n_j
             % Housekept
             [nstate_x1, nstate_y1, ~, ~, ~, ~, ~, ~] = RscaleTopTreeCoupled(...
-                state_x1, state_y1, prior, del, deldel);
+                state_x1, state_y1, prior1, del, deldel);
 
             rho_x1 = getRho(state_x1, nstate_x1);
             rho_y1 = getRho(state_y1, nstate_y1);
@@ -37,7 +36,7 @@ function coupledTest(testCase)
 
             % Already coupled
             [nstate_x2, nstate_y2, ~, ~, ~, ~, ~, ~] = RscaleTopTreeCoupled(...
-                state_x2, state_y2, prior, del, deldel);
+                state_x2, state_y2, prior2, del, deldel);
 
             rho_x2 = getRho(state_x2, nstate_x2);
             rho_y2 = getRho(state_y2, nstate_y2);
@@ -63,7 +62,6 @@ function coupledTest(testCase)
 end
 
 function marginalTest(testCase)
-    load('+RscaleTopTreeCoupledTest/cladePrior.mat', 'prior');
     rangeL = repelem(9:11, 3);
     n_i = length(rangeL);
     n_j = 2e3;
@@ -74,7 +72,7 @@ function marginalTest(testCase)
     [xc, yc, xm, ym] = deal(nan(n_i, n_j));
     for i = 1:n_i
         L = rangeL(i);
-        [state_x, state_y] = RscaleTopTreeCoupledTest.housekeptStates(L);
+        [state_x, state_y, prior] = RscaleTopTreeCoupledTest.housekeptStates(L);
         for j = 1:n_j
             % Coupled
             [nstate_xc, nstate_yc, ~, ~, ~, ~, ~, ~] = RscaleTopTreeCoupled(...
@@ -182,6 +180,6 @@ function setupOnce(testCase)
     RscaleTopTreeCoupledTest.setupOnce(testCase);
 end
 
-function tearDownOnce(testCase)
-    RscaleTopTreeCoupledTest.tearDownOnce(testCase);
+function teardownOnce(testCase)
+    RscaleTopTreeCoupledTest.teardownOnce(testCase);
 end

@@ -33,6 +33,6 @@ function setupOnce(testCase)
     RscaleSubTreeCoupled.unitTests.setupOnce(testCase);
 end
 
-function tearDownOnce(testCase)
-    RscaleSubTreeCoupled.unitTests.tearDownOnce(testCase);
+function teardownOnce(testCase)
+    RscaleSubTreeCoupled.unitTests.teardownOnce(testCase);
 end

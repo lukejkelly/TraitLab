@@ -1,4 +1,4 @@
-function [state_x, state_y] = coupledStates(L, theta)
+function [state_x, state_y, prior] = coupledStates(L, theta)
     global ROOT;
     if nargin == 1
         theta = 1e-2;
