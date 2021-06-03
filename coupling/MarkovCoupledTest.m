@@ -2,23 +2,26 @@ function tests = MarkovCoupledTest
     tests = functiontests(localfunctions);
 end
 
+% Variables come from pausing runmcmcCoupled while analysing data in
+% coupling/+MarkovCoupledTest; global variables found by entering an otherwise
+% empty workspace and saving what remains
+
 function setupOnce(testCase)
     GlobalSwitches;
     GlobalValues;
-    % Global variables from pausing runmcmcCoupled and entering an otherwise
-    % empty workspace and saving what remained
-    load('coupling/MarkovTestGlobal-20210330.mat');
+    load('coupling/+MarkovCoupledTest/globalVariables-20210603.mat');
     testCase.TestData.global_vars = whos('global');
 end
 
 function teardownOnce(testCase)
     cellfun(@clear, {testCase.TestData.global_vars.name});
+    close;
 end
 
 function coupledTest(testCase)
     % States from runmcmcCoupled main loop just after successful coupling
-    load('coupling/MarkovTestCoupled-20210330.mat', 'mcmc', 'model', ...
-         'state_x', 'state_y');
+    load('coupling/+MarkovCoupledTest/coupledVariables-20210603.mat', ...
+         'mcmc', 'model', 'state_x', 'state_y');
     mcmc.subsample = 1;
     n = 1e3;
     fprintf('\n');
@@ -36,8 +39,8 @@ end
 function uncoupledTest(testCase)
     % Already checked during simulations
     % States from runmcmcCoupled main loop before coupling
-    load('coupling/MarkovTestUncoupled-20210331.mat', 'mcmc', 'model', ...
-         'state_x', 'state_y');
+    load('coupling/+MarkovCoupledTest/uncoupledVariables-20210603.mat', ...
+         'mcmc', 'model', 'state_x', 'state_y');
     % Uneven move distribution
     [state_x, ~] = Markov(mcmc, model, state_x);
     [state_y, ~] = Markov(mcmc, model, state_y);
@@ -53,6 +56,7 @@ end
 function compareMarginalCoupled(testCase, mcmc, model, state_x, state_y)
     % Already checked during simulations
     % States from start of runmcmcCoupled main loop before coupling
+    state_y = housekeeping(state_x, state_y);
     mcmc.subsample = 1;
     n = 1e4;
     [t_x1, t_y1, t_x2, t_y2] = deal(nan(n, 3));
