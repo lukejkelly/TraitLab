@@ -1,7 +1,7 @@
 function state=makestate(prior,mu,lambda,p,rho,kappa,content,s,ListOfCats, beta)
 
 global MIX DONTMOVECATS ANST BORROWING
-    
+
 % To avoid conflicts with non-borrowing code.
 if nargin <= 9, beta = 0; end
 
@@ -41,7 +41,7 @@ end
 %clades
 state.claderoot=[];
 if prior.isclade
-   state.tree = treeclades(state.tree,prior.clade);   
+   state.tree = treeclades(state.tree,prior.clade);
    state=UpdateClades(state,[state.leaves,state.nodes],size(prior.clade,2));
 end
 
@@ -84,10 +84,11 @@ if BORROWING
     for i = (find(state.cat & ([state.tree.type]' <= ANST) ...
             & cellfun(@isempty, {state.tree.catloc})'))'
         % Catastrophes are uniformly distributed along edge <pa(i), i>.
-        state.tree(i).catloc = rand(state.cat(i), 1);
+        % LJK 04/06/21 sorting
+        state.tree(i).catloc = sort(rand(state.cat(i), 1));
     end
 end
-    
+
 if BORROWING    % Luke 28/01/2014
     [state.loglkd, state.fullloglkd] = logLkd2(state);
 else
