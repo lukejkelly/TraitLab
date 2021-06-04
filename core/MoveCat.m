@@ -20,9 +20,9 @@ else
     old=find(cumsum(state.cat)>=r,1);
 
 %    if length(old)==0, keyboard; end
-    
+
     [new, q1, q2]=GetLegal(state.tree,old,state.root);
-    
+
     del=ceil(rand*numel(state.cat(old)));
     %nstate.tree(old).cat=[nstate.tree(old).cat(1:del-1) nstate.tree(old).cat(del+1:end)];
     nstate.cat(old)=state.cat(old)-1;
@@ -34,16 +34,18 @@ else
     % Luke 07/02/14
     % Picking one of the catastrophes on <old, pa(old)> and adding it to <new, pa(new)>.
     if BORROWING
-        
+
         % Step one - picking which catastrophe to move.
     	ind = ceil(length(nstate.tree(old).catloc) * rand);
 
         % Step two - placing the catastrophe on the 'new' branch and removing it from the 'old' one.
-    	nstate.tree(new).catloc = [ nstate.tree(new).catloc, nstate.tree(old).catloc(ind) ];
+        % LJK 04/06/21 sorting
+    	nstate.tree(new).catloc = sort([ nstate.tree(new).catloc, ...
+                                         nstate.tree(old).catloc(ind) ]);
     	nstate.tree(old).catloc(ind) = [];
-        
+
     end
-    
+
     %logq=log(dt2)-log(dt1)+log(q1)-log(q2);
     % logq=+log(q1)-log(q2)-log(state.cat(old))+log(nstate.cat(new)); Luke 19/02/14 put this inside below if-statement.
 

@@ -30,9 +30,9 @@ end
 nstate.cat(r)=state.cat(r)+1;
 nstate.ncat=state.ncat+1;
 
-% Luke 07/02/2014 - adding a U[0, 1] rv to <r, pa(r)>.
+% Luke 07/02/2014 - adding a U[0, 1] rv to <r, pa(r)>; 04/06/2021 - sorting
 if BORROWING
-    nstate.tree(r).catloc = [ nstate.tree(r).catloc, rand ];
+    nstate.tree(r).catloc = sort([ nstate.tree(r).catloc, rand ]);
 end
 
 U=above(r, nstate.tree, nstate.root);
@@ -48,4 +48,3 @@ if BORROWING
 else
     logq=log(state.length)-log(dt)-log(nstate.ncat)+log(nstate.cat(r));
 end
-
