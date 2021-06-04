@@ -1,4 +1,4 @@
-function t = checkCouplingExtra(state_x, state_y)
+function t = extraChecks(state_x, state_y)
     % Extra state checks
     fn = fieldnames(state_x);
     ts = zeros(size(fn));
@@ -11,16 +11,29 @@ function t = checkCouplingExtra(state_x, state_y)
             else
                 error('Leaf and data counts do not match');
             end
-        case {'leaves', 'root'}
-            if all(sort(state_x.(fi)) == sort(state_y.(fi)))
-                ts(i) = 1;
-            else
-                error('Housekeeping failure');
+        case {'leaves', 'nodes', 'root'}
+            ts(i) = all(state_x.(fi) == state_y.(fi));
+            if ts(i) == 0
+                error('Housekeeping failure on %s', fi);
             end
+        case 'claderoot'
+            ts(i) = all(isequaln(state_x.(fi), state_y.(fi)));
+            if ts(i) == 0
+                error('Housekeeping failure on %s', fi);
+            end
+        case {'mu', 'lambda', 'beta', 'rho', 'kappa'}
+            ts(i) = ismembertol(state_x.(fi), state_y.(fi));
+        case {'loglkd', 'logprior'}
+            ts(i) = ismembertol(state_x.(fi), state_y.(fi));
         case 'tree'
             ts(i) = compareTrees(state_x, state_y);
+        case 'length'
+            ts(i) = ismembertol(state_x.(fi), state_y.(fi));
+        case {'cat', 'ncat'}
+            ts(i) = all(state_x.(fi) == state_y.(fi));
         otherwise
-            ts(i) = isequaln({state_x.(fi)}, {state_y.(fi)});
+            % Do not care for p, fullloglkd or nu
+            ts(i) = 1;
         end
         if ~ts(i)
             fprintf('state.%s not matching\n', fi);
