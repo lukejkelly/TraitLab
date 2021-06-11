@@ -8,24 +8,18 @@ function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
         update='RW node time between parent time and oldest child time';
         [i,newage,logq]=Schoose(state);
         [nstate,U,TOPOLOGY]=Supdate(state,i,newage);
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==2
         update='Exchange nearest neighbours';
         [i,j,iP,jP,logq,OK]=Echoose(state,NARROW,model.prior);
         if OK
             [nstate,U,TOPOLOGY]=Eupdate(state,i,j,iP,jP);
         end
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==3
         update='reconnect two edges randomly chosen across tree';
         [i,j,iP,jP,logq]=Echoose(state,WIDE,model.prior);
         if OK
             [nstate,U,TOPOLOGY]=Eupdate(state,i,j,iP,jP);
         end
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==4
         update='Reconnect an edge into a nearby edge';
         [i,j,k,newage,logq]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
@@ -33,8 +27,6 @@ function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
         if OK
             [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
         end
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==5
         update='Reconnect an edge into an edge chosen UAR over the tree';
         [i,j,k,newage,logq]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
@@ -42,24 +34,13 @@ function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
         if OK
             [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
         end
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==6
         update='Rescale whole tree';
         variation=mcmc.update.del+rand*mcmc.update.deldel;
         [nstate,U,TOPOLOGY,OK,logq]=Rscale(state,variation);
-%         if OK
-%             if VARYMU
-%                 logq=(state.NS-4)*log(variation);
-%             else
-%                 logq=(state.NS-3)*log(variation);
-%             end
-%         end
     elseif MV==7
         update='Rescale randomly chosen subtree';
         [nstate,U,TOPOLOGY,logq,OK]=RscaleSubTree(state,mcmc.update.del,mcmc.update.deldel);
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==8
         update='Vary mu';
         if ~VARYMU, disp('vary mu ?'); keyboard;pause; end
@@ -110,16 +91,12 @@ function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
                 OK=0;
             end
         end
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==12
         update='Rescale top tree';
         if ~model.prior.isclade
-            error('Move 12 should not be selected if no clades')
+            error('Move 12 should not be selected if no clades');
         end
         [nstate,U,TOPOLOGY,logq,OK]=RscaleTopTree(state,model.prior,mcmc.update.del,mcmc.update.deldel);
-        % Luke 11/05/2016 "Resampling" catastrophes when borrowing.
-        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==13
         update='Add a catastrophe';
         [nstate, U, OK, logq]=AddCat(state);
@@ -211,6 +188,11 @@ function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
         TOPOLOGY = 0;
         U = state.nodes;
     end % End of move section.
+
+    % Contribution to logq from catastrophe locations
+    if OK && BORROWING && ismember(MV, [1:7, 11:12])
+        logq = logq + catastropheScalingFactor(state, nstate);
+    end
 
     if OK
         [state, succ] = MarkovUpdateState(update, model, u_mh, TOPOLOGY, ...
