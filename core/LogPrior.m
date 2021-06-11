@@ -57,14 +57,17 @@ end
 
 % %Taking into account catastrophies
 if MCMCCAT
-    if BORROWING  % Luke 25/06/2015.
-        % Prior on number of catastrophes on branch k and their positions
-        % w = (w_1, ..., w_k) is k ~ Poisson(rho * dt) and w | k ~ k! / (dt)^k
-        % so mass/density function is pi(w, k) = rho^k exp(-rho * dt). We can
-        % integrate out rho to obtain a negative binomial.
+    % Prior on number of catastrophes per branch is Poisson(rho)
+    % If VARYRHO then we integrate rho analytically to get a Negative Binomial,
+    % otherwise rho is fixed
+    % If BORROWING then locations matter and these are uniform given counts
+    if BORROWING
         if ~VARYRHO
-            % Poisson prior on number, uniform locations.
-            for node = 1:(2*state.NS)
+            % Poisson counts and uniform locations
+            % Prior on number of catastrophes k on and positions w on each
+            % branch is k ~ Poisson(rho * dt) and w | k ~ k! / (dt)^k so
+            % mass/density function is pi(w, k | rho) = rho^k exp(-rho * dt)
+            for node = 1:(2 * state.NS)
                 if state.tree(node).type < ROOT
                     dt       = state.tree(state.tree(node).parent).time - state.tree(node).time;
                     Ncat     = state.cat(node);
@@ -72,14 +75,16 @@ if MCMCCAT
                 end
             end
         else
-            % Negative binomial. Parameters from LogRhoPrior.
+            % Negative Binomial counts and uniform locations on entire tree
+            % a and b from LogRhoPrior
             a = 1.5; b = 5e3;
             logprior = logprior + gammaln(a + state.ncat) - (a + state.ncat) * log(state.length + b);
         end
     else
+        % We only consider number of catastrophes on each branch, not locations
         if ~VARYRHO
-            % Poisson prior on number of catastrophes on each branch.
-            for node=1:2*state.NS %[state.nodes state.leaves]
+            % Poisson prior on branch counts
+            for node = 1:2*state.NS
                 if state.tree(node).type <ROOT
                     dt       = state.tree(state.tree(node).parent).time - state.tree(node).time;
                     Ncat     = state.cat(node);
@@ -87,11 +92,10 @@ if MCMCCAT
                 end
             end
         else
-            % Same as negative binomial above except we ignore catastrophe
-            % locations along branches.
+            % Negative Binomial counts, a and b from LogRhoPrior
             a = 1.5; b = 5e3;
             logprior = logprior + gammaln(a + state.ncat) - (a + state.ncat) * log(state.length + b);
-            for node=1:2*state.NS
+            for node = 1:2*state.NS
                 if state.tree(node).type <ROOT
                     dt       = state.tree(state.tree(node).parent).time - state.tree(node).time;
                     Ncat     = state.cat(node);

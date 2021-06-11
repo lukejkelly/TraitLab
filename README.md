@@ -62,10 +62,13 @@ This is important when specifying clade constraints. We return to this in the se
 
 ## Notes
 
-If catastrophes are included and:
-* The option to fix the catastrophe rate, _rho_, at a value is selected, then the number of catastrophes on each branch of the tree _a priori_ is a Poisson random variable
-* The option to allow _rho_ to vary is selected, then we integrate _rho_ out analytically and the number of catastrophes on each branch is a Negative Binomial random variable.
-* When starting runs from a tree in the output file, say, the initial catastrophe tree will be different as catastrophe locations are currently not stored in an output file. See the section 'Bayes factors using the posterior predictive' below for more details.
+If catastrophes are included in the Stochastic Dollo model and the catastrophe rate `rho` is
+* Fixed, then the number of catastrophes a branch of length `t` is `Poisson(rho t)`
+* Allowed to vary, then we integrate `rho` out analytically and the number of catastrophes on each branch is a Negative Binomial random variable.
+
+When accounting for lateral transfer, we require the catastrophe locations so include their density in the above calculations.
+
+* When starting runs from a tree in the output file, say, the initial catastrophe tree will be different as catastrophe locations are not currently stored in the output, only their branch counts. See the below section 'Bayes factors using the posterior predictive' for more details.
 
 MCMC moves on _rho_ have been disabled as a consequence. See Chapter 2 of [Kelly (2016)][4] or the supplement of [Kelly and Nicholls (2017)][5] for further details on this calculation
 
