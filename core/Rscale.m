@@ -25,8 +25,10 @@ for k=state.leaves
    end
 end
 
-logq=(state.NS+state.ncat-3)*log(variation);
-%logq=0; %TODO check this RJR 19/04/07
+% LJK 06/21 We do not include catastrophe locations in SD Jacobian but
+% separately account for them in SDLT by borrowing/catastropheScalingFactor
+% logq=(state.NS+state.ncat-3)*log(variation);
+logq = (state.NS - 3) * log(variation);
 
 if VARYMU
    nstate.mu=state.mu/variation;
