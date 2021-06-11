@@ -72,13 +72,8 @@ for t=1:(mcmc.subsample)
         update='Rescale whole tree';
         variation=mcmc.update.del+rand*mcmc.update.deldel;
         [nstate,U,TOPOLOGY,OK,logq]=Rscale(state,variation);
-%         if OK
-%             if VARYMU
-%                 logq=(state.NS-4)*log(variation);
-%             else
-%                 logq=(state.NS-3)*log(variation);
-%             end
-%         end
+        % Luke 11/06/2021 "Resampling" catastrophes when borrowing.
+        if OK && BORROWING; logq = logq + catastropheScalingFactor(state, nstate); end
     elseif MV==7
         update='Rescale randomly chosen subtree';
         [nstate,U,TOPOLOGY,logq,OK]=RscaleSubTree(state,mcmc.update.del,mcmc.update.deldel);
