@@ -19,11 +19,6 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
             % Supdate always returns TOPOLOGY = 0 so we ignore it
             [nstate_x, U_x, ~] = Supdate(state_x, i, newage_x);
             [nstate_y, U_y, ~] = Supdate(state_y, i, newage_y);
-
-            if BORROWING
-                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
-                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
-            end
         case {4, 5}
             if MV == 4
                 update = 'Reconnect an edge into a nearby edge';
@@ -40,18 +35,10 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
             OK_x = ~isempty(newage_x);
             if OK_x
                 [nstate_x, U_x, ~] = Bupdate(state_x, i, j_x, k_x, newage_x);
-                if BORROWING
-                    logq_x = logq_x ...
-                             + catastropheScalingFactor(state_x, nstate_x);
-                end
             end
             OK_y = ~isempty(newage_y);
             if OK_y
                 [nstate_y, U_y, ~] = Bupdate(state_y, i, j_y, k_y, newage_y);
-                if BORROWING
-                    logq_y = logq_y ...
-                             + catastropheScalingFactor(state_y, nstate_y);
-                end
             end
         case 6
             update = 'Rescale whole tree trying to match root times';
@@ -64,12 +51,6 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
             [nstate_x, nstate_y, U_x, U_y, logq_x, logq_y, OK_x, OK_y] ...
                 = RscaleSubTreeCoupled(state_x, state_y, mcmc.update.del, ...
                                        mcmc.update.deldel);
-            if OK_x && BORROWING
-                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
-            end
-            if OK_y && BORROWING
-                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
-            end
         case 8
             update = 'Vary mu';
             if ~VARYMU
@@ -81,30 +62,25 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
         case 12
             update = 'Rescale top tree';
             if ~model.prior.isclade
-                error('Move 12 should not be selected if no clades')
+                error('Move 12 should not be selected if no clades');
             end
             [nstate_x, nstate_y, U_x, U_y, logq_x, logq_y, OK_x, OK_y] ...
                 = RscaleTopTreeCoupled(state_x, state_y, model.prior, ...
                                        mcmc.update.del, mcmc.update.deldel);
-            % Luke 11/05/2016 "Resampling" catastrophes when borrowing
-            if BORROWING && OK_x
-                logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
-            end
-            if BORROWING && OK_y
-                logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
-            end
         case 15
-            update = 'Vary rho';
-            [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
-                = scaleCoupledRho(state_x, state_y, mcmc);
+            error('Depracated');
+            % update = 'Vary rho';
+            % [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
+            %     = scaleCoupledRho(state_x, state_y, mcmc);
         case 16
             update = 'Vary kappa';
             [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
                 = scaleCoupledKappa(state_x, state_y, mcmc);
         case 17
-            update = 'Vary lambda';
-            [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
-                = scaleCoupledLambda(state_x, state_y, mcmc);
+            error('Depracated');
+            % update = 'Vary lambda';
+            % [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
+            %     = scaleCoupledLambda(state_x, state_y, mcmc);
         case 19
             update = 'Vary XI for one leaf';
             [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
@@ -119,6 +95,14 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
                 = scaleCoupledBeta(state_x, state_y, mcmc);
         otherwise
             error('Not implemented');
+    end
+
+    % Contribution to logq from catastrophe locations
+    if OK_x && BORROWING && ismember(MV, [1:7, 11:12])
+        logq_x = logq_x + catastropheScalingFactor(state_x, nstate_x);
+    end
+    if OK_y && BORROWING && ismember(MV, [1:7, 11:12])
+        logq_y = logq_y + catastropheScalingFactor(state_y, nstate_y);
     end
 
     if OK_x
