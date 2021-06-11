@@ -4,7 +4,7 @@ function res=LogPriorParm(state,nstate)
 % the priors for the parameters mu, lambda, nu, kappa and rho in state and
 % nstate.
 
-global VARYNU VARYLAMBDA VARYRHO VARYBETA BORROWING
+global VARYNU VARYLAMBDA VARYBETA % BORROWING
 
 %if BORROWING
     % We can't use a prior of 1/mu as the posterior is unbounded so we use
@@ -14,7 +14,8 @@ global VARYNU VARYLAMBDA VARYRHO VARYBETA BORROWING
 %    res=log(state.mu)-log(nstate.mu);
 %end
 
-if VARYRHO, res=res+LogRhoPrior(nstate.rho)-LogRhoPrior(state.rho);end
+% LJK 06/21, if VARYRHO then it's integrated out analytically, fixed otherwise
+% if VARYRHO, res=res+LogRhoPrior(nstate.rho)-LogRhoPrior(state.rho);end
 if VARYLAMBDA, res=res+log(state.lambda)-log(nstate.lambda); end
 if VARYNU, res=res+log(state.nu)-log(nstate.nu); end
 

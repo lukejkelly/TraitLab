@@ -1,6 +1,6 @@
 function [nstate,U,TOPOLOGY,OK,logq]=Rscale(state,variation)
 
-global VARYMU VARYRHO VARYBETA
+global VARYMU VARYBETA
 
 s=state.tree;
 nstate=state;
@@ -32,10 +32,11 @@ if VARYMU
    nstate.mu=state.mu/variation;
    logq=logq-log(variation);
 end
-if VARYRHO
-    nstate.rho=state.rho/variation;
-    logq=logq-log(variation);
-end
+% LJK 06/21, rho either integrated out or constant
+% if VARYRHO
+%     nstate.rho=state.rho/variation;
+%     logq=logq-log(variation);
+% end
 if VARYBETA
     nstate.beta = state.beta / variation;
     logq=logq-log(variation);
