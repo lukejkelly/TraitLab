@@ -11,8 +11,6 @@ This in turns called `runmcmcCoupled` which will run
  * append `-{x,y}-<ind>` to the output filename specified in the run file.
 All the relevant code is in `coupling/`.
 
-The current development branch is `maximal` and will be until I finish testing `MarkovCoupled`, `MarkovCoupledCommon`, `MarkovCoupledMaximal`, `MarkovPrior`. I don't expect any issues having debugged them by hand already, just that I can't write straightforward testing code.
-
 Scripts to generate synthetic data sets and `.par` files, as well as the `bash` and `qsub` scripts to run them on the CEREMADE server, are located in `tools`. They currently assume my directory structure so they need to be updated. A separate repo, `CoupledPhylogeneticAnalyses` contains scripts to analyse the output.
 
 I still need to update the run file to take the lag as an argument, currently its hard-coded.
