@@ -70,6 +70,8 @@ function t = compareTrees(state_x, state_y)
         case {'cat', 'catloc'}
             % Handled differently by SD and SDLT so ignoring for now
             ts(i) = 1;
+        case {'time'}
+            ts(i) = all(cellfun(@ismembertol, {s_x.(fi)}, {s_y.(fi)}));
         otherwise
             ts(i) = isequaln({s_x.(fi)}, {s_y.(fi)});
         end
