@@ -90,7 +90,7 @@ if ok
             %chosen a fixed kappa value
             MCMCINITKAPPA=str2double(get(handles.kappavalfixet,'String'));
             VARYKAPPA=0;
-        elseif setmu(2)
+        elseif setkappa(2)
             %specified a starting value to vary kappa from
             MCMCINITKAPPA=str2double(get(handles.kappavalet,'String'));
         else

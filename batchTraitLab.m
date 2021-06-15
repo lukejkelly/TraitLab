@@ -164,7 +164,7 @@ MIR=0;
 
 if MCT
     if exist('Random_initial_cat_death_prob','var') && Random_initial_cat_death_prob
-        MIK=rand;
+        MIK= 0.25 + 0.75 * rand;
         RMIK=1;
     elseif exist('Initial_cat_death_prob','var')
         MIK=Initial_cat_death_prob;
