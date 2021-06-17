@@ -6,9 +6,6 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
 
     OK_x = 1;
     OK_y = 1;
-    nstate_x = state_x;
-    nstate_y = state_y;
-
     TOPOLOGY = 0;
 
     switch MV
@@ -67,6 +64,10 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
             [nstate_x, nstate_y, U_x, U_y, logq_x, logq_y, OK_x, OK_y] ...
                 = RscaleTopTreeCoupled(state_x, state_y, model.prior, ...
                                        mcmc.update.del, mcmc.update.deldel);
+        case 13
+            update = 'Add a catastrophe';
+            [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
+                = AddCatCoupled(state_x, state_y);
         case 15
             error('Depracated');
             % update = 'Vary rho';
