@@ -1,6 +1,6 @@
 function [i_x, i_y] = sampleBranchProportionalToLengthCoupled(state_x, state_y)
     % Sample from a coupling of discrete distributions p and q where for each
-    % node i in the s = state_x.tree,
+    % node i in s = state_x.tree,
     %     p_i = (s(s(i).parent).time - s(i).time) / state_x.length
     % and q likewise
     % Common random numbers didn't work here as even if p_i = q_i, if
