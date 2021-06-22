@@ -12,7 +12,7 @@ function [new_x, new_y, q1_x, q1_y, q2_x, q2_y] = GetLegalCoupled(s_x, s_y, ...
     [~, q2_y] = GetLegalCoupled.getPoss(s_y, new_y, root);
 end
 
-function [r, ld] = getDistributionTerms(poss, q1)
-    r = @() GetLegalCoupled.rNeighbour(poss, q1);
-    ld = @(x) GetLegalCoupled.ldNeighbour(x, poss, q1);
+function [r, ld] = getDistributionTerms(poss, q)
+    r = @() GetLegalCoupled.rNeighbour(poss, q);
+    ld = @(x) GetLegalCoupled.ldNeighbour(x, poss, q);
 end
