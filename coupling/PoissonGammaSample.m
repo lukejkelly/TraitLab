@@ -1,4 +1,4 @@
-function x = rPoissonGamma(a, p)
+function x = PoissonGammaSample(a, p)
     % Sample x from a Poisson-Gamma(a, p) distribution
     %     p(x) = G(a + x) / [G(a) x!] p^a (1 - p)^x
     % so the number of failures until the a'th successs
