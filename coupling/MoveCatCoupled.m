@@ -11,7 +11,7 @@ function [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
         % Attempt maximally coupled deletion
         if BORROWING
             % Catastrophes individually identifiable
-            [old_x, old_y, j_x, j_y] = sampleCatLocIndexCoupled(state_x, state_y);
+            [old_x, old_y, j_x, j_y] = sampleCatIndexCoupled(state_x, state_y);
         else
             [old_x, old_y] = sampleBranchProportionalToCatCountCoupled(...
                 state_x, state_y);

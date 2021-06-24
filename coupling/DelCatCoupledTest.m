@@ -190,5 +190,5 @@ end
 
 function teardownOnce(testCase)
     unitTests.teardownOnce(testCase);
-    clf;
+    close;
 end

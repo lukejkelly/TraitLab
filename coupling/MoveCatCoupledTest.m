@@ -125,10 +125,10 @@ end
 
 function [state_x, state_y] = housekeptStates(L)
     [state_x, state_y] = unitTests.housekeptStates(L, 1e-2);
-    for c = 1:poissrnd(1)
+    for c = 1:(1 + poissrnd(1))
         [state_x, state_y] = AddCatCoupled(state_x, state_y);
     end
-    for c = 1:poissrnd(1)
+    for c = 1:(1 + poissrnd(1))
         state_x = AddCat(state_x);
         state_y = AddCat(state_y);
     end
@@ -143,5 +143,4 @@ end
 
 function teardownOnce(testCase)
     unitTests.teardownOnce(testCase);
-    clf;
 end

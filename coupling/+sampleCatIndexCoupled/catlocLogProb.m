@@ -1,4 +1,4 @@
-function ld = ldCatloc(x, state)
+function ld = catlocLogProb(x, state)
     % Uniform over support of catastrophe locations
     catlocs = [state.tree.catloc];
     if any(ismembertol(x, catlocs))
