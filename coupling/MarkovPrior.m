@@ -4,7 +4,7 @@ function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn)
 
 mcmc.subsample = 1e4;
 % Do not change scalar parameters
-mcmc.update.move([8, 15, 17, 21]) = 0;
+mcmc.update.move([8, 17, 21]) = 0;
 mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
 mcmc.update.cmove = cumsum(mcmc.update.move);
 
@@ -139,13 +139,9 @@ for t=1:(mcmc.subsample)
         [nstate, U, OK, logq]=DelCat(state);
         TOPOLOGY=0;
     elseif MV==15
-        update='Vary rho';
-        variation=mcmc.update.del+rand*mcmc.update.deldel;
-        nstate=state;
-        nstate.rho=state.rho*variation;
-        logq=-log(variation);
-        TOPOLOGY=0;
-        U=[];
+        update = 'Resample catastrophes';
+        [nstate, U, OK, logq] = ResampleCatastrophes(state);
+        TOPOLOGY = 0;
     elseif MV==16
         update='Vary kappa';
         variation=mcmc.update.del+rand*mcmc.update.deldel;
