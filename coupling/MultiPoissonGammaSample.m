@@ -5,5 +5,9 @@ function x = MultiPoissonGammaSample(a, p, q)
     %     x | z ~ MN(z, q / (1 - p))
     % x is a vector of the same length as q, a and p are scalars, sum(q) = 1 - p
     z = PoissonGammaSample(a, p);
-    x = mnrnd(z, q(:)' / (1 - p));
+    if z > 0
+        x = mnrnd(z, q(:)' / (1 - p));
+    else
+        x = zeros(1, length(q));
+    end
 end

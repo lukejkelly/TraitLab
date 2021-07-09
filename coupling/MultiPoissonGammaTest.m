@@ -40,7 +40,7 @@ function distributionTest(testCase)
     for i1 = 1:n_i
         a = i1;
         for i2 = 1:n_i
-            p = rand^2;
+            p = rand;
             m = ceil(rand * 10);
             q = sample_q(p, m);
 
