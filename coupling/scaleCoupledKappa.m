@@ -12,7 +12,7 @@ end
 function [nstate, U, OK] = getOutputs(nstate, var)
     global DEPNU;
     if DEPNU
-        nstate.nu = nstate.nu / var;
+        nstate.nu = nstate.nu * var;
     end
     U = nstate.nodes;
     OK = (0.25 <= nstate.kappa) && (nstate.kappa <= 1);

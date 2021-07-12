@@ -26,10 +26,10 @@ function [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
     OK_y = ((0.25 <= nstate_y.kappa) && (nstate_y.kappa <= 1));
 
     if OK_x && DEPNU
-        nstate_x.nu = state_x.nu / var_x;
+        nstate_x.nu = state_x.nu * var_x;
     end
     if OK_y && DEPNU
-        nstate_y.nu = state_y.nu / var_y;
+        nstate_y.nu = state_y.nu * var_y;
     end
 
 end
