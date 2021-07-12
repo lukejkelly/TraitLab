@@ -150,7 +150,7 @@ for t=1:(mcmc.subsample)
         TOPOLOGY=0;
         U=state.nodes;
         if OK && DEPNU
-            nstate.nu=state.nu/variation;
+            nstate.nu = state.nu * variation;
         end
     elseif MV==17
         update='Vary lambda';
