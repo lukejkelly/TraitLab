@@ -1,14 +1,14 @@
 function [i, newage_x, newage_y, logq_x, logq_y] ...
-        = SchooseCoupledMaximal(state_x, state_y)
+        = SchooseCoupled(state_x, state_y)
 
     % Housekeeping means root is the same in both x and y, internal nodes
     % labelled with the same set of indices
     i = state_x.nodes(ceil(rand * (state_x.NS - 1)));
 
     [iT_x, kT_x, jT_x, a_x, b_x] ...
-        = SchooseCoupledMaximal.nodeTimesAndRanges(i, state_x);
+        = SchooseCoupled.nodeTimesAndRanges(i, state_x);
     [iT_y, kT_y, jT_y, a_y, b_y] ...
-        = SchooseCoupledMaximal.nodeTimesAndRanges(i, state_y);
+        = SchooseCoupled.nodeTimesAndRanges(i, state_y);
 
     if i == state_x.root
         % newage ~ U[(iT + jT) / 2, 2 * iT - jT]
