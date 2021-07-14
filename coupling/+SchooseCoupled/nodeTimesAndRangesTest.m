@@ -8,7 +8,7 @@ function rootTest(testCase)
     i = find([state.tree.type] == ROOT);
 
     [iTObs, kTObs, jTObs, aObs, bObs] ...
-        = SchooseCoupledMaximal.nodeTimesAndRanges(i, state);
+        = SchooseCoupled.nodeTimesAndRanges(i, state);
     assertEqual(testCase, iTObs, state.tree(i).time);
     assertEqual(testCase, kTObs, state.tree([state.tree.type] == ADAM).time);
     assertEqual(testCase, jTObs, ...
@@ -31,7 +31,7 @@ function anstTest(testCase)
     state.tree = ExpTree(10, 1);
     for i = find([state.tree.type] == ANST)
         [iTObs, kTObs, jTObs, aObs, bObs] ...
-            = SchooseCoupledMaximal.nodeTimesAndRanges(i, state);
+            = SchooseCoupled.nodeTimesAndRanges(i, state);
         assertEqual(testCase, iTObs, state.tree(i).time);
         assertEqual(testCase, kTObs, state.tree(state.tree(i).parent).time);
         assertEqual(testCase, jTObs, ...

@@ -12,7 +12,7 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
     case 1
         update='RW node time between parent time and oldest child time';
         [i, newage_x, newage_y, logq_x, logq_y] ...
-            = SchooseCoupledMaximal(state_x, state_y);
+            = SchooseCoupled(state_x, state_y);
         % Supdate always returns TOPOLOGY = 0 so we ignore it
         [nstate_x, U_x, ~] = Supdate(state_x, i, newage_x);
         [nstate_y, U_y, ~] = Supdate(state_y, i, newage_y);
