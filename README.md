@@ -318,7 +318,7 @@ tr = [0.1;  ...  % lambda
       5e-4; ...  % mu
       5e-4; ...  % beta
       0.221199]; % kappa
-xi = [s(rl).xi]; % Missing data parameters.
+xi = fliplr([s(rl).xi]); % Missing data parameters.
 
 % Generate _N * L_ array of binary site patterns, where _N_ is the total number
 % of traits generated across the tree and the _l_th column of _D_ is the
