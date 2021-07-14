@@ -26,7 +26,6 @@ function valueTest(testCase)
                     assertNotEmpty(testCase, logq);
                 end
             end
-
         end
     end
 end

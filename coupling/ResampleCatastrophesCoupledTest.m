@@ -35,7 +35,7 @@ function overlapTest(testCase)
     global VARYRHO BORROWING
     BORROWING = 0;
     L = 10;
-    n_i = 5;
+    n_i = 6;
     n_j = 1e4;
     [cObs, cExp] = deal(nan(n_i, 2));
     for VARYRHO = 0:1
@@ -73,8 +73,7 @@ function overlapTest(testCase)
                 Zx = state_x.rho * Dx;
                 Zy = state_y.rho * Dy;
 
-                ol = sum(min(exp(-Zx) * [1, zx .* exp(zx)], ...
-                             exp(-Zy) * [1, zy .* exp(zy)]));
+                ol = sum(min(exp(-Zx) * [1, zx], exp(-Zy) * [1, zy]));
             end
             cExp(i, VARYRHO + 1) = ol;
         end
