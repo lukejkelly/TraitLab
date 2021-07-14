@@ -6,7 +6,7 @@ end
 function checkDistributionTest(testCase)
     thetaObs = nan(1e4, 1);
     for i = 1:length(thetaObs)
-        thetaObs(i) = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
+        thetaObs(i) = BchooseCoupled.sampleCoupling.sampleTheta();
     end
     log10ThetaExp = -3 + rand(size(thetaObs)) * 2;
 
@@ -20,4 +20,12 @@ function checkDistributionTest(testCase)
 
     v = input('Do the histograms in the figure match? Reply 1 for yes... ');
     assertEqual(testCase, v, 1);
+end
+
+function setupOnce(~)
+    clf;
+end
+
+function teardownOnce(~)
+    close;
 end

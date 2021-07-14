@@ -30,71 +30,62 @@ end
 function narrowCheck(testCase, clades)
     % For now we look at overall sampling behaviour rather than comparing
     % distributions at each branch
-    [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(clades, ...
-                                                                   'NARROW');
+    [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(clades, 'NARROW');
     r = 1;
     while r <= nReps
-        THETA = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
+        THETA = BchooseCoupled.sampleCoupling.sampleTheta();
         [i, j, k, newageExp_r, logqExp] = Bchoose(state, mt, THETA, prior);
         if isempty(newageExp_r)
             assertEqual(testCase, logqExp, -Inf);
         else
             newageExp(r) = newageExp_r;
-            [newageObs(r), logqObs] = BchooseCoupledMaximal.sampleMarginal(...
-                    i, j, k, s, THETA);
+            [newageObs(r), logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
             assertEqual(testCase, logqObs, logqExp, 'AbsTol', 1e-12);
             r = r + 1;
         end
     end
-    BchooseCoupledMaximal.sampleCoupling.compareDistributions(testCase, ...
-            newageObs, newageExp);
+    BchooseCoupled.sampleCoupling.compareDistributions(testCase, newageObs, newageExp);
 end
 
 function wideBelowRootCheck(testCase, clades)
     % For now we look at overall sampling behaviour below root
     global ROOT
-    [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(clades, ...
-                                                                   'WIDE');
+    [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(clades, 'WIDE');
     r = 1;
     while r <= nReps
-        THETA = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
+        THETA = BchooseCoupled.sampleCoupling.sampleTheta();
         [i, j, k, newageExp_r, logqExp] = Bchoose(state, mt, THETA, prior);
         if isempty(newageExp_r)
             assertEqual(testCase, logqExp, -Inf);
         elseif s(j).type ~= ROOT
             newageExp(r) = newageExp_r;
-            [newageObs(r), logqObs] = BchooseCoupledMaximal.sampleMarginal(...
-                    i, j, k, s, THETA);
+            [newageObs(r), logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
             assertEqual(testCase, logqObs, logqExp, 'AbsTol', 1e-12);
             r = r + 1;
         end
     end
-    BchooseCoupledMaximal.sampleCoupling.compareDistributions(testCase, ...
-            newageObs, newageExp);
+    BchooseCoupled.sampleCoupling.compareDistributions(testCase, newageObs, newageExp);
 end
 
 function wideAboveRootCheck(testCase, clades)
     % Only look at Exp(THETA) samples above root
     global ROOT
-    [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(clades, ...
-                                                                   'WIDE');
+    [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(clades, 'WIDE');
     r = 1;
     while r <= nReps
-        THETA = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
+        THETA = BchooseCoupled.sampleCoupling.sampleTheta();
         [i, j, k, newageExp_r, logqExp] = Bchoose(state, mt, THETA, prior);
         if isempty(newageExp_r)
             assertEqual(testCase, logqExp, -Inf);
         elseif s(j).type == ROOT
             newageExp(r) = newageExp_r;
-            [newageObs(r), logqObs] = BchooseCoupledMaximal.sampleMarginal(...
-                    i, j, k, s, THETA);
+            [newageObs(r), logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
             assertEqual(testCase, logqObs -logqExp, ...
                         THETA * (newageObs(r) - newageExp(r)), 'AbsTol', 1e-12);
             r = r + 1;
         end
     end
-    BchooseCoupledMaximal.sampleCoupling.compareDistributions(testCase, ...
-            newageObs, newageExp);
+    BchooseCoupled.sampleCoupling.compareDistributions(testCase, newageObs, newageExp);
 end
 
 
@@ -106,7 +97,7 @@ end
 function [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(...
         clades, moveType)
     global NARROW WIDE
-    s = BchooseCoupledMaximal.state10a(clades);
+    s = BchooseCoupled.state10a(clades);
     state.tree = s;
     state.NS = length(state.tree) / 2;
     switch moveType
@@ -118,6 +109,6 @@ function [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(...
         error('moveType must be ''NARROW'' or ''WIDE''');
     end
     prior.isclade = strcmp(clades, 'yes');
-    nReps = 5e4;
+    nReps = 1e4;
     [newageObs, newageExp] = deal(nan(nReps, 1));
 end

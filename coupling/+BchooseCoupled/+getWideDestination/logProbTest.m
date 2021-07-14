@@ -9,7 +9,7 @@ function outputTest(testCase)
         u = 1 + floor(rand * i);
         v = randsample(i, u);
 
-        lObs = arrayfun(@(x) BchooseCoupledMaximal.getWideDestination.logProb(x, v), r);
+        lObs = arrayfun(@(x) BchooseCoupled.getWideDestination.logProb(x, v), r);
 
         lExp = -inf(size(lObs));
         lExp(v) = -log(u);

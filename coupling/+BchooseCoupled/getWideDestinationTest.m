@@ -11,7 +11,7 @@ function coupledTest(testCase)
             s_y = state_y.tree;
             for i = find([s_x.type] < ROOT)
                 if addClades
-                    r = BchooseCoupledMaximal.getWideCandidatesClade(i, s_x);
+                    r = BchooseCoupled.getWideCandidatesClade(i, s_x);
                     N = length(r);
                 else
                     r = find([s_x.type] <= ROOT);
@@ -20,7 +20,7 @@ function coupledTest(testCase)
 
                 if N > 4
                     [j_x, j_y, k_x, k_y, FAIL_x, FAIL_y] ...
-                        = BchooseCoupledMaximal.getWideDestination(i, r, s_x, s_y);
+                        = BchooseCoupled.getWideDestination(i, r, s_x, s_y);
                 end
                 assertEqual(testCase, j_x, j_y);
                 assertEqual(testCase, k_x, k_y);
@@ -42,7 +42,7 @@ function couplingTest(testCase)
             s_y = state_y.tree;
             for i = find([s_x.type] < ROOT)
                 if addClades
-                    r = BchooseCoupledMaximal.getWideCandidatesClade(i, s_x);
+                    r = BchooseCoupled.getWideCandidatesClade(i, s_x);
                     N = length(r);
                 else
                     r = find([s_x.type] <= ROOT);
@@ -52,13 +52,13 @@ function couplingTest(testCase)
                 if N > 4
                     for nS = 1:nSamp
                         [j_x, j_y, ~, ~, ~, ~] ...
-                            = BchooseCoupledMaximal.getWideDestination(i, r, s_x, s_y);
+                            = BchooseCoupled.getWideDestination(i, r, s_x, s_y);
                         if j_x == j_y
                             cObs(i) = cObs(i) + 1;
                         end
                     end
-                    z_x = BchooseCoupledMaximal.getWideDestination.valid(i, r, s_x);
-                    z_y = BchooseCoupledMaximal.getWideDestination.valid(i, r, s_y);
+                    z_x = BchooseCoupled.getWideDestination.valid(i, r, s_x);
+                    z_y = BchooseCoupled.getWideDestination.valid(i, r, s_y);
                     pExp(i) = length(intersect(z_x, z_y)) / max(length(z_x), length(z_y));
                 end
             end

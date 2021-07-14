@@ -15,7 +15,7 @@ function outputTest(testCase)
         state = unitTests.dummyState(ExpTree(L, 1e-4));
         s = state.tree;
 
-        vObs = BchooseCoupledMaximal.getWideDestination.valid(i, r, s);
+        vObs = BchooseCoupled.getWideDestination.valid(i, r, s);
 
         uExp = ones(1, n);
         iT = s(i).time;

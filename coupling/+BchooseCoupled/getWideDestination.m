@@ -1,8 +1,8 @@
 function [j_x, j_y, k_x, k_y, FAIL_x, FAIL_y] = getWideDestination(i, r, s_x, s_y)
     % Sample from a maximal coupling of discrete uniform distributions on valid
     % destination edge sets
-    v_x = BchooseCoupledMaximal.getWideDestination.valid(i, r, s_x);
-    v_y = BchooseCoupledMaximal.getWideDestination.valid(i, r, s_y);
+    v_x = BchooseCoupled.getWideDestination.valid(i, r, s_x);
+    v_y = BchooseCoupled.getWideDestination.valid(i, r, s_y);
 
     [r_x, l_x] = getDistributionTerms(v_x);
     [r_y, l_y] = getDistributionTerms(v_y);
@@ -14,8 +14,8 @@ function [j_x, j_y, k_x, k_y, FAIL_x, FAIL_y] = getWideDestination(i, r, s_x, s_
 end
 
 function [r, l] = getDistributionTerms(v)
-    r = @() BchooseCoupledMaximal.getWideDestination.sample(v);
-    l = @(x) BchooseCoupledMaximal.getWideDestination.logProb(x, v);
+    r = @() BchooseCoupled.getWideDestination.sample(v);
+    l = @(x) BchooseCoupled.getWideDestination.logProb(x, v);
 end
 
 function [k, FAIL] = getOutputs(i, s, j)

@@ -12,7 +12,7 @@ end
 function cladesYesTest(testCase)
     global LEAF ANST
 
-    s = BchooseCoupledMaximal.state10a('Yes');
+    s = BchooseCoupled.state10a('Yes');
 
     rExp = cell(size(s));
     rExp{1} = [];
@@ -37,10 +37,9 @@ function cladesYesTest(testCase)
     rExp{20} = [];
 
     for i = find(ismember([s.type], [LEAF, ANST]))
-        rObs_i = BchooseCoupledMaximal.getWideCandidatesClade(i, s);
+        rObs_i = BchooseCoupled.getWideCandidatesClade(i, s);
         assertEqual(testCase, rObs_i, rExp{i});
     end
-    warning('Unlike mcmc with no clade prior, we cannot SPR to <Adam, root>??');
 end
 
 function cladesNoTest(testCase)
@@ -48,14 +47,13 @@ function cladesNoTest(testCase)
     % each case
     global LEAF ANST
 
-    s = BchooseCoupledMaximal.state10a('No');
+    s = BchooseCoupled.state10a('No');
 
     rExp = find(ismember([s.type], [LEAF, ANST]));
     for i = find(ismember([s.type], [LEAF, ANST]))
-        rObs_i = BchooseCoupledMaximal.getWideCandidatesClade(i, s);
+        rObs_i = BchooseCoupled.getWideCandidatesClade(i, s);
         assertEqual(testCase, rObs_i, rExp);
     end
-    warning('Unlike mcmc with no clade prior, we cannot SPR to <Adam, root>??');
 end
 
 function setupOnce(~)

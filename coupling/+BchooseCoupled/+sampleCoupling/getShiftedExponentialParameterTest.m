@@ -7,7 +7,7 @@ function jRootYesTest(testCase)
     global ROOT
     THETA = 0.01;
 
-    s = BchooseCoupledMaximal.state10a('No');
+    s = BchooseCoupled.state10a('No');
 
     j = find([s.type] == ROOT);
     jT = s(j).time;
@@ -15,8 +15,7 @@ function jRootYesTest(testCase)
 
     for i = find(arrayfun(@(a) a ~= j && ~isempty(s(a).parent) ...
                           && s(a).parent ~= j, 1:length(s)))
-         [newage, logqObs] = BchooseCoupledMaximal.sampleMarginal(i, j, k, ...
-                                                                  s, THETA);
+         [newage, logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
 
          iPPT = s(s(s(i).parent).parent).time;
          iPeCT = max(s(s(s(i).parent).child).time);

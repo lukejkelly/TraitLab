@@ -26,7 +26,7 @@ function [s, state] = state10a(cladeStatus)
     % CLADE NAME = c3 ROOTMIN = 200 ROOTMAX = 500 TAXA = 6 , 7 , 8 , 9 , 10;
     % CLADE NAME = c4                             TAXA = 9 , 10;
 
-    filePath = fullfile('coupling', '+BchooseCoupledMaximal', ...
+    filePath = fullfile('coupling', '+BchooseCoupled', ...
                         sprintf('state10a-clades%s.mat', cladeStatus));
     state = getfield(load(filePath), 'state');
     s = state.tree;

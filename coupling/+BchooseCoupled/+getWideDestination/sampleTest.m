@@ -14,12 +14,12 @@ function distributionTest(testCase)
         cObs = zeros(size(r));
 
         for j = 1:n_j
-            x = BchooseCoupledMaximal.getWideDestination.sample(v);
+            x = BchooseCoupled.getWideDestination.sample(v);
             cObs(x) = cObs(x) + 1;
         end
         pObs = cObs / n_j;
 
-        lExp = arrayfun(@(x) BchooseCoupledMaximal.getWideDestination.logProb(x, v), r);
+        lExp = arrayfun(@(x) BchooseCoupled.getWideDestination.logProb(x, v), r);
         pExp = exp(lExp);
 
         pAct = ismember(r, v) / u;

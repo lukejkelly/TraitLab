@@ -1,5 +1,5 @@
 function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
-        = BchooseCoupledMaximal(state_x, state_y, mt, THETA, prior)
+        = BchooseCoupled(state_x, state_y, mt, THETA, prior)
 
     % Housekeeping means that Adam, root, clade roots and leaves have same
     % indices, internal nodes within a clade have a common set of indices
@@ -20,13 +20,13 @@ function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
     switch mt
     case NARROW
         % Narrow, so move <iP, i> into <pa(iP), sib(iP)> = <k, j>
-        [j_x, k_x, FAIL_x] = BchooseCoupledMaximal.getNarrowDestination(i, s_x);
-        [j_y, k_y, FAIL_y] = BchooseCoupledMaximal.getNarrowDestination(i, s_y);
+        [j_x, k_x, FAIL_x] = BchooseCoupled.getNarrowDestination(i, s_x);
+        [j_y, k_y, FAIL_y] = BchooseCoupled.getNarrowDestination(i, s_y);
     case WIDE
         % Choose destination <k, j> uniformly across tree / clade iP
         if prior.isclade
-            r_x = BchooseCoupledMaximal.getWideCandidatesClade(i, s_x);
-            r_y = BchooseCoupledMaximal.getWideCandidatesClade(i, s_y);
+            r_x = BchooseCoupled.getWideCandidatesClade(i, s_x);
+            r_y = BchooseCoupled.getWideCandidatesClade(i, s_y);
             if ~isequaln(r_x, r_y)
                 disp(r_x);
                 disp(r_y);
@@ -41,7 +41,7 @@ function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
 
         if  N > 4
             [j_x, j_y, k_x, k_y, FAIL_x, FAIL_y] ...
-                = BchooseCoupledMaximal.getWideDestination(i, r, s_x, s_y);
+                = BchooseCoupled.getWideDestination(i, r, s_x, s_y);
         else
             [j_x, k_x, FAIL_x] = deal(-1, -1, 1);
             [j_y, k_y, FAIL_y] = deal(-1, -1, 1);
@@ -54,8 +54,8 @@ function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
     if ~(FAIL_x || FAIL_y)
         % Attempt to couple node times
         [newage_x, newage_y, logq_x, logq_y] ...
-            = BchooseCoupledMaximal.sampleCoupling(i, j_x, j_y, k_x, k_y, ...
-                                                   s_x, s_y, THETA);
+            = BchooseCoupled.sampleCoupling(i, j_x, j_y, k_x, k_y, s_x, s_y, ...
+                                            THETA);
     else
         % Attempt to sample from marginal node times
         if FAIL_x
@@ -63,14 +63,14 @@ function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
             logq_x = -Inf;
         else
             [newage_x, logq_x] ...
-                = BchooseCoupledMaximal.sampleMarginal(i, j_x, k_x, s_x, THETA);
+                = BchooseCoupled.sampleMarginal(i, j_x, k_x, s_x, THETA);
         end
         if FAIL_y
             newage_y = [];
             logq_y = -Inf;
         else
             [newage_y, logq_y] ...
-                = BchooseCoupledMaximal.sampleMarginal(i, j_y, k_y, s_y, THETA);
+                = BchooseCoupled.sampleMarginal(i, j_y, k_y, s_y, THETA);
         end
     end
 end
