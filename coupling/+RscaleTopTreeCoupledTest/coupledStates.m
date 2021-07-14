@@ -9,7 +9,7 @@ function [state_x, state_y, prior] = coupledStates(L, theta)
     numclades = ceil(rand * L / 2);
     clade = synthclades(tree_x, numclades, 2, rand);
     rootmax = 2 * tree_x([tree_x.type] == ROOT).time;
-    prior = RscaleTopTreeCoupledTest.clade2prior(clade, rootmax);
+    prior = unitTests.clade2prior(clade, rootmax);
 
     state_x = RscaleTopTreeCoupledTest.dummyState(tree_x, prior);
     state_y = state_x;

@@ -17,21 +17,20 @@ function moveNarrowStayCoupled(testCase, clades)
     nRep = 1;
     while nRep <= nReps
         i = sampleSubtree(s);
-        [j, k, FAIL] = BchooseCoupledMaximal.getNarrowDestination(i, s);
+        [j, k, FAIL] = BchooseCoupled.getNarrowDestination(i, s);
         if ~FAIL
-            THETA = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
+            THETA = BchooseCoupled.sampleCoupling.sampleTheta();
             [newage_x, newage_y, logq_x, logq_y] ...
-                = BchooseCoupledMaximal.sampleCoupling(i, j, j, k, k, s, s, ...
-                                                       THETA);
+                = BchooseCoupled.sampleCoupling(i, j, j, k, k, s, s, THETA);
             assertEqual(testCase, newage_x, newage_y);
             assertEqual(testCase, logq_x, logq_y);
             newageCoupling(nRep) = newage_x;
-            [newageMarginal(nRep), ~] = BchooseCoupledMaximal.sampleMarginal(...
+            [newageMarginal(nRep), ~] = BchooseCoupled.sampleMarginal(...
                 i, j, k, s, THETA);
             nRep = nRep + 1;
         end
     end
-    BchooseCoupledMaximal.sampleCoupling.compareDistributions(testCase, ...
+    BchooseCoupled.sampleCoupling.compareDistributions(testCase, ...
         newageCoupling, newageMarginal);
 end
 
@@ -41,23 +40,25 @@ function cladesNoMoveWideStayCoupledTest(testCase)
     while nRep <= nReps
         i = sampleSubtree(s);
         r = 1:(length(s) - 1);
-        [j, k, FAIL] = BchooseCoupledMaximal.getWideDestination(i, r, ...
-                                                                length(r), s);
+        if length(r) > 4
+            [j, ~, k, ~, FAIL, ~] = BchooseCoupled.getWideDestination(i, r, s, s);
+        else
+            FAIL = 1;
+        end
         if ~FAIL
-            THETA = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
+            THETA = BchooseCoupled.sampleCoupling.sampleTheta();
             [newage_x, newage_y, logq_x, logq_y] ...
-                = BchooseCoupledMaximal.sampleCoupling(i, j, j, k, k, s, s, ...
-                                                       THETA);
+                = BchooseCoupled.sampleCoupling(i, j, j, k, k, s, s, THETA);
             assertEqual(testCase, newage_x, newage_y);
             assertEqual(testCase, logq_x, logq_y);
             nRep = nRep + 1;
             newageCoupling(nRep) = newage_x;
-            [newageMarginal(nRep), ~] = BchooseCoupledMaximal.sampleMarginal(...
+            [newageMarginal(nRep), ~] = BchooseCoupled.sampleMarginal(...
                 i, j, k, s, THETA);
             nRep = nRep + 1;
         end
     end
-    BchooseCoupledMaximal.sampleCoupling.compareDistributions(testCase, ...
+    BchooseCoupled.sampleCoupling.compareDistributions(testCase, ...
         newageCoupling, newageMarginal);
 end
 
@@ -66,23 +67,25 @@ function cladesYesMoveWideStayCoupledTest(testCase)
     nRep = 1;
     while nRep <= nReps
         i = sampleSubtree(s);
-        r = BchooseCoupledMaximal.getWideCandidatesClade(i, s);
-        [j, k, FAIL] = BchooseCoupledMaximal.getWideDestination(i, r, ...
-                                                                length(r), s);
+        r = BchooseCoupled.getWideCandidatesClade(i, s);
+        if length(r) > 4
+            [j, ~, k, ~, FAIL, ~] = BchooseCoupled.getWideDestination(i, r, s, s);
+        else
+            FAIL = 1;
+        end
         if ~FAIL
-            THETA = BchooseCoupledMaximal.sampleCoupling.sampleTheta();
+            THETA = BchooseCoupled.sampleCoupling.sampleTheta();
             [newage_x, newage_y, logq_x, logq_y] ...
-                = BchooseCoupledMaximal.sampleCoupling(i, j, j, k, k, s, s, ...
-                                                       THETA);
+                = BchooseCoupled.sampleCoupling(i, j, j, k, k, s, s, THETA);
             assertEqual(testCase, newage_x, newage_y);
             assertEqual(testCase, logq_x, logq_y);
             newageCoupling(nRep) = newage_x;
-            [newageMarginal(nRep), ~] = BchooseCoupledMaximal.sampleMarginal(...
+            [newageMarginal(nRep), ~] = BchooseCoupled.sampleMarginal(...
                 i, j, k, s, THETA);
             nRep = nRep + 1;
         end
     end
-    BchooseCoupledMaximal.sampleCoupling.compareDistributions(testCase, ...
+    BchooseCoupled.sampleCoupling.compareDistributions(testCase, ...
         newageCoupling, newageMarginal);
 end
 
@@ -93,11 +96,11 @@ function narrowCouplingTest(testCase)
     [logq_xObs, logq_yObs, logq_xExp, logq_yExp] = deal(nan(nReps, 1));
     while nRep <= nReps
         i = sampleSubtree(s_x);
-        [j_x, k_x, FAIL_x] = BchooseCoupledMaximal.getNarrowDestination(i, s_x);
-        [j_y, k_y, FAIL_y] = BchooseCoupledMaximal.getNarrowDestination(i, s_y);
+        [j_x, k_x, FAIL_x] = BchooseCoupled.getNarrowDestination(i, s_x);
+        [j_y, k_y, FAIL_y] = BchooseCoupled.getNarrowDestination(i, s_y);
         if ~(FAIL_x || FAIL_y)
             [newage_x, newage_y, logq_xObs(nRep), logq_yObs(nRep)] ...
-                = BchooseCoupledMaximal.sampleCoupling(...
+                = BchooseCoupled.sampleCoupling(...
                     i, j_x, j_y, k_x, k_y, s_x, s_y, []);
             if newage_x == newage_y
                 matchCount(i) = matchCount(i) + 1;
@@ -140,16 +143,14 @@ function wideCouplingCladesNoTest(testCase)
     THETA = 0.01;
     [s_x, s_y, nRep, nReps, matchCount, matchAttempt] = getTrees5Params();
     N = length(s_x) - 1;
+    assertGreaterThan(testCase, N, 4);
     while nRep <= nReps
         i = sampleSubtree(s_x);
         r = randperm(N);
-        [j_x, k_x, FAIL_x] ...
-            = BchooseCoupledMaximal.getWideDestination(i, r, N, s_x);
-        [j_y, k_y, FAIL_y] ...
-            = BchooseCoupledMaximal.getWideDestination(i, r, N, s_y);
+        [j_x, j_y, k_x, k_y, FAIL_x, FAIL_y] ...
+            = BchooseCoupled.getWideDestination(i, r, s_x, s_y);
         if ~(FAIL_x || FAIL_y)
-            [newage_x, newage_y, ~, ~] ...
-                = BchooseCoupledMaximal.sampleCoupling(...
+            [newage_x, newage_y, ~, ~] = BchooseCoupled.sampleCoupling(...
                     i, j_x, j_y, k_x, k_y, s_x, s_y, THETA);
             if newage_x == newage_y
                 matchCount(i) = matchCount(i) + 1;
@@ -191,7 +192,7 @@ function setupOnce(~)
 end
 
 function [s, nReps, newageObs, newageExp] = getTree10Params(clades)
-    s = BchooseCoupledMaximal.state10a(clades);
+    s = BchooseCoupled.state10a(clades);
     nReps = 5e4;
     [newageObs, newageExp] = deal(nan(nReps, 1));
 end
@@ -210,7 +211,7 @@ function [s_x, s_y, nRep, nReps, matchCount, matchAttempt] = getTrees5Params()
     %   |___________  1  _____|
     % Housekeeping has been run on y so 9 is the only internal node with a
     % common subtree are, in addition to the root node 6
-    testStates = '+BchooseCoupledMaximal/+sampleCoupling/statesCheckCoupling';
+    testStates = '+BchooseCoupled/+sampleCoupling/statesCheckCoupling';
     s_x = getfield(load(testStates), 'state_x', 'tree');
     s_y = getfield(load(testStates), 'state_y', 'tree');
 

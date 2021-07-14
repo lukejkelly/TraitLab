@@ -7,7 +7,7 @@ function iPRootYesTest(testCase)
     global ROOT OTHER
     THETA = testCase.TestData.THETA;
 
-    s = BchooseCoupledMaximal.state10a('No');
+    s = BchooseCoupled.state10a('No');
 
     for i = find(arrayfun(@(a) ~isempty(s(a).parent) ...
                           && s(s(a).parent).type == ROOT, 1:length(s)))
@@ -26,7 +26,7 @@ function iPRootYesTest(testCase)
             k = s(j).parent;
 
             [new_minageObs, kTObs, logqObs] ...
-                = BchooseCoupledMaximal.sampleCoupling.getUniformParameters(...
+                = BchooseCoupled.sampleCoupling.getUniformParameters(...
                     i, j, k, s, THETA);
 
             new_minageExp = max(iT, s(j).time);
@@ -42,10 +42,10 @@ end
 
 function iPRootNoTest(testCase)
     % Neither source nor destination includes root
-    global ROOT OTHER
+    global ROOT
     THETA = testCase.TestData.THETA;
 
-    s = BchooseCoupledMaximal.state10a('No');
+    s = BchooseCoupled.state10a('No');
 
     for i = find(arrayfun(@(a) ~isempty(s(a).parent) ...
                           && s(s(a).parent).type < ROOT, 1:length(s)))
@@ -62,7 +62,7 @@ function iPRootNoTest(testCase)
             k = s(j).parent;
 
             [new_minageObs, kTObs, logqObs] ...
-                = BchooseCoupledMaximal.sampleCoupling.getUniformParameters(...
+                = BchooseCoupled.sampleCoupling.getUniformParameters(...
                     i, j, k, s, THETA);
 
             new_minageExp = max(iT, s(j).time);

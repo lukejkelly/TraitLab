@@ -8,7 +8,7 @@ function outputTest(testCase)
 
     for i = find(ismember([s.type], [LEAF, ANST]))
         [jObs, kObs, FAILObs] ...
-            = BchooseCoupledMaximal.getNarrowDestination(i, s);
+            = BchooseCoupled.getNarrowDestination(i, s);
         if s(s(i).parent).type == ROOT
             [jExp, kExp] = deal(-1);
             FAILExp = 1;
