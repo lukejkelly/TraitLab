@@ -1,6 +1,6 @@
 function [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
         = AddCatCoupled(state_x, state_y)
-    % Maximally coupled version of core/AddCat; see comments there for details
+    % Maximally coupled version of core/AddCat; see its comments for details
     global BORROWING
 
     [r_x, r_y] = sampleBranchProportionalToLengthCoupled(state_x, state_y);

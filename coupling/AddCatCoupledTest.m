@@ -2,7 +2,19 @@ function tests = AddCatCoupledTest
     tests = functiontests(localfunctions);
 end
 
-function coupledTest(testCase)
+function multipleTest(testCase)
+    global BORROWING
+    currBORROWING = BORROWING;
+    for BORROWING = [0, 1]
+        fprintf('Test BORROWING = %d\n', BORROWING);
+        coupledTestRun(testCase);
+        couplingTestRun(testCase);
+        distributionTestRun(testCase);
+    end
+    BORROWING = currBORROWING;
+end
+
+function coupledTestRun(testCase)
     global BORROWING
     L = 6:10;
     n_i = length(L);
@@ -22,17 +34,23 @@ function coupledTest(testCase)
             assertEqual(testCase, U_x, U_y);
             assertEqual(testCase, [OK_x, OK_y], [1, 1]);
             assertEqual(testCase, logq_x, logq_y);
+            [nstate_z, U_z, OK_z, logq_z] = AddCat(state_x);
+            if all(nstate_z.cat == nstate_x.cat)
+                assertEqual(testCase, U_x, U_z);
+                assertEqual(testCase, OK_x, OK_z);
+                assertEqual(testCase, logq_x, logq_z);
+            end
         end
     end
 end
 
-function couplingTest(testCase)
+function couplingTestRun(testCase)
     L = 6:10;
     n_i = length(L);
     n_j = 1e4;
     [cObs, cExp] = deal(zeros(n_i, 1));
     for i = 1:n_i
-        [state_x, state_y] = unitTests.housekeptStates(L(i), 1e-2);
+        [state_x, state_y] = housekeptStates(L(i));
         for j = 1:n_j
             [nstate_x, nstate_y] = AddCatCoupled(state_x, state_y);
             if find(nstate_x.cat ~= state_x.cat) ...
@@ -53,13 +71,13 @@ function couplingTest(testCase)
     assertTrue(testCase, v == 1);
 end
 
-function distributionTest(testCase)
+function distributionTestRun(testCase)
     L = 6:10;
     n_i = length(L);
     n_j = 1e4;
     for i = 1:n_i
         [c_x, c_y, m_x, m_y] = deal(zeros(2 * L(i), 1));
-        [state_x, state_y] = unitTests.housekeptStates(L(i), 1e-2);
+        [state_x, state_y] = housekeptStates(L(i));
         for j = 1:n_j
             [c_nstate_x, c_nstate_y] = AddCatCoupled(state_x, state_y);
 
@@ -116,15 +134,22 @@ function distributionTest(testCase)
     assertTrue(testCase, v == 1);
 end
 
+function [state_x, state_y] = housekeptStates(L)
+    [state_x, state_y] = unitTests.housekeptStates(L, 1e-2);
+    for i = 1:poissrnd(1)
+        state_x = AddCat(state_x);
+        state_y = AddCat(state_y);
+    end
+end
 
 % Setup and teardown functions
 function setupOnce(testCase)
     unitTests.setupOnce(testCase);
-    global BORROWING MCMCCAT;
-    BORROWING = 1;
+    global MCMCCAT;
     MCMCCAT = 1;
 end
 
 function teardownOnce(testCase)
     unitTests.teardownOnce(testCase);
+    clf;
 end

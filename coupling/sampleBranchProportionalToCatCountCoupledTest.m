@@ -1,4 +1,4 @@
-function tests = sampleBranchProportionalToLengthCoupledTest
+function tests = sampleBranchProportionalToCatCountCoupledTest
     tests = functiontests(localfunctions);
 end
 
@@ -11,7 +11,7 @@ function coupledTest(testCase)
         [state_x, state_y] = coupledStates(rangeL(i));
         for j = 1:n_j
             [i_x(i, j), i_y(i, j)] ...
-                = sampleBranchProportionalToLengthCoupled(state_x, state_y);
+                = sampleBranchProportionalToCatCountCoupled(state_x, state_y);
         end
     end
     assertEqual(testCase, i_x, i_y);
@@ -25,14 +25,14 @@ function housekeptTest(testCase)
     for i = 1:n_i
         [state_x, state_y] = housekeptStates(rangeL(i));
         for j = 1:n_j
-            [i_x, i_y] = sampleBranchProportionalToLengthCoupled(state_x, ...
-                                                                 state_y);
+            [i_x, i_y] = sampleBranchProportionalToCatCountCoupled(state_x, ...
+                                                                   state_y);
             if i_x == i_y
                 cObs(i) = cObs(i) + 1;
             end
         end
-        p_x = getBranchLengths(state_x) ./ state_x.length;
-        p_y = getBranchLengths(state_y) ./ state_y.length;
+        p_x = state_x.cat ./ state_x.ncat;
+        p_y = state_y.cat ./ state_y.ncat;
         cExp(i) = sum(min(p_x, p_y));
     end
     cObs = cObs / n_j;
