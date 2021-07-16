@@ -27,8 +27,8 @@ function housekeptTest(testCase)
         L = 5 + poissrnd(2);
         [state_x, state_y] = housekeptStates(L);
 
-        [locs_x, inds_x] = getCats(state_x);
-        [locs_y, inds_y] = getCats(state_y);
+        [locs_x, inds_x] = sampleCatIndexCoupled.getCats(state_x);
+        [locs_y, inds_y] = sampleCatIndexCoupled.getCats(state_y);
 
         f_x = zeros(state_x.ncat, 1);
         f_y = zeros(state_y.ncat, 1);
@@ -95,19 +95,6 @@ function [state_x, state_y] = coupledStates(L)
     [state_x, state_y] = unitTests.coupledStates(L, 1e-2 * rand);
     for c = 1:(3 + poissrnd(3))
         [state_x, state_y] = AddCatCoupled(state_x, state_y);
-    end
-end
-
-function [locs, inds] = getCats(state)
-    locs = nan(state.ncat, 1);
-    inds = nan(state.ncat, 2);
-    k = 1;
-    for j = find(state.cat(:)')
-        jInds = k:(k + state.cat(j) - 1);
-        locs(jInds) = state.tree(j).catloc;
-        inds(jInds, 1) = j;
-        inds(jInds, 2) = 1:state.cat(j);
-        k = k + state.cat(j);
     end
 end
 

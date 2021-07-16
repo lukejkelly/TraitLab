@@ -9,7 +9,6 @@ function [i_x, i_y, j_x, j_y] = sampleCatIndexCoupled(state_x, state_y)
     [i_y, j_y] = sampleCatIndexCoupled.getIndex(state_y, k_y);
 end
 
-
 function [r, ld] = getDistributionTerms(state)
     r = @() sampleCatIndexCoupled.catlocSample(state);
     ld = @(x) sampleCatIndexCoupled.catlocLogProb(x, state);
