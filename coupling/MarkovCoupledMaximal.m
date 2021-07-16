@@ -16,6 +16,24 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(mcmc, ...
         % Supdate always returns TOPOLOGY = 0 so we ignore it
         [nstate_x, U_x, ~] = Supdate(state_x, i, newage_x);
         [nstate_y, U_y, ~] = Supdate(state_y, i, newage_y);
+    case {2, 3}
+        if MV == 2
+            update = 'Exchange nearest neighbours';
+            mt = NARROW;
+        else
+            update = 'reconnect two edges randomly chosen across tree';
+            mt = WIDE;
+        end
+        [i_x, i_y, j_x, j_y, iP_x, iP_y, jP_x, jP_y, logq_x, logq_y, ...
+            OK_x, OK_y] = EchooseCoupled(state_x, state_y, mt, model.prior);
+        % Eupdate always returns TOPOLOGY = 1
+        TOPOLOGY = 1;
+        if OK_x
+            [nstate_x, U_x, ~] = Eupdate(state_x, i_x, j_x, iP_x, jP_x);
+        end
+        if OK_y
+            [nstate_y, U_y, ~] = Eupdate(state_y, i_y, j_y, iP_y, jP_y);
+        end
     case {4, 5}
         if MV == 4
             update = 'Reconnect an edge into a nearby edge';

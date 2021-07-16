@@ -3,17 +3,17 @@ function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(mcmc, model, ...
 
     global STOPRUN
 
-    if nargin<=4, ignoreearlywarn=0; end
+    if nargin <= 4, ignoreearlywarn = 0; end
 
     [acct_x, acct_y, acct_xy] = deal(zeros(mcmc.update.Nmvs, 1));
-    prop=zeros(mcmc.update.Nmvs,1);
+    prop = zeros(mcmc.update.Nmvs, 1);
 
     coupledBefore = checkCoupling(state_x, state_y);
 
-    for t=1:(mcmc.subsample)
+    for t = 1:(mcmc.subsample)
 
         drawnow;
-        STOPRUN = get(gcbo,'UserData');
+        STOPRUN = get(gcbo, 'UserData');
         if STOPRUN
             pa_x = acct_x ./ prop;
             pa_y = acct_y ./ prop;
@@ -24,16 +24,17 @@ function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(mcmc, model, ...
         u_mh = rand;
 
         %choose an update type according to the cumulative dbn cmove
-        r=rand;
-        MV=find(r<mcmc.update.cmove,1,'first');
-        prop(MV)=prop(MV)+1;
+        r = rand;
+        MV = find(r < mcmc.update.cmove, 1, 'first');
+        prop(MV) = prop(MV) + 1;
 
         % MCMC updates
-        if ismember(MV, [1, 4, 5, 6, 7, 8, 12, 13, 14, 15, 16, 17, 18, 19, 21])
+        switch MV
+        case {1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 15, 16, 17, 18, 19, 21}
             % Attempt maximal coupling
             [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(...
                 mcmc, model, state_x, state_y, ignoreearlywarn, MV, u_mh);
-        else
+        case {11, 20}
             % Common random number coupling
             rng_state = rng;
             [state_x, succ_x] = MarkovCoupledCommon(mcmc, model, state_x, ...
@@ -43,6 +44,8 @@ function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(mcmc, model, ...
                 ignoreearlywarn, MV, u_mh);
             % Uncoupled chains may make different number of calls to rng
             rng('shuffle');
+        otherwise
+            error('Move %d  not implemented', MV);
         end
 
         % TODO: remove move uncoupling check after further testing

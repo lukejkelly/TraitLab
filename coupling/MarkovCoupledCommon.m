@@ -1,22 +1,9 @@
 function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
                                              ignoreearlywarn, MV, u_mh)
-    global WIDE NARROW BORROWING
+    global BORROWING
 
-    %compute the candidate state
-    OK=1;
+    OK = 1;
     switch MV
-    case 2
-        update='Exchange nearest neighbours';
-        [i,j,iP,jP,logq,OK]=Echoose(state,NARROW,model.prior);
-        if OK
-            [nstate,U,TOPOLOGY]=Eupdate(state,i,j,iP,jP);
-        end
-    case 3
-        update='reconnect two edges randomly chosen across tree';
-        [i,j,iP,jP,logq]=Echoose(state,WIDE,model.prior);
-        if OK
-            [nstate,U,TOPOLOGY]=Eupdate(state,i,j,iP,jP);
-        end
     case 11
         update='Vary leaves';
         vl=state.leaves(find([state.tree(state.leaves).leaf_has_timerange]));
