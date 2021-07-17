@@ -118,15 +118,6 @@ function locationTest(testCase)
                             cellfun(@(x, y) length(intersect(x, y)), ...
                                     {nstate_x.tree.catloc}, ...
                                     {nstate_y.tree.catloc}));
-                % for k = 1:length(nstate_x.tree)
-                %     cx = nstate_x.cat(k);
-                %     lx = nstate_x.tree(k).catloc;
-                %     assertEqual(testCase, cx, length(lx));
-                %     cy = nstate_y.cat(k);
-                %     ly = nstate_y.tree(k).catloc;
-                %     assertEqual(testCase, cy, length(ly));
-                %     assertEqual(testCase, min(cx, cy), length(intersect(lx, ly)));
-                % end
             end
         end
     end
