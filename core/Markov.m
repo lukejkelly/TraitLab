@@ -149,16 +149,9 @@ for t=1:(mcmc.subsample)
             nstate.nu = state.nu * variation;
         end
     elseif MV==17
-        update='Vary lambda';
-        variation=mcmc.update.del+rand*mcmc.update.deldel;
-        logq=-log(variation);
-        nstate=state;
-        nstate.lambda=state.lambda*variation;
-        TOPOLOGY=0;
-        U=state.nodes;
-        if DEPNU
-            nstate.nu=state.nu*variation;
-        end
+        update = 'Vary catastrophe location';
+        [nstate, U, OK, logq] = MoveCatLoc(state);
+        TOPOLOGY = 0;
     elseif MV==18
         update='Move catastrophe to neighbour';
         [nstate,U,OK,logq]=MoveCat(state);
