@@ -13,8 +13,7 @@ function coupledTest(testCase)
         s_y = state_y.tree;
         root = state_x.root;
         for j = 1:n_j
-            [old_x, old_y] ...
-                = sampleBranchProportionalToCatCountCoupled(state_x, state_y);
+            [old_x, old_y] = sampleBranchByCatCountCoupled(state_x, state_y);
             assertEqual(testCase, old_x, old_y);
             [new_x(i, j), new_y(i, j), q1_x(i, j), q1_y(i, j), q2_x(i, j), ...
                 q2_y(i, j)] = GetLegalCoupled(s_x, s_y, old_x, old_y, root);
@@ -42,8 +41,7 @@ function housekeptTest(testCase)
         s_y = state_y.tree;
         root = state_x.root;
         for j = 1:n_j
-            [old_x, old_y] ...
-                = sampleBranchProportionalToCatCountCoupled(state_x, state_y);
+            [old_x, old_y] = sampleBranchByCatCountCoupled(state_x, state_y);
             [new_x, new_y] = GetLegalCoupled(s_x, s_y, old_x, old_y, root);
             if old_x == old_y && new_x == new_y
                 cObs(i) = cObs(i) + 1;

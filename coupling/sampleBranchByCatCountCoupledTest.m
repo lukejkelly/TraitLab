@@ -1,4 +1,4 @@
-function tests = sampleBranchProportionalToCatCountCoupledTest
+function tests = sampleBranchByCatCountCoupledTest
     tests = functiontests(localfunctions);
 end
 
@@ -11,7 +11,7 @@ function coupledTest(testCase)
         [state_x, state_y] = coupledStates(rangeL(i));
         for j = 1:n_j
             [i_x(i, j), i_y(i, j)] ...
-                = sampleBranchProportionalToCatCountCoupled(state_x, state_y);
+                = sampleBranchByCatCountCoupled(state_x, state_y);
         end
     end
     assertEqual(testCase, i_x, i_y);
@@ -25,8 +25,7 @@ function housekeptTest(testCase)
     for i = 1:n_i
         [state_x, state_y] = housekeptStates(rangeL(i));
         for j = 1:n_j
-            [i_x, i_y] = sampleBranchProportionalToCatCountCoupled(state_x, ...
-                                                                   state_y);
+            [i_x, i_y] = sampleBranchByCatCountCoupled(state_x, state_y);
             if i_x == i_y
                 cObs(i) = cObs(i) + 1;
             end
