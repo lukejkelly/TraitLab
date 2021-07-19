@@ -1,4 +1,4 @@
-function r = sampleBranchProportionalToCatCount(state)
+function r = sampleBranchByCatCount(state)
     if sum(state.cat) ~= state.ncat
         error('Inconsistent catastrophe counts');
     end

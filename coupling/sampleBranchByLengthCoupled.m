@@ -1,4 +1,4 @@
-function [i_x, i_y] = sampleBranchProportionalToLengthCoupled(state_x, state_y)
+function [i_x, i_y] = sampleBranchByLengthCoupled(state_x, state_y)
     % Sample from a coupling of discrete distributions p and q where for each
     % node i in s = state_x.tree,
     %     p_i = (s(s(i).parent).time - s(i).time) / state_x.length
@@ -12,7 +12,7 @@ function [i_x, i_y] = sampleBranchProportionalToLengthCoupled(state_x, state_y)
 end
 
 function [r, ld] = getDistributionTerms(state)
-    r = @() sampleBranchProportionalToLength(state);
+    r = @() sampleBranchByLength(state);
     bl = getBranchLengths(state);
     ld = @(i) log(bl(i)) - log(sum(bl));
 end

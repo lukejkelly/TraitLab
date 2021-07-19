@@ -1,4 +1,4 @@
-function tests = sampleBranchProportionalToCatCountTest
+function tests = sampleBranchByCatCountTest
     tests = functiontests(localfunctions);
 end
 
@@ -7,8 +7,8 @@ function distributionTest(testCase)
     [new, old] = deal(nan(n, 1));
     state = dummyState(10);
     for i = 1:n
-        new(i) = sampleBranchProportionalToCatCount(state);
-        old(i) = sampleBranchProportionalToCatCountOld(state);
+        new(i) = sampleBranchByCatCount(state);
+        old(i) = sampleBranchByCatCountOld(state);
     end
 
     n_inds = 1:(2 * state.NS);
@@ -17,7 +17,7 @@ function distributionTest(testCase)
 
     p_exp = state.cat' ./ state.ncat;
     inds = find(p_exp);
-    
+
     plot(n_inds(inds), [p_new(inds); p_old(inds)] - p_exp(inds), 'o');
     refline(0, mean((p_new(inds) - p_old(inds)).^2));
     xlabel('Node');
@@ -30,7 +30,7 @@ function distributionTest(testCase)
 
 end
 
-function node = sampleBranchProportionalToCatCountOld(state)
+function node = sampleBranchByCatCountOld(state)
     % Old function for drawing a branch proportional to its cat count
     r = ceil(state.ncat * rand);
     node = find(cumsum(state.cat) >= r, 1);
@@ -42,7 +42,6 @@ function state = dummyState(L)
         state = AddCat(state);
     end
 end
-
 
 % Setup and teardown functions
 function setupOnce(testCase)

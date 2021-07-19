@@ -1,4 +1,4 @@
-function [i_x, i_y] = sampleBranchProportionalToCatCountCoupled(state_x, state_y)
+function [i_x, i_y] = sampleBranchByCatCountCoupled(state_x, state_y)
     % Sample from a coupling of discrete distributions p and q where for each
     % node i in state_x.tree,
     %     p_i = state_x.cat(i) / state_x.ncat
@@ -9,6 +9,6 @@ function [i_x, i_y] = sampleBranchProportionalToCatCountCoupled(state_x, state_y
 end
 
 function [r, ld] = getDistributionTerms(state)
-    r = @() sampleBranchProportionalToCatCount(state);
+    r = @() sampleBranchByCatCount(state);
     ld = @(i) log(state.cat(i)) - log(state.ncat);
 end

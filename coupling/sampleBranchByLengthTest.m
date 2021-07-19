@@ -1,4 +1,4 @@
-function tests = sampleBranchProportionalToLengthTest
+function tests = sampleBranchByLengthTest
     tests = functiontests(localfunctions);
 end
 
@@ -8,8 +8,8 @@ function distributionTest(testCase)
     [new, old] = deal(nan(n, 1));
     state = dummyState(10);
     for i = 1:n
-        new(i) = sampleBranchProportionalToLength(state);
-        old(i) = sampleBranchProportionalToLengthOld(state);
+        new(i) = sampleBranchByLength(state);
+        old(i) = sampleBranchByLengthOld(state);
     end
 
     n_inds = 1:(2 * state.NS);
@@ -35,7 +35,7 @@ function distributionTest(testCase)
     assertTrue(testCase, v == 1);
 end
 
-function r = sampleBranchProportionalToLengthOld(state)
+function r = sampleBranchByLengthOld(state)
     % core/AddCat code for drawing a branch proportional to its length
     global ADAM ROOT
     L = 2 * state.NS;

@@ -3,7 +3,7 @@ function [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
     % Maximally coupled version of core/AddCat; see its comments for details
     global BORROWING
 
-    [r_x, r_y] = sampleBranchProportionalToLengthCoupled(state_x, state_y);
+    [r_x, r_y] = sampleBranchByLengthCoupled(state_x, state_y);
 
     if BORROWING
         new_catloc = rand;

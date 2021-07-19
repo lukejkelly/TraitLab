@@ -243,14 +243,6 @@ for t=1:(mcmc.subsample)
         end
         [nstate, OK]=MarkRcurs(nstate,U,TOPOLOGY,ignoreearlywarn);
 
-        % % Likelihood calculations.
-        % if BORROWING
-        %     [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate); % LUKE
-        % else
-        %     nstate.loglkd     = LogLkd(nstate);
-        %     nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
-        % end
-
         % Log-prior for tree and catastrophes.
         nstate.logprior = LogPrior(model.prior, nstate);
 
@@ -258,8 +250,7 @@ for t=1:(mcmc.subsample)
         logpp = LogPriorParm(state, nstate);
 
         % Log-Hastings ratio in acceptance step.
-        logr = nstate.logprior - state.logprior ... % + nstate.loglkd - state.loglkd
-               + logq + logpp;
+        logr = nstate.logprior - state.logprior + logq + logpp;
 
         % Acceptance step.
         %GKN Jan 08 to handle big tree, llkd is -inf so do random walk (3rd OR)
