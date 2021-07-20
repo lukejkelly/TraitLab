@@ -9,37 +9,33 @@ function [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
         [nstate_y, U_y, OK_y, logq_y] = MoveCat(state_y);
     else
         % Attempt maximally coupled deletion
+        [old_x, old_y] = sampleBranchByCatCountCoupled(state_x, state_y);
         if BORROWING
-            % Catastrophes individually identifiable
-            [old_x, old_y, j_x, j_y] = sampleCatIndexCoupled(state_x, state_y);
+            [j_x, j_y] = sampleCatIndexCoupled(state_x, state_y, old_x, old_y);
+            catloc_new = rand;
         else
-            [old_x, old_y] = sampleBranchByCatCountCoupled(state_x, state_y);
-            [j_x, j_y] = deal([]);
+            [j_x, j_y, catloc_new] = deal([]);
         end
 
         root = state_x.root;
-        if  root ~= state_y.root
-            error('Root indices do not match');
-        end
         [new_x, new_y, q1_x, q1_y, q2_x, q2_y] = GetLegalCoupled(...
             state_x.tree, state_y.tree, old_x, old_y, root);
 
         [nstate_x, U_x, OK_x, logq_x] ...
-            = getOutputs(state_x, old_x, new_x, j_x, q1_x, q2_x);
+            = getOutputs(state_x, old_x, new_x, q1_x, q2_x, j_x, catloc_new);
         [nstate_y, U_y, OK_y, logq_y] ...
-            = getOutputs(state_y, old_y, new_y, j_y, q1_y, q2_y);
+            = getOutputs(state_y, old_y, new_y, q1_y, q2_y, j_y, catloc_new);
     end
 end
 
-function [nstate, U, OK, logq] = getOutputs(state, old, new, j, q1, q2)
+function [nstate, U, OK, logq] = getOutputs(state, old, new, q1, q2, j, catloc_new)
     global BORROWING
     nstate = state;
     nstate.cat(old) = state.cat(old) - 1;
     nstate.cat(new) = state.cat(new) + 1;
     if BORROWING
-        nstate.tree(new).catloc = sort([nstate.tree(new).catloc, ...
-                                        nstate.tree(old).catloc(j)]);
         nstate.tree(old).catloc(j) = [];
+        nstate.tree(new).catloc = sort([nstate.tree(new).catloc, catloc_new]);
     end
 
     U = above([old, new], nstate.tree, nstate.root);

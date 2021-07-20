@@ -1,5 +1,5 @@
-function [i, j] = sampleCatIndex(state)
-    % Sample catastrophe branch i and location index j uniformly
-    k = sampleCatIndexCoupled.catlocSample(state);
-    [i, j] = sampleCatIndexCoupled.getIndex(state, k);
+function j = sampleCatIndex(state, i)
+    % Sample catastrophe index j uniformly from catastrophes on i
+    s = 1:state.cat(i);
+    j = discreteUniformSample(s);
 end

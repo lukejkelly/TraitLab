@@ -8,11 +8,11 @@ function [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
         [nstate_y, U_y, OK_y, logq_y] = DelCat(state_y);
     else
         % Attempt maximally coupled deletion
+        [i_x, i_y] = sampleBranchByCatCountCoupled(state_x, state_y);
         if BORROWING
             % Catastrophes individually identifiable
-            [i_x, i_y, j_x, j_y] = sampleCatIndexCoupled(state_x, state_y);
+            [j_x, j_y] = sampleCatIndexCoupled(state_x, state_y, i_x, i_y);
         else
-            [i_x, i_y] = sampleBranchByCatCountCoupled(state_x, state_y);
             [j_x, j_y] = deal([]);
         end
         [nstate_x, U_x, OK_x, logq_x] = getOutputs(state_x, i_x, j_x);

@@ -14,11 +14,11 @@ function coupledTest(testCase)
         ncat(m) = nstate_x.ncat == nstate_y.ncat;
         cat(m) = all(nstate_x.cat == nstate_y.cat);
 
-        [locs_x, inds_x] = sampleCatIndexCoupled.getCats(state_x);
-        [locs_y, inds_y] = sampleCatIndexCoupled.getCats(state_y);
+        [locs_x, inds_x] = sampleCatIndex.getCats(state_x);
+        [locs_y, inds_y] = sampleCatIndex.getCats(state_y);
 
-        [locn_x, indn_x] = sampleCatIndexCoupled.getCats(nstate_x);
-        [locn_y, indn_y] = sampleCatIndexCoupled.getCats(nstate_y);
+        [locn_x, indn_x] = sampleCatIndex.getCats(nstate_x);
+        [locn_y, indn_y] = sampleCatIndex.getCats(nstate_y);
 
         i(m) = all(locs_x == locs_y) && all(inds_x == inds_y, 'all') ...
                && all(locn_x == locn_y) && all(indn_x == indn_y, 'all');
@@ -37,16 +37,18 @@ end
 
 function couplingTest(testCase)
     % Check marginal and coupling selection distributions
-    M = 6;
-    N = 1e3;
+    M = 8;
+    N = 1e4;
     [i_x, i_y, catloc_new] = deal(nan(M, N));
     fprintf('Observed and expected coupling proportions\n');
-    fprintf('%-4s%-8s%-8s\n', 'L', 'Obs', 'Exp');
+    fprintf('%-4s%-8s%-8s%-8s\n', 'L', 'Obs', 'Exp', 'Diff');
     for m = 1:M
         L = 8 + ceil(rand * 8);
         [state_x, state_y] = housekeptStates(L);
-        [locs_x, inds_x] = sampleCatIndexCoupled.getCats(state_x);
-        [locs_y, inds_y] = sampleCatIndexCoupled.getCats(state_y);
+        n_x = state_x.ncat;
+        n_y = state_y.ncat;
+        [locs_x, inds_x] = sampleCatIndex.getCats(state_x);
+        [locs_y, inds_y] = sampleCatIndex.getCats(state_y);
 
         fObs_x = zeros(1, state_x.ncat);
         fObs_y = zeros(1, state_y.ncat);
@@ -56,8 +58,8 @@ function couplingTest(testCase)
             [nstate_x, nstate_y, ~, ~, ~, ~, ~, ~] ...
                 = MoveCatLocCoupled(state_x, state_y);
 
-            [locn_x, indn_x] = sampleCatIndexCoupled.getCats(nstate_x);
-            [locn_y, indn_y] = sampleCatIndexCoupled.getCats(nstate_y);
+            [locn_x, indn_x] = sampleCatIndex.getCats(nstate_x);
+            [locn_y, indn_y] = sampleCatIndex.getCats(nstate_y);
 
             ks_x = ~ismember(locs_x, locn_x);
             ks_y = ~ismember(locs_y, locn_y);
@@ -65,7 +67,8 @@ function couplingTest(testCase)
             fObs_x(ks_x) = fObs_x(ks_x) + 1;
             fObs_y(ks_y) = fObs_y(ks_y) + 1;
 
-            if ismembertol(locs_x(ks_x), locs_y(ks_y))
+            if inds_x(ks_x, 1) == inds_y(ks_y) ...
+                    && ismembertol(locs_x(ks_x), locs_y(ks_y))
                 fObs_c = fObs_c + 1;
             end
 
@@ -83,8 +86,16 @@ function couplingTest(testCase)
 
         gExp_x = (1:state_x.ncat) / state_x.ncat;
         gExp_y = (1:state_y.ncat) / state_y.ncat;
-        gExp_c = length(intersect(locs_x, locs_y)) ...
-                 / max(state_x.ncat, state_y.ncat);
+        gExp_c = 0;
+        for i = find(state_x.cat & state_y.cat)'
+            l_xi = locs_x(inds_x(:, 1) == i);
+            l_yi = locs_y(inds_y(:, 1) == i);
+            n_xi = state_x.cat(i);
+            n_yi = state_y.cat(i);
+
+            gExp_c = gExp_c + length(intersect(l_xi, l_yi)) / max(n_xi, n_yi) ...
+                              * min(n_xi / n_x, n_yi / n_y);
+        end
 
         nexttile;
         plot(1:state_x.ncat, gObs_x, '*', 1:state_x.ncat, gExp_x, 'o')
@@ -94,7 +105,7 @@ function couplingTest(testCase)
         plot(1:state_y.ncat, gObs_y, '*', 1:state_y.ncat, gExp_y, 'o')
         title(sprintf('L = %d : y', L));
 
-        fprintf('%-4d%-8.4g%-8.4g\n', L, gObs_c, gExp_c);
+        fprintf('%-4d%-8.4g%-8.4g%-8.4g\n', L, gObs_c, gExp_c, gObs_c - gExp_c);
     end
     assertTrue(testCase, all(catloc_new, 'all'));
     fprintf('\nFigure displays marginal distributions\n');

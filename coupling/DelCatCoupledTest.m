@@ -17,16 +17,16 @@ end
 function coupledTestRun(testCase)
     global BORROWING
     L = 6:10;
-    n_i = length(L);
-    n_j = 1e2;
-    for i = 1:n_i
-        [state_x, state_y] = unitTests.coupledStates(L(i), 1e-2);
+    M = length(L);
+    N = 1e2;
+    for m = 1:M
+        [state_x, state_y] = unitTests.coupledStates(L(m), 1e-2);
         for c = 1:5
             [state_x, state_y] = AddCatCoupled(state_x, state_y);
         end
-        for j = 1:n_j
+        for j = 1:N
             [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
-                    = DelCatCoupled(state_x, state_y);
+                = DelCatCoupled(state_x, state_y);
             assertEqual(testCase, nstate_x.ncat, nstate_y.ncat);
             assertEqual(testCase, nstate_x.cat, nstate_y.cat);
             if BORROWING
@@ -49,36 +49,60 @@ end
 
 function couplingTestRun(testCase)
     global BORROWING;
-    L = 6:10;
-    n_i = length(L);
-    n_j = 1e4;
-    [cObs, cExp] = deal(zeros(n_i, 1));
-    for i = 1:n_i
-        [state_x, state_y] = housekeptStates(L(i));
+    L = 5:10;
+    M = length(L);
+    N = 1e4;
+    [cObs, cExp] = deal(zeros(M, 1));
+    for m = 1:M
+        [state_x, state_y] = housekeptStates(L(m));
+        n_x = state_x.ncat;
+        n_y = state_y.ncat;
+
         if BORROWING
-            catloc_x = [state_x.tree.catloc];
-            catloc_y = [state_y.tree.catloc];
+            [locs_x, inds_x] = sampleCatIndex.getCats(state_x);
+            [locs_y, inds_y] = sampleCatIndex.getCats(state_y);
         end
-        for j = 1:n_j
+
+        for n = 1:N
             [nstate_x, nstate_y] = DelCatCoupled(state_x, state_y);
-            if (BORROWING && (setdiff(catloc_x, [nstate_x.tree.catloc]) ...
-                              == setdiff(catloc_y, [nstate_y.tree.catloc]))) ...
-                || (~BORROWING && all((nstate_x.cat ~= state_x.cat) ...
-                                      == (nstate_y.cat ~= state_y.cat)))
-                cObs(i) = cObs(i) + 1;
+            if BORROWING
+                [locn_x, ~] = sampleCatIndex.getCats(nstate_x);
+                [locn_y, ~] = sampleCatIndex.getCats(nstate_y);
+
+                ks_x = ~ismember(locs_x, locn_x);
+                ks_y = ~ismember(locs_y, locn_y);
+
+                i_x = inds_x(ks_x, 1);
+                i_y = inds_y(ks_y, 1);
+
+                % Same proposal if branch and location match
+                if (i_x == i_y) && (locs_x(ks_x) == locs_y(ks_y))
+                    cObs(m) = cObs(m) + 1;
+                end
+            else
+                if (state_x.cat > nstate_x.cat) == (state_y.cat > nstate_y.cat)
+                    cObs(m) = cObs(m) + 1;
+                end
             end
         end
         if BORROWING
-            cExp(i) = length(intersect(catloc_x, catloc_y)) ...
-                      / max(state_x.ncat, state_y.ncat);
+            for i = find(state_x.cat(:)' & state_y.cat(:)')
+                n_xi = state_x.cat(i);
+                n_yi = state_y.cat(i);
+                l_x = state_x.tree(i).catloc;
+                l_y = state_y.tree(i).catloc;
+                cExp(m) = cExp(m) ...
+                    + min(n_xi / n_x, n_yi / n_y) ...
+                        * length(intersect(l_x, l_y)) / max(n_xi, n_yi);
+            end
         else
-            p_x = state_x.cat ./ state_x.ncat;
-            p_y = state_y.cat ./ state_y.ncat;
-            cExp(i) = sum(min(p_x, p_y));
+            p_x = state_x.cat ./ n_x;
+            p_y = state_y.cat ./ n_y;
+            cExp(m) = sum(min(p_x, p_y));
         end
     end
-    cObs = cObs / n_j;
-    fprintf('Proportion of matching samples in each of %g trials\n', n_j);
+    cObs = cObs / N;
+    fprintf('Proportion of matching samples in each of %g trials\n', N);
     fprintf('Observed:   %s\n', sprintf(' %-3.2e\t', cObs));
     fprintf('Expected:   %s\n', sprintf(' %-3.2e\t', cExp));
     fprintf('Difference: %s\n', sprintf('%+-3.2e\t', cObs - cExp));
@@ -89,19 +113,19 @@ end
 function distributionTestRun(testCase)
     global BORROWING
     L = 6:10;
-    n_i = length(L);
-    n_j = 1e4;
-    for i = 1:n_i
-        [state_x, state_y] = housekeptStates(L(i));
+    M = length(L);
+    N = 1e4;
+    for m = 1:M
+        [state_x, state_y] = housekeptStates(L(m));
         if BORROWING
             [c_x, m_x] = deal(zeros(state_x.ncat, 1));
             [c_y, m_y] = deal(zeros(state_y.ncat, 1));
             catloc_x = [state_x.tree.catloc];
             catloc_y = [state_y.tree.catloc];
         else
-            [c_x, c_y, m_x, m_y] = deal(zeros(2 * L(i), 1));
+            [c_x, c_y, m_x, m_y] = deal(zeros(2 * L(m), 1));
         end
-        for j = 1:n_j
+        for n = 1:N
             [c_nstate_x, c_nstate_y] = DelCatCoupled(state_x, state_y);
             m_nstate_x = DelCat(state_x);
             m_nstate_y = DelCat(state_y);
@@ -122,10 +146,10 @@ function distributionTestRun(testCase)
             m_x(ind_m_x) = m_x(ind_m_x) + 1;
             m_y(ind_m_y) = m_y(ind_m_y) + 1;
         end
-        c_x = c_x / n_j;
-        c_y = c_y / n_j;
-        m_x = m_x / n_j;
-        m_y = m_y / n_j;
+        c_x = c_x / N;
+        c_y = c_y / N;
+        m_x = m_x / N;
+        m_y = m_y / N;
 
         if BORROWING
             p_x = ones(state_x.ncat, 1) / state_x.ncat;
@@ -138,12 +162,12 @@ function distributionTestRun(testCase)
         i_x = find(p_x > 0);
         i_y = find(p_y > 0);
 
-        subplot(n_i, 2, 2 * i - 1);
+        subplot(M, 2, 2 * m - 1);
         plot(i_x, [c_x(i_x), m_x(i_x)] - p_x(i_x), 'x');
         xticks(unique(round(get(gca, 'xTick'))));
 
-        title(sprintf('L = %d : x : %d cats', L(i), state_x.ncat));
-        if i == n_i
+        title(sprintf('L = %d : x : %d cats', L(m), state_x.ncat));
+        if m == M
             if BORROWING
                 xlabel('catastrophe');
             else
@@ -152,12 +176,12 @@ function distributionTestRun(testCase)
             ylabel('difference from exact');
         end
 
-        subplot(n_i, 2, 2 * i);
+        subplot(M, 2, 2 * m);
         plot(i_y, [c_y(i_y), m_y(i_y)] - p_y(i_y), 'x');
         xticks(unique(round(get(gca, 'xTick'))));
 
-        title(sprintf('L = %d : y : %d cats', L(i), state_y.ncat));
-        if i == n_i
+        title(sprintf('L = %d : y : %d cats', L(m), state_y.ncat));
+        if m == M
             if BORROWING
                 xlabel('catastrophe');
             else

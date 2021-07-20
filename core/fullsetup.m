@@ -109,6 +109,7 @@ else
        move(13)=0;
        move(14)=0;
        move(15)=0;
+       % We could add move(17) = 0; here if we want to fix catastrophe locations
        move(18)=0;
    end
 end
