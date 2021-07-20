@@ -16,14 +16,14 @@ end
 function coupledTestRun(testCase)
     global BORROWING
     L = 4:10;
-    n_i = length(L);
-    n_j = 1e2;
-    for i = 1:n_i
-        [state_x, state_y] = unitTests.coupledStates(L(i), 1e-2);
+    M = length(L);
+    N = 1e2;
+    for m = 1:M
+        [state_x, state_y] = unitTests.coupledStates(L(m), 1e-2);
         for c = 1:5
             [state_x, state_y] = AddCatCoupled(state_x, state_y);
         end
-        for j = 1:n_j
+        for n = 1:N
             [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
                     = MoveCatCoupled(state_x, state_y);
             assertEqual(testCase, nstate_x.ncat, nstate_y.ncat);
@@ -48,74 +48,86 @@ end
 function couplingTestRun(testCase)
     global BORROWING ROOT;
     L = 4:10;
-    n_i = length(L);
-    n_j = 1e4;
-    [cObs, cExp] = deal(zeros(n_i, 1));
-    for i = 1:n_i
-        [state_x, state_y] = housekeptStates(L(i));
+    M = length(L);
+    N = 1e4;
+    [cObs, cExp] = deal(zeros(M, 1));
+    for m = 1:M
+        [state_x, state_y] = housekeptStates(L(m));
+        n_x = state_x.ncat;
+        n_y = state_y.ncat;
+
         if BORROWING
-            catloc_x = {state_x.tree.catloc};
-            catloc_y = {state_y.tree.catloc};
+            [locs_x, inds_x] = sampleCatIndex.getCats(state_x);
+            [locs_y, inds_y] = sampleCatIndex.getCats(state_y);
         end
-        for j = 1:n_j
+        for n = 1:N
             [nstate_x, nstate_y] = MoveCatCoupled(state_x, state_y);
             if BORROWING
-                cat_x = cellfun(@setdiff, catloc_x, {nstate_x.tree.catloc}, ...
-                                'UniformOutput', false);
-                cat_y = cellfun(@setdiff, catloc_y, {nstate_y.tree.catloc}, ...
-                                'UniformOutput', false);
-                cat = ismembertol([cat_x{:}], [cat_y{:}]);
-                dest_x = find(nstate_x.cat > state_x.cat);
-                dest_y = find(nstate_y.cat > state_y.cat);
-                dest = dest_x == dest_y;
-                if cat && dest
-                    cObs(i) = cObs(i) + 1;
+                [locn_x, indn_x] = sampleCatIndex.getCats(nstate_x);
+                [locn_y, indn_y] = sampleCatIndex.getCats(nstate_y);
+
+                ks_x = ~ismember(locs_x, locn_x);
+                ks_y = ~ismember(locs_y, locn_y);
+
+                i_x = inds_x(ks_x, 1);
+                i_y = inds_y(ks_y, 1);
+
+                kn_x = ~ismember(locn_x, locs_x);
+                kn_y = ~ismember(locn_y, locs_y);
+
+                j_x = indn_x(kn_x, 1);
+                j_y = indn_y(kn_y, 1);
+
+                % If branch (source and destination) and location match
+                if (i_x == i_y) && (locs_x(ks_x) == locs_y(ks_y)) && (j_x == j_y)
+                    cObs(m) = cObs(m) + 1;
                 end
             else
                 if all((nstate_x.cat - state_x.cat) ...
-                       == (nstate_y.cat - state_y.cat))
-                   cObs(i) = cObs(i) + 1;
-               end
+                        == (nstate_y.cat - state_y.cat))
+                   cObs(m) = cObs(m) + 1;
+                end
             end
         end
         root = state_x.root;
         if BORROWING
-            i_c = intersect([catloc_x{:}], [catloc_y{:}]);
-            l_i = length(i_c);
-            n_c = max(state_x.ncat, state_y.ncat);
-            if l_i > 0
-                s_x = state_x.tree;
-                s_y = state_y.tree;
-                for k = 1:l_i
-                    k_x = find(cellfun(@(x) ismembertol(i_c(k), x), {s_x.catloc}));
-                    k_y = find(cellfun(@(x) ismembertol(i_c(k), x), {s_y.catloc}));
-                    [u_x, v_x] = GetLegalCoupled.getPoss(s_x, k_x, root);
-                    [u_y, v_y] = GetLegalCoupled.getPoss(s_y, k_y, root);
-                    n_u = length(intersect(u_x, u_y));
-                    n_v = max(v_x, v_y);
-                    cExp(i) = cExp(i) + (1 / n_c) * n_u / n_v;
-                end
+            for i = find(state_x.cat(:) & state_y.cat(:))'
+                n_xi = state_x.cat(i);
+                n_yi = state_y.cat(i);
+                o_b = min(n_xi / n_x, n_yi / n_y);
+
+                l_xi = locs_x(inds_x(:, 1) == i);
+                l_yi = locs_y(inds_y(:, 1) == i);
+                o_l = length(intersect(l_xi, l_yi)) / max(n_xi, n_yi);
+
+                [u_x, v_x] = GetLegalCoupled.getPoss(state_x.tree, i, root);
+                [u_y, v_y] = GetLegalCoupled.getPoss(state_y.tree, i, root);
+                n_u = length(intersect(u_x, u_y));
+                n_v = max(v_x, v_y);
+                o_d = n_u / n_v;
+
+                cExp(m) = cExp(m) + o_b * o_l * o_d;
             end
         else
             if state_x.ncat == 0 || state_y.ncat == 0
-                cExp(i) = 1;
+                cExp(m) = 1;
             else
                 p_x = state_x.cat ./ state_x.ncat;
                 p_y = state_y.cat ./ state_y.ncat;
-                for k = 1:(2 * L(i))
+                for k = 1:(2 * L(m))
                     if state_x.tree(k).type < ROOT
                         [u_x, v_x] = GetLegalCoupled.getPoss(state_x.tree, k, root);
                         [u_y, v_y] = GetLegalCoupled.getPoss(state_y.tree, k, root);
                         n_u = length(intersect(u_x, u_y));
                         n_v = max(v_x, v_y);
-                        cExp(i) = cExp(i) + min(p_x(k), p_y(k)) * n_u / n_v;
+                        cExp(m) = cExp(m) + min(p_x(k), p_y(k)) * n_u / n_v;
                     end
                 end
             end
         end
     end
-    cObs = cObs / n_j;
-    fprintf('Proportion of matching samples in each of %g trials\n', n_j);
+    cObs = cObs / N;
+    fprintf('Proportion of matching samples in each of %g trials\n', N);
     fprintf('Observed:   %s\n', sprintf(' %-3.2e\t', cObs));
     fprintf('Expected:   %s\n', sprintf(' %-3.2e\t', cExp));
     fprintf('Difference: %s\n', sprintf('%+-3.2e\t', cObs - cExp));

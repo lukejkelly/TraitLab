@@ -11,36 +11,35 @@ function outputTest(testCase)
         state = dummyState(L);
         k = nan(1, N);
         for n = 1:N
-            [i, j] = sampleCatIndex(state);
+            i = sampleBranchByCatCount(state);
+            j = sampleCatIndex(state, i);
             k(n) = state.tree(i).catloc(j);
         end
-        assertLength(testCase, k, n);
+        assertFalse(testCase, any(isnan(k)));
     end
 end
 
 function distributionTest(testCase)
-    % Ensure we are sampling uniformly across all the catastrophes on the tree
-    M = 6;
-    N = 1e5;
+    % Ensure for each branch we are sampling uniformly from its catastrophes
+    M = 4;
+    N = 1e4;
     for m = 1:M
         L = 5 + poissrnd(2);
         state = dummyState(L);
-        [~, inds] = sampleCatIndexCoupled.getCats(state);
-        fObs = zeros(1, state.ncat);
-        for N = 1:N
-            [i, j] = sampleCatIndex(state);
-            k = find(i == inds(:, 1) & j == inds(:, 2));
-            fObs(k) = fObs(k) + 1;
+        [~, inds] = sampleCatIndex.getCats(state);
+        C = unique(inds(:, 1)');
+        for c = 1:length(C)
+            nexttile;
+            i = C(c);
+            j = arrayfun(@(~) sampleCatIndex(state, i), 1:N);
+            fObs = cumsum(mean((1:state.cat(i))' == j, 2));
+            fExp = (1:state.cat(i)) / state.cat(i);
+            plot(1:state.cat(i), fObs(:), 'o', 1:state.cat(i), fExp(:), 'x');
+            xlabel(sprintf('i = %d : %d cats', i, state.cat(i)));
+            ylabel('(E)CDF');
+            title(sprintf('L = %d : %d cats', L, state.ncat));
         end
-        gObs = cumsum(fObs) / N;
-        gExp = (1:state.ncat) / state.ncat;
-
-        nexttile;
-        plot(1:state.ncat, gObs, 'o', 1:state.ncat, gExp, 'x');
-        legend('ECDF', 'CDF');
-        xlabel('Catastrophe index');
-        ylabel('(E)CDF');
-        title(sprintf('x: %d leaves, %d cats', L, state.ncat));
+        legend('ECDF', 'CDF', 'location', 'southeast');
     end
     fprintf('Observed and expected proportions from %g samples\n', N);
     v1 = input('Are these plots okay? Reply 1 for yes... ');
@@ -49,7 +48,7 @@ end
 
 function state = dummyState(L)
     state = unitTests.dummyState(ExpTree(L, 1e-2 * rand));
-    for c = 1:(3 + poissrnd(3))
+    for c = 1:(5 + poissrnd(3))
         state = AddCat(state);
     end
 end

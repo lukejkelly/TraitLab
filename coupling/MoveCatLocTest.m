@@ -17,8 +17,8 @@ function outputTest(testCase)
             U(m) = isempty(UObs);
             OK(m) = OKObs == 0;
         else
-            [locs, inds] = sampleCatIndexCoupled.getCats(state);
-            [locn, indn] = sampleCatIndexCoupled.getCats(nstate);
+            [locs, inds] = sampleCatIndex.getCats(state);
+            [locn, indn] = sampleCatIndex.getCats(nstate);
 
             ks = ~ismember(locs, locn);
             kn = ~ismember(locn, locs);

@@ -1,15 +1,14 @@
-function [i_x, i_y, j_x, j_y] = sampleCatIndexCoupled(state_x, state_y)
-    % Sample from a coupling of discrete distributions p and q where each is
-    % uniform over catastrophes on the tree indexed by location
-    % k is the location and j its index on branch i's catlocs
-    [rp, ldp] = getDistributionTerms(state_x);
-    [rq, ldq] = getDistributionTerms(state_y);
+function [j_x, j_y] = sampleCatIndexCoupled(state_x, state_y, i_x, i_y)
+    % Sample catastrophe indices from coupling of uniform distributions p and q,
+    % where p (q) is uniform over catastrophes locations on i_x (i_y)
+    [rp, ldp] = getDistributionTerms(state_x, i_x);
+    [rq, ldq] = getDistributionTerms(state_y, i_y);
     [k_x, k_y] = maximalCouplingLog(rp, ldp, rq, ldq);
-    [i_x, j_x] = sampleCatIndexCoupled.getIndex(state_x, k_x);
-    [i_y, j_y] = sampleCatIndexCoupled.getIndex(state_y, k_y);
+    j_x = sampleCatIndex.getIndex(state_x, i_x, k_x);
+    j_y = sampleCatIndex.getIndex(state_y, i_y, k_y);
 end
 
-function [r, ld] = getDistributionTerms(state)
-    r = @() sampleCatIndexCoupled.catlocSample(state);
-    ld = @(x) sampleCatIndexCoupled.catlocLogProb(x, state);
+function [r, ld] = getDistributionTerms(state, i)
+    r = @() sampleCatIndex.catlocSample(state, i);
+    ld = @(x) sampleCatIndex.catlocLogProb(x, state, i);
 end
