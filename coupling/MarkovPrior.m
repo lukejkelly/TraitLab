@@ -2,9 +2,9 @@ function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn)
 % Modification of Markov to sample from prior by ignoring log-likelihood
 % Log-likelihood terms are only calculated on exit
 
-mcmc.subsample = 1e4;
-% Do not change scalar parameters
-mcmc.update.move([8, 17, 21]) = 0;
+mcmc.subsample = 1e3;
+% Do not change scalar parameters or add catastrophes
+mcmc.update.move([8:10, 13:15, 17:18, 21]) = 0;
 mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
 mcmc.update.cmove = cumsum(mcmc.update.move);
 
@@ -55,17 +55,17 @@ for t=1:(mcmc.subsample)
         end
     elseif MV==4
         update='Reconnect an edge into a nearby edge';
-        [i,j,k,newage,logq]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
+        [i,j,k,newage,logq,ncat,cat,loc]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
         OK=~isempty(newage);
         if OK
-            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
+            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage,ncat,cat,loc);
         end
     elseif MV==5
         update='Reconnect an edge into an edge chosen UAR over the tree';
-        [i,j,k,newage,logq]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
+        [i,j,k,newage,logq,ncat,cat,loc]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
         OK=~isempty(newage);
         if OK
-            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
+            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage,ncat,cat,loc);
         end
     elseif MV==6
         update='Rescale whole tree';
@@ -284,6 +284,6 @@ pa=acct./prop; %Changed to display NaN when the update was not proposed. RJR 19/
 if BORROWING
     [state.loglkd, state.fullloglkd] = logLkd2(state);
 else
-    state.loglkd     = LogLkd(state);
+    state.loglkd = LogLkd(state);
     state.fullloglkd = LogLkd(state, state.lambda);
 end

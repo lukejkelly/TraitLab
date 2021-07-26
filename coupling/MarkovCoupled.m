@@ -1,5 +1,5 @@
-function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(mcmc, model, ...
-    state_x, state_y, ignoreearlywarn)
+function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(...
+        mcmc, model, state_x, state_y, ignoreearlywarn)
 
     global STOPRUN
 

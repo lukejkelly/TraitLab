@@ -46,17 +46,17 @@ for t=1:(mcmc.subsample)
         end
     elseif MV==4
         update='Reconnect an edge into a nearby edge';
-        [i,j,k,newage,logq]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
+        [i,j,k,newage,logq,ncat,cat,loc]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
         OK=~isempty(newage);
         if OK
-            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
+            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage,ncat,cat,loc);
         end
     elseif MV==5
         update='Reconnect an edge into an edge chosen UAR over the tree';
-        [i,j,k,newage,logq]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
+        [i,j,k,newage,logq,ncat,cat,loc]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
         OK=~isempty(newage);
         if OK
-            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
+            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage,ncat,cat,loc);
         end
     elseif MV==6
         update='Rescale whole tree';
@@ -236,9 +236,9 @@ for t=1:(mcmc.subsample)
 
         % Likelihood calculations.
         if BORROWING
-            [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate); % LUKE
+            [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate);
         else
-            nstate.loglkd     = LogLkd(nstate);
+            nstate.loglkd = LogLkd(nstate);
             nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
         end
 

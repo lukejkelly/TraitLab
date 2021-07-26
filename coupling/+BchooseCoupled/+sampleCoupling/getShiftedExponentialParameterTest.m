@@ -15,7 +15,7 @@ function jRootYesTest(testCase)
 
     for i = find(arrayfun(@(a) a ~= j && ~isempty(s(a).parent) ...
                           && s(a).parent ~= j, 1:length(s)))
-         [newage, logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
+         [newage, logqObs] = Bchoose.sampleMarginal(i, j, k, s, THETA);
 
          iPPT = s(s(s(i).parent).parent).time;
          iPeCT = max(s(s(s(i).parent).child).time);

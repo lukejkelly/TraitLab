@@ -1,5 +1,5 @@
-function [state, succ] = MarkovCoupledCommon(mcmc, model, state, ...
-                                             ignoreearlywarn, MV, u_mh)
+function [state, succ] = MarkovCoupledCommon(...
+        mcmc, model, state, ignoreearlywarn, MV, u_mh)
     global BORROWING
 
     OK = 1;

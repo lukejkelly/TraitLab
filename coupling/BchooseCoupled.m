@@ -1,10 +1,11 @@
-function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
+function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y, ...
+            ncat_x, ncat_y, cat_x, cat_y, loc_x, loc_y] ...
         = BchooseCoupled(state_x, state_y, mt, THETA, prior)
 
     % Housekeeping means that Adam, root, clade roots and leaves have same
     % indices, internal nodes within a clade have a common set of indices
 
-    global ROOT NARROW WIDE
+    global ROOT NARROW WIDE MCMCCAT
 
     N = 2 * state_x.NS - 1;
     s_x = state_x.tree;
@@ -53,24 +54,52 @@ function [i, j_x, j_y, k_x, k_y, newage_x, newage_y, logq_x, logq_y] ...
     % Part III: sample new node time
     if ~(FAIL_x || FAIL_y)
         % Attempt to couple node times
-        [newage_x, newage_y, logq_x, logq_y] ...
-            = BchooseCoupled.sampleCoupling(i, j_x, j_y, k_x, k_y, s_x, s_y, ...
-                                            THETA);
+        [newage_x, newage_y, logq_xb, logq_yb] = BchooseCoupled.sampleCoupling(...
+            i, j_x, j_y, k_x, k_y, s_x, s_y, THETA);
     else
         % Attempt to sample from marginal node times
         if FAIL_x
             newage_x = [];
-            logq_x = -Inf;
+            logq_xb = -Inf;
         else
-            [newage_x, logq_x] ...
-                = BchooseCoupled.sampleMarginal(i, j_x, k_x, s_x, THETA);
+            [newage_x, logq_xb] = Bchoose.sampleMarginal(i, j_x, k_x, s_x, THETA);
         end
         if FAIL_y
             newage_y = [];
-            logq_y = -Inf;
+            logq_yb = -Inf;
         else
-            [newage_y, logq_y] ...
-                = BchooseCoupled.sampleMarginal(i, j_y, k_y, s_y, THETA);
+            [newage_y, logq_yb] = Bchoose.sampleMarginal(i, j_y, k_y, s_y, THETA);
         end
     end
+
+    % Part IV: update catastrophes
+    if MCMCCAT
+        if ~isempty(newage_x) && ~isempty(newage_y)
+            [ncat_x, ncat_y, cat_x, cat_y, loc_x, loc_y, logq_xc, logq_yc] ...
+                = BcatsCoupled(state_x, state_y, ...
+                               i, ...
+                               j_x, j_y, ...
+                               k_x, k_y, ...
+                               newage_x, newage_y);
+        else
+            if isempty(newage_x)
+                [ncat_x, cat_x, loc_x, logq_xc] = Bcats.failOutputs();
+            else
+                [ncat_x, cat_x, loc_x, logq_xc] = Bcats(...
+                    state_x, i, j_x, k_x, newage_x);
+            end
+            if isempty(newage_y)
+                [ncat_y, cat_y, loc_y, logq_yc] = Bcats.failOutputs();
+            else
+                [ncat_y, cat_y, loc_y, logq_yc] = Bcats(...
+                    state_y, i, j_y, k_y, newage_y);
+            end
+        end
+    else
+        [ncat_x, cat_x, loc_x, logq_xc] = Bcats.failOutputs();
+        [ncat_y, cat_y, loc_y, logq_yc] = Bcats.failOutputs();
+    end
+
+    logq_x = logq_xb + logq_xc;
+    logq_y = logq_yb + logq_yc;
 end

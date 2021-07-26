@@ -25,8 +25,7 @@ function moveNarrowStayCoupled(testCase, clades)
             assertEqual(testCase, newage_x, newage_y);
             assertEqual(testCase, logq_x, logq_y);
             newageCoupling(nRep) = newage_x;
-            [newageMarginal(nRep), ~] = BchooseCoupled.sampleMarginal(...
-                i, j, k, s, THETA);
+            [newageMarginal(nRep), ~] = Bchoose.sampleMarginal(i, j, k, s, THETA);
             nRep = nRep + 1;
         end
     end
@@ -53,8 +52,7 @@ function cladesNoMoveWideStayCoupledTest(testCase)
             assertEqual(testCase, logq_x, logq_y);
             nRep = nRep + 1;
             newageCoupling(nRep) = newage_x;
-            [newageMarginal(nRep), ~] = BchooseCoupled.sampleMarginal(...
-                i, j, k, s, THETA);
+            [newageMarginal(nRep), ~] = Bchoose.sampleMarginal(i, j, k, s, THETA);
             nRep = nRep + 1;
         end
     end
@@ -80,8 +78,7 @@ function cladesYesMoveWideStayCoupledTest(testCase)
             assertEqual(testCase, newage_x, newage_y);
             assertEqual(testCase, logq_x, logq_y);
             newageCoupling(nRep) = newage_x;
-            [newageMarginal(nRep), ~] = BchooseCoupled.sampleMarginal(...
-                i, j, k, s, THETA);
+            [newageMarginal(nRep), ~] = Bchoose.sampleMarginal(i, j, k, s, THETA);
             nRep = nRep + 1;
         end
     end

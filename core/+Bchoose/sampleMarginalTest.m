@@ -1,5 +1,8 @@
 function tests = sampleMarginalTest
     % Compare to core/Bchoose.m
+    error('Obsolete: see comments in file');
+    % Bchoose.sampleMarginal is a direct copy of previous Bchoose code and has
+    % since replaced what was in Bchoose
     tests = functiontests(localfunctions);
 end
 
@@ -39,7 +42,7 @@ function narrowCheck(testCase, clades)
             assertEqual(testCase, logqExp, -Inf);
         else
             newageExp(r) = newageExp_r;
-            [newageObs(r), logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
+            [newageObs(r), logqObs] = Bchoose.sampleMarginal(i, j, k, s, THETA);
             assertEqual(testCase, logqObs, logqExp, 'AbsTol', 1e-12);
             r = r + 1;
         end
@@ -59,7 +62,7 @@ function wideBelowRootCheck(testCase, clades)
             assertEqual(testCase, logqExp, -Inf);
         elseif s(j).type ~= ROOT
             newageExp(r) = newageExp_r;
-            [newageObs(r), logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
+            [newageObs(r), logqObs] = Bchoose.sampleMarginal(i, j, k, s, THETA);
             assertEqual(testCase, logqObs, logqExp, 'AbsTol', 1e-12);
             r = r + 1;
         end
@@ -79,7 +82,7 @@ function wideAboveRootCheck(testCase, clades)
             assertEqual(testCase, logqExp, -Inf);
         elseif s(j).type == ROOT
             newageExp(r) = newageExp_r;
-            [newageObs(r), logqObs] = BchooseCoupled.sampleMarginal(i, j, k, s, THETA);
+            [newageObs(r), logqObs] = Bchoose.sampleMarginal(i, j, k, s, THETA);
             assertEqual(testCase, logqObs -logqExp, ...
                         THETA * (newageObs(r) - newageExp(r)), 'AbsTol', 1e-12);
             r = r + 1;
@@ -88,10 +91,14 @@ function wideAboveRootCheck(testCase, clades)
     BchooseCoupled.sampleCoupling.compareDistributions(testCase, newageObs, newageExp);
 end
 
-
 function setupOnce(~)
     GlobalSwitches;
     GlobalValues;
+    clf;
+end
+
+function teardownOnce(~)
+    close;
 end
 
 function [s, state, mt, prior, nReps, newageObs, newageExp] = getParams(...
