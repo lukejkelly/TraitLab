@@ -1,11 +1,11 @@
-function d = getBranchLengths(outPath, outFile)
-    global ROOT
+function d = getBranchLengths(outPath, outFile, burnin)
     tAll = catsOnBranches.getTrees(outPath, outFile);
     t = rnextree(tAll{1});
-    d = zeros(1, length(t));
-    for j = 1:size(d, 2)
-        if t(j).type < ROOT
-            d(j) = t(t(j).parent).time - t(j).time;
-        end
+    n = length(tAll) - burnin;
+    m = length(t);
+    d = zeros(n, m);
+    for i = 1:n
+        state = struct('NS', m / 2, tree = rnextree(tAll{i + burnin}));
+        d(i, :) = getBranchLengths(state);
     end
 end

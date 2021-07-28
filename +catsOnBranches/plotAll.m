@@ -8,9 +8,9 @@ function plotAll(d, n)
     ylabel('Error');
     legend('ECDF', 'CDF', 'Error');
     title('Tree');
-    for j = find(d)
+    for j = find(sum(d, 1))
         nexttile;
-        catsOnBranches.plotCDF(d(j), n(:, j));
+        catsOnBranches.plotCDF(d(:, j), n(:, j));
         title(sprintf('Branch %i', j));
     end
 end
