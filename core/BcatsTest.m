@@ -84,10 +84,11 @@ end
 
 % Setup and teardown functions
 function setupOnce(testCase)
-    global VARYRHO
+    global MCMCCAT VARYRHO
     unitTests.setupOnce(testCase);
     testCase.TestData.VARYRHO = VARYRHO;
     VARYRHO = 1;
+    MCMCCAT = 1;
 end
 
 function teardownOnce(testCase)
