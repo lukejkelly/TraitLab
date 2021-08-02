@@ -2,7 +2,7 @@ function runmcmc(fsu,handles,h)
 
 %global GRAPH JUSTS JUSTT LEAF QUIET ANST STOPRUN TESTSS WRITEXI
 GlobalSwitches;
-global LOSTONES BORROWING SAVESTATES;
+global LOSTONES BORROWING SAVESTATES EXPSTART
 
 if nargin>0
 
@@ -11,6 +11,10 @@ if nargin>0
     % intialise variables
     [data,model,state,handles.output,mcmc]=fullsetup(fsu);
 
+    if mcmc.initial.setup == EXPSTART
+        [state, ~] = MarkovPrior(mcmc, model, state, 1);
+        handles.output.trees{1} = wnextree(state.tree, state.root);
+    end
     save outIC;
 
     if fromgui

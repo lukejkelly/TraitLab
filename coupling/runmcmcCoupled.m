@@ -1,6 +1,7 @@
 function runmcmcCoupled(fsu)
 
 GlobalSwitches;
+global EXPSTART
 
 % intialise variables
 [data, model, state, handles.output, mcmc] = fullsetup(fsu);
@@ -17,9 +18,11 @@ end
 
 [state_x, state_y] = deal(state);
 
-% Advance each chain by sampling from the prior
-[state_x, ~] = MarkovPrior(mcmc, model, state_x, 1);
-[state_y, ~] = MarkovPrior(mcmc, model, state_y, 1);
+if mcmc.initial.setup == EXPSTART
+    % Advance each chain by sampling from the prior
+    [state_x, ~] = MarkovPrior(mcmc, model, state_x, 1);
+    [state_y, ~] = MarkovPrior(mcmc, model, state_y, 1);
+end
 
 % Write initial states
 [handles_x, handles_y] = deal(handles);
