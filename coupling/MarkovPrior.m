@@ -3,8 +3,8 @@ function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn)
 % Log-likelihood terms are only calculated on exit
 
 mcmc.subsample = 1e3;
-% Do not change scalar parameters or add catastrophes
-mcmc.update.move([8:10, 13:15, 17:18, 21]) = 0;
+% Do not change rate parameters, scale entire tree or add catastrophes
+mcmc.update.move([6, 8, 13:18, 21]) = 0;
 mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
 mcmc.update.cmove = cumsum(mcmc.update.move);
 

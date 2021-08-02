@@ -77,7 +77,8 @@ if MCMCCAT
         else
             % Negative Binomial counts and uniform locations on entire tree
             % a and b from LogRhoPrior
-            a = 1.5; b = 5e3;
+            [~, a, k] = LogRhoPrior(0);
+            b = 1 / k;
             logprior = logprior + gammaln(a + state.ncat) - (a + state.ncat) * log(state.length + b);
         end
     else
@@ -85,7 +86,7 @@ if MCMCCAT
         if ~VARYRHO
             % Poisson prior on branch counts
             for node = 1:2*state.NS
-                if state.tree(node).type <ROOT
+                if state.tree(node).type < ROOT
                     dt       = state.tree(state.tree(node).parent).time - state.tree(node).time;
                     Ncat     = state.cat(node);
                     logprior = logprior - state.rho * dt + Ncat * log(state.rho * dt) - gammaln(Ncat + 1);
@@ -93,10 +94,11 @@ if MCMCCAT
             end
         else
             % Negative Binomial counts, a and b from LogRhoPrior
-            a = 1.5; b = 5e3;
+            [~, a, k] = LogRhoPrior(0);
+            b = 1 / k;
             logprior = logprior + gammaln(a + state.ncat) - (a + state.ncat) * log(state.length + b);
             for node = 1:2*state.NS
-                if state.tree(node).type <ROOT
+                if state.tree(node).type < ROOT
                     dt       = state.tree(state.tree(node).parent).time - state.tree(node).time;
                     Ncat     = state.cat(node);
                     logprior = logprior + Ncat * log(dt) - gammaln(Ncat + 1);
