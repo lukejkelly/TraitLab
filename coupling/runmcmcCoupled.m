@@ -37,12 +37,11 @@ finish = floor(mcmc.runlength / mcmc.subsample);
 % Advance x chain by lag steps
 lag_subsample = fsu.COUPLINGLAG / mcmc.subsample;
 for t = start:lag_subsample
-    runmcmcCoupled.borrowingCheck(state_x);
     atime = cputime;
     ignoreearlywarn = (t <= 3);
     [state_x, pa_x] = Markov(mcmc, model, state_x, ignoreearlywarn);
     btime = cputime - atime;
-    handles_x = runmcmcCoupled.writeMcmcOutputs(...
+    handles_x = runmcmcCoupled.writeOutputMCMC(...
         handles_x, state_x, btime, fsu, t, pa_x, model, data);
 end
 
@@ -54,43 +53,40 @@ runmcmcCoupled.writeProportionAccepted(zeros(mcmc.update.Nmvs, 1), ...
                                        handles_x.output.path, ...
                                        [handles_x.output.file, 'y']);
 
-% Run until coupling or x reaches finish iterations, whichever is largest
+% Run coupled kernel until coupling
 isCoupled = checkCoupling(state_x, state_y);
 if isCoupled
     error('Initial states should not be coupled');
 end
 
-while t < finish || ~isCoupled
+while ~isCoupled
     t = t + 1;
-
-    runmcmcCoupled.borrowingCheck(state_x);
-    runmcmcCoupled.borrowingCheck(state_y);
-
     atime = cputime;
     ignoreearlywarn = (t <= 3);
-    if isCoupled
-        [state_x, pa_x] = Markov(mcmc, model, state_x, ignoreearlywarn);
-        state_y = state_x;
-        pa_y = pa_x;
-        pa_xy = pa_x;
-    else
-        [state_x, state_y, pa_x, pa_y, pa_xy, isCoupled] = MarkovCoupled(...
-            mcmc, model, state_x, state_y, ignoreearlywarn);
-        if isCoupled
-            runmcmcCoupled.writeCouplingTime(handles_x, t);
-        end
-    end
+    [state_x, state_y, pa_x, pa_y, pa_xy, isCoupled] = MarkovCoupled(...
+        mcmc, model, state_x, state_y, ignoreearlywarn);
     btime = cputime - atime;
-
-    % Write outputs and update handles
-    handles_x = runmcmcCoupled.writeMcmcOutputs(...
+    handles_x = runmcmcCoupled.writeOutputMCMC(...
         handles_x, state_x, btime, fsu, t, pa_x, model, data);
-    handles_y = runmcmcCoupled.writeMcmcOutputs(...
+    handles_y = runmcmcCoupled.writeOutputMCMC(...
         handles_y, state_y, btime, fsu, t - lag_subsample, pa_y, model, data);
-
-    % Write proportion of moves accepted
     runmcmcCoupled.writeProportionAccepted(...
         pa_xy, handles_x.output.path, [handles_x.output.file, 'y'], t);
+end
+
+runmcmcCoupled.writeCouplingTime(handles_x, t);
+
+% Run marginal to finish if necessary
+while t < finish
+    t = t + 1;
+    atime = cputime;
+    ignoreearlywarn = (t <= 3);
+    [state_x, pa_x] = Markov(mcmc, model, state_x, ignoreearlywarn);
+    btime = cputime - atime;
+    handles_x = runmcmcCoupled.writeOutputMCMC(...
+        handles_x, state_x, btime, fsu, t, pa_x, model, data);
+    runmcmcCoupled.writeProportionAccepted(...
+        pa_x, handles_x.output.path, [handles_x.output.file, 'y'], t);
 end
 
 disp(['MCMC run finished at ' datestr(clock)]);

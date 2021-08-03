@@ -1,6 +1,6 @@
-% Write MCMC outputs
-function handles = writeMcmcOutputs(handles, state, btime, fsu, t, pa, ...
-                                    model, data)
+function handles = writeOutputMCMC(...
+        handles, state, btime, fsu, t, pa, model, data)
+
     global ANST LEAF WRITEXI QUIET GRAPH JUSTS JUSTT TESTSS
 
     %Write the current state of the Markov chain to output
@@ -27,7 +27,7 @@ function handles = writeMcmcOutputs(handles, state, btime, fsu, t, pa, ...
     % Saving state for later goodness-of-fit testing
     if exist('SAVESTATES', 'var') && ~isempty(SAVESTATES) && SAVESTATES == 1
         error('This still needs to be implemented');
-      save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, t), 'state');
+        save(sprintf('saveStates%s%s-%05i', filesep, fsu.OUTFILE, t), 'state');
     end
 
     % LJK 28/4/20 removed for time being
@@ -60,5 +60,5 @@ function handles = writeMcmcOutputs(handles, state, btime, fsu, t, pa, ...
         check(state,data.true.state)
         disp('Error from check()');
         keyboard;pause;
-    end                               % LUKE (maybe turn this on again)
+    end
 end
