@@ -55,6 +55,7 @@ fsu.STRONGCLADES      = []    ;
 fsu.GUITRUE           = []    ;
 fsu.GUICONTENT        = []    ;
 fsu.MISDAT            = MISDAT ;
+fsu.BETA              = state.beta;
 
 ndata = fullsetup(fsu);
 
