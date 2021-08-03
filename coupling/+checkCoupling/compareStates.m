@@ -11,15 +11,14 @@ function t = compareStates(state_x, state_y)
             ts(i) = all(state_x.(fi) == state_y.(fi));
         case 'claderoot'
             ts(i) = isequaln(state_x.(fi), state_y.(fi));
-        case {'mu', 'lambda', 'beta', 'rho', 'kappa', 'loglkd', 'logprior', ...
-              'length'}
+        case {'mu', 'beta', 'kappa', 'loglkd', 'logprior', 'length'}
             ts(i) = ismembertol(state_x.(fi), state_y.(fi));
         case 'tree'
             ts(i) = equaltrees(state_x.tree, state_y.tree);
         otherwise
+            % ignore field
             tv(i) = 0;
         end
     end
     t = all(ts(tv == 1));
-
 end
