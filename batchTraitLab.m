@@ -4,8 +4,8 @@ function batchTraitLab(run_file, output_file_name_app)
 
 GlobalSwitches
 GlobalValues
-addpath('core') % Luke 05/10/2017
-addpath('guifiles') %commented out GKN Feb 08; added back in RJR�16�Mar 2011
+addpath('core')
+addpath('guifiles')
 
 rng('shuffle');
 

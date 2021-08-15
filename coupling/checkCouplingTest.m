@@ -124,7 +124,7 @@ function catTest(testCase)
 
     % Swap cat locations on branch
     state_y4 = state_x;
-    i = find(state_y4.cat == 2, 1);
+    i = find(state_y4.cat == 3, 1);
     state_y4.tree(i).catloc = fliplr(state_y4.tree(i).catloc);
     state_y4 = updateStateVariables(state_y4, model.prior);
 

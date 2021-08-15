@@ -1,5 +1,6 @@
 function t = compareTrees(state_x, state_y)
     % Node types and cat counts already compared at state level
+    % Clades shouldn't change through MCMC so we ignore them
     [s_x, l, n] = deal(state_x.tree, state_x.leaves, state_x.nodes);
     s_y = state_y.tree;
 
@@ -14,7 +15,7 @@ function t = compareTrees(state_x, state_y)
             ts(i) = all(strcmp({s_x(l).Name}, {s_y(l).Name}));
         case 'xi'
             ts(i) = all(arrayfun(@ismembertol, [s_x(l).xi], [s_y(l).xi]));
-        case {'clade', 'unclade', 'parent', 'sibling', 'child'}
+        case {'parent', 'sibling', 'child'}
             ts(i) = isequaln({s_x.(fi)}, {s_y.(fi)});
         case 'time'
             ts(i) = all(arrayfun(@ismembertol, [s_x([l, n]).time], ...
