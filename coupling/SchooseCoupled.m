@@ -5,10 +5,8 @@ function [i, newage_x, newage_y, logq_x, logq_y] ...
     % labelled with the same set of indices
     i = state_x.nodes(ceil(rand * (state_x.NS - 1)));
 
-    [iT_x, kT_x, jT_x, a_x, b_x] ...
-        = Schoose.nodeTimesAndRanges(i, state_x);
-    [iT_y, kT_y, jT_y, a_y, b_y] ...
-        = Schoose.nodeTimesAndRanges(i, state_y);
+    [iT_x, kT_x, jT_x, a_x, b_x] = Schoose.nodeTimesAndRanges(i, state_x);
+    [iT_y, kT_y, jT_y, a_y, b_y] = Schoose.nodeTimesAndRanges(i, state_y);
 
     if i == state_x.root
         % newage ~ U[(iT + jT) / 2, 2 * iT - jT]
