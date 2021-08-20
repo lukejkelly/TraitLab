@@ -185,9 +185,9 @@ function overlap = getOverlap(state_x, state_y)
     for ind = 1:length(state_x.nodes)
         i = state_x.nodes(ind);
         [~, kT_x, jT_x, a_x, b_x] ...
-            = SchooseCoupled.nodeTimesAndRanges(i, state_x);
+            = Schoose.nodeTimesAndRanges(i, state_x);
         [~, kT_y, jT_y, a_y, b_y] ...
-            = SchooseCoupled.nodeTimesAndRanges(i, state_y);
+            = Schoose.nodeTimesAndRanges(i, state_y);
 
         if i == state_x.root
             overlap(ind) = max(0, min(b_x, b_y) - max(a_x, a_y)) ...
