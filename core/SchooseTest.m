@@ -2,120 +2,49 @@ function tests = SchooseTest
     tests = functiontests(localfunctions);
 end
 
-function runTest(testCase)
+function outputTest(testCase)
+    % Only checking outputs as distributions checked elsewhere
     global BORROWING MCMCCAT
-    for BORROWING = [0, 1]
-        for MCMCCAT = [0, 1]
-            parameterTests(testCase);
-            marginalTests(testCase);
-        end
-    end
-end
-function parameterTests(testCase)
-    for L = 6:10
-        state = dummyState(L);
-        visited = zeros(1, state.NS - 1);
+    for L = 8:12
+        for BORROWING = 0:1
+            for MCMCCAT = 0:1
+                state = dummyState(L);
+                rngCurr = rng;
+                [iObs, newageObs, logqObs, catObs, locObs] = Schoose(state);
+                rng(rngCurr);
+                [iExp, newageExp, logq_t] = SchooseTime(state);
+                if MCMCCAT
+                    [catExp, locExp, logq_c] = SchooseCats(state, iExp, newageExp);
+                else
+                    catExp = [];
+                    locExp = [];
+                    logq_c = 0;
+                end
+                rng('shuffle');
+                logqExp = logq_t + logq_c;
 
-        while all(visited < 1e2)
-            [i, newage, logq] = Schoose(state);
-
-            visited(state.nodes == i) = visited(state.nodes == i) + 1;
-            iT = state.tree(i).time;
-            jT = max([state.tree(state.tree(i).child).time]);
-            if i == state.root
-                assertTrue(testCase, ...
-                           mean([iT, jT]) <= newage && newage <= 2 * iT - jT);
-                assertTrue(testCase, -log(2) <= logq && logq <= log(2));
-                assertEqual(testCase, ...
-                            logq, log(iT - jT) - log(newage - jT), ...
-                            'AbsTol', 1e-12)
-            else
-                kT = state.tree(state.tree(i).parent).time;
-                assertTrue(testCase, jT <= iT && iT <= kT);
-                assertTrue(testCase, jT <= newage && newage <= kT);
-                assertEqual(testCase, logq, 0);
+                assertEqual(testCase, [iObs, newageObs, logqObs], ...
+                            [iExp, newageExp, logqExp]);
+                assertEqual(testCase, catObs, catExp);
+                assertEqual(testCase, locObs, locExp);
             end
         end
     end
 end
 
-function marginalTests(testCase)
-    L = 8;
-    state = dummyState(L);
-    r = state.root;
-
-    N = 1e3;
-    [iObs, iExp, newageObs, newageExp, logqObs, logqExp] = deal(zeros(N, 1));
-
-    for n = 1:N
-        [iObs(n), newageObs(n), logqObs(n)] = Schoose(state);
-        [iExp(n), newageExp(n), logqExp(n)] = oldSchoose(state);
-    end
-
-    assertTrue(testCase, all(logqObs(iObs ~= r) == 0));
-    assertTrue(testCase, all(logqExp(iExp ~= r) == 0));
-
-    clf;
-    for j = 1:length(state.nodes)
-        i = state.nodes(j);
-        nexttile;
-        [nObs, eObs] = ecdf(newageObs(iObs == i));
-        [nExp, eExp] = ecdf(newageExp(iExp == i));
-        plot(eObs, nObs, eExp, nExp);
-        xlabel('newage');
-        title(sprintf('%i', i))
-    end
-    nexttile;
-    [nObs, eObs] = ecdf(logqObs(iObs == r));
-    [nExp, eExp] = ecdf(logqExp(iExp == r));
-    plot(eObs, nObs, eExp, nExp);
-    xlabel('logq');
-    title(sprintf('%i', i))
-    legend('Obs', 'Exp', 'Location', 'southeast');
-    v = input('Do the CDFs in the figure match? Reply 1 for yes... ');
-    assertEqual(testCase, v, 1);
-end
-
-function [i, newage, logq] = oldSchoose(state)
-    % Old version of Schoose after removing comments
-    global ROOT
-
-    s = state.tree;
-    i = state.nodes(ceil(rand * (state.NS - 1)));
-
-    iT = s(i).time;
-    k = s(i).parent;
-    j1 = s(i).child(1);
-    j2 = s(i).child(2);
-    jT = max(s(j1).time, s(j2).time);
-
-    if s(i).type == ROOT
-        tau = iT - jT;
-        delta = (-0.5 + rand * 1.5) * tau;
-        taup = tau + delta;
-        logq = log(tau / taup);
-        newage = jT + taup;
-    else
-        newage = jT + rand * (s(k).time - jT);
-        logq = 0;
-    end
-end
-
 function setupOnce(testCase)
     unitTests.setupOnce(testCase);
-    clf;
 end
 
 function teardownOnce(testCase)
     unitTests.teardownOnce(testCase);
-    close;
 end
 
 function state = dummyState(L)
     global MCMCCAT
     state = unitTests.dummyState(ExpTree(L, 1e-2));
     if MCMCCAT
-        for i = 1:(3 + poissrnd(3))
+        for i = 1:(5 + poissrnd(5))
             state = AddCat(state);
         end
     end

@@ -1,16 +1,18 @@
-function [i, newage, logq] = Schoose(state)
-    % Sample node i and new age t_i' ~ U(t_j, t_k) if i not root, and if it is
-    % then t_i' ~ U[(t_i + t_j) / 2, 2 * t_i - t_j]
+function [i, newage, logq, cat, loc] = Schoose(state)
+    % Sample new node time and possibly update catastrophes
+    global MCMCCAT
 
-    i = state.nodes(ceil(rand * (state.NS - 1)));
-    [iT, kT, jT, a, b] = Schoose.nodeTimesAndRanges(i, state);
+    % Previous Schoose function
+    [i, newage, logq_t] = SchooseTime(state);
 
-    if i == state.root
-        %this way to update root should be more adaptive to likelihood
-        newage = a + rand * (b - a);
-        logq = log(iT - jT) - log(newage - jT);
+    % Shuffle cats around node that moved
+    if MCMCCAT
+        [cat, loc, logq_c] = SchooseCats(state, i, newage);
     else
-        newage = jT + rand * (kT - jT);
-        logq = 0;
+        cat = [];
+        loc = [];
+        logq_c = 0;
     end
+
+    logq = logq_t + logq_c;
 end
