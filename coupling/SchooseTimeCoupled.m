@@ -1,5 +1,5 @@
 function [i, newage_x, newage_y, logq_x, logq_y] ...
-        = SchooseCoupled(state_x, state_y)
+        = SchooseTimeCoupled(state_x, state_y)
 
     % Housekeeping means root is the same in both x and y, internal nodes
     % labelled with the same set of indices

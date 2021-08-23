@@ -1,4 +1,4 @@
-function tests = SchooseCoupledTest
+function tests = SchooseTimeCoupledTest
     tests = functiontests(localfunctions);
 end
 
@@ -24,7 +24,7 @@ function parameterTests(testCase)
 
     while all(visited < 1e2)
         [i, newage_x, newage_y, logq_x, logq_y] ...
-            = SchooseCoupled(state_x, state_y);
+            = SchooseTimeCoupled(state_x, state_y);
         visited(state_x.nodes == i) = visited(state_x.nodes == i) + 1;
 
         iT_x = state_x.tree(i).time;
@@ -70,7 +70,7 @@ function remainCoupledTests(testCase)
     visited = zeros(1, state.NS - 1);
     while all(visited < 1e2)
         [i, newage_x, newage_y, logq_x, logq_y] ...
-            = SchooseCoupled(state, state);
+            = SchooseTimeCoupled(state, state);
         visited(state.nodes == i) = visited(state.nodes == i) + 1;
 
         assertEqual(testCase, newage_x, newage_y);
@@ -86,7 +86,7 @@ function marginalTests(testCase)
 
     for samp = 1:n
         [iCoupled, newage_xCoupled, newage_yCoupled, ~, ~] ...
-            = SchooseCoupled(state_x, state_y);
+            = SchooseTimeCoupled(state_x, state_y);
         xCoupled(samp, :) = [iCoupled, newage_xCoupled];
         yCoupled(samp, :) = [iCoupled, newage_yCoupled];
 
@@ -127,7 +127,7 @@ function coupledTests(testCase)
     [visited, coupled] = deal(zeros(1, state_x.NS - 1));
 
     while all(visited < 5e3)
-        [i, newage_x, newage_y, ~, ~] = SchooseCoupled(state_x, state_y);
+        [i, newage_x, newage_y, ~, ~] = SchooseTimeCoupled(state_x, state_y);
         ind = find(state_x.nodes == i);
         visited(ind) = visited(ind) + 1;
         if newage_x == newage_y
