@@ -35,7 +35,6 @@ function outputTest(testCase)
                 end
                 assertEqual(testCase, U, UExp);
                 assertEqual(testCase, TOPOLOGY, 0);
-
             end
         end
     end

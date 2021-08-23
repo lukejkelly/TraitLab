@@ -10,9 +10,9 @@ function [ncat_x, ncat_y, cat_x, cat_y, loc_x, loc_y, logq_x, logq_y] = BcatsCou
     % i's parent p is to be regrafted onto edge from j to parent k at newage
     % Currently, i's sibling is h and p's parent is q
     global MCMCCAT
-    if ~MCMCCAT || isempty(newage_x) || isempty(newage_y)
-        error('MCMCCAT = %i, isempty(newage_x) = %i, isempty(newage_y) = %i', ...
-              MCMCCAT, isempty(newage_x), isempty(newage_y));
+    if ~MCMCCAT || any(isempty([newage_x, newage_y]))
+        error('MCMCCAT = %i, any(isempty([newage_x, newage_y])) = %i', ...
+              MCMCCAT, any(isempty([newage_x, newage_y])));
     end
 
     [rf_x, lf_x, lb_x] = Bcats.getDistributions(state_x, i, j_x, k_x, newage_x);

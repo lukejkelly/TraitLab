@@ -9,8 +9,7 @@ function [i, newage, logq, cat, loc] = Schoose(state)
     if MCMCCAT
         [cat, loc, logq_c] = SchooseCats(state, i, newage);
     else
-        cat = [];
-        loc = [];
+        [cat, loc] = deal([]);
         logq_c = 0;
     end
 
