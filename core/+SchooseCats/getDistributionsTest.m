@@ -27,7 +27,8 @@ function outputTest(testCase)
         end
 
         nexttile;
-        plot(ncat * wn, mean(x, 1));
+        plot(ncat * wn, mean(x, 1), 'o');
+        refline;
         title(sprintf('%i', i));
         xlabel('Expected proportion');
         ylabel('Observed proportion');

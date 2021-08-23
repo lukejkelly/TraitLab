@@ -1,6 +1,6 @@
 function [i, newage_x, newage_y, logq_x, logq_y] ...
         = SchooseTimeCoupled(state_x, state_y)
-
+    % Sampling a new node uniformly in both states
     % Housekeeping means root is the same in both x and y, internal nodes
     % labelled with the same set of indices
     i = state_x.nodes(ceil(rand * (state_x.NS - 1)));
