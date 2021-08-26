@@ -21,7 +21,7 @@ end
 
 function ld = logProb(cat, state)
     % We are only coupling counts here so use logPriorCounts as the target
-    % distribution for coupling, locations are coupled separately, getOutpus
+    % distribution for coupling, locations are coupled separately, getOutputs
     % uses logPrior (counts and locations) in the ratio of proposals as we do
     % not call catastropheScalingFactor after this move to account for locations
     pstate = state;
