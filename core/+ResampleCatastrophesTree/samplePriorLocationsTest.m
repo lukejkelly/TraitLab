@@ -8,7 +8,7 @@ function valueTest(testCase)
     for BORROWING = 0:1
         for i = 5:15
             cat = round(5 * rand(i, 1));
-            catloc = ResampleCatastrophes.samplePriorLocations(cat);
+            catloc = ResampleCatastrophesTree.samplePriorLocations(cat);
 
             if BORROWING
                 assertEqual(testCase, size(catloc), size(cat));

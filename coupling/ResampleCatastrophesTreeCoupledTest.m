@@ -1,4 +1,4 @@
-function tests = ResampleCatastrophesCoupledTest
+function tests = ResampleCatastrophesTreeCoupledTest
     tests = functiontests(localfunctions);
 end
 
@@ -10,7 +10,7 @@ function coupledTest(testCase)
                 for VARYRHO = 0:1
                     [state_x, state_y] = coupledStates(L);
                     [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
-                            = ResampleCatastrophesCoupled(state_x, state_y);
+                            = ResampleCatastrophesTreeCoupled(state_x, state_y);
                     assertTrue(testCase, ...
                                equaltrees(nstate_x.tree, nstate_y.tree) == 1);
                     assertEqual(testCase, nstate_x.cat, nstate_y.cat);
@@ -43,8 +43,8 @@ function overlapTest(testCase)
             [state_x, state_y] = housekeptStates(L);
             c = 0;
             for j = 1:n_j
-                [nstate_x, nstate_y] = ResampleCatastrophesCoupled(state_x, ...
-                                                                   state_y);
+                [nstate_x, nstate_y] = ResampleCatastrophesTreeCoupled(...
+                    state_x, state_y);
                 if nstate_x.ncat <= 1 && all(nstate_x.cat == nstate_y.cat)
                     c = c + 1;
                 end
@@ -108,7 +108,7 @@ function locationTest(testCase)
             [state_x, state_y] = housekeptStates(2 + i);
             for j = 1:n_j
                 [nstate_x, nstate_y] ...
-                    = ResampleCatastrophesCoupled(state_x, state_y);
+                    = ResampleCatastrophesTreeCoupled(state_x, state_y);
                 assertEqual(testCase, nstate_x.cat(:)', ...
                             cellfun(@length, {nstate_x.tree.catloc}));
                 assertEqual(testCase, nstate_y.cat(:)', ...
