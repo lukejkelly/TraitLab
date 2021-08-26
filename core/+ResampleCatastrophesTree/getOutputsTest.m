@@ -14,13 +14,13 @@ function valuesTest(testCase)
             for L = 5:15
                 for i = 1:10
                     state = dummyState(L);
-                    cat = ResampleCatastrophes.samplePriorCounts(state);
-                    cat0 = ResampleCatastrophes.samplePriorCounts(state);
-                    catloc = ResampleCatastrophes.samplePriorLocations(...
+                    cat = ResampleCatastrophesTree.samplePriorCounts(state);
+                    cat0 = ResampleCatastrophesTree.samplePriorCounts(state);
+                    catloc = ResampleCatastrophesTree.samplePriorLocations(...
                                  max(cat, cat0));
 
                     [nstate, U, OK, logqObs] ...
-                        = ResampleCatastrophes.getOutputs(state, cat, catloc);
+                        = ResampleCatastrophesTree.getOutputs(state, cat, catloc);
 
                     assertEqual(testCase, nstate.cat, cat(:));
                     assertEqual(testCase, nstate.ncat, sum(cat));

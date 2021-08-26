@@ -22,7 +22,7 @@ function distributionTest(testCase)
         [c0, c1, q0, q1] = deal(zeros(length(p), 1));
         for j = 1:n_j
             VARYRHO = 0;
-            cat0 = ResampleCatastrophes.samplePriorCounts(state);
+            cat0 = ResampleCatastrophesTree.samplePriorCounts(state);
             switch sum(cat0)
             case 0
                 k = 1;
@@ -34,7 +34,7 @@ function distributionTest(testCase)
             c0(k) = c0(k) + 1;
 
             VARYRHO = 1;
-            cat1 = ResampleCatastrophes.samplePriorCounts(state);
+            cat1 = ResampleCatastrophesTree.samplePriorCounts(state);
             switch sum(cat1)
             case 0
                 k = 1;
@@ -55,9 +55,9 @@ function distributionTest(testCase)
             end
             state.ncat = sum(state.cat);
             VARYRHO = 0;
-            q0(j + 1) = exp(ResampleCatastrophes.logPrior(state));
+            q0(j + 1) = exp(ResampleCatastrophesTree.logPrior(state));
             VARYRHO = 1;
-            q1(j + 1) = exp(ResampleCatastrophes.logPrior(state));
+            q1(j + 1) = exp(ResampleCatastrophesTree.logPrior(state));
         end
         h0 = cumsum(q0);
         h1 = cumsum(q1);
