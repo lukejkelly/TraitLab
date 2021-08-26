@@ -131,7 +131,7 @@ for t=1:(mcmc.subsample)
         TOPOLOGY=0;
     elseif MV==15
         update = 'Resample catastrophes';
-        [nstate, U, OK, logq] = ResampleCatastrophesTree(state);
+        [nstate, U, OK, logq] = ResampleCatastrophesBranch(state);
         TOPOLOGY = 0;
     elseif MV==16
         update='Vary kappa';
