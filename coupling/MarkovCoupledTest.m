@@ -162,7 +162,7 @@ function compareMarginalCoupled(testCase, mcmc, model, state_x, state_y)
             title('y posterior');
         end
     end
-    fprintf('CDFs of posterior for successful moves in marginal/coupled x and y'\n);
+    fprintf('CDFs of posterior for successful moves in marginal/coupled x and y\n');
     v3 = input('Do both sets of posterior CDFs match? Reply 1 for yes... ');
     assertEqual(testCase, v3, 1);
 end
