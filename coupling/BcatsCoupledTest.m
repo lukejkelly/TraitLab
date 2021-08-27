@@ -36,7 +36,7 @@ end
 function couplingTest(testCase)
     % For a valid SPR move, check if distributions overlap correctly
     global BORROWING WIDE
-    M = 6;
+    M = 8;
     N = 1e4;
     L = 10;
     [gObs, gExp] = deal(nan(M, 1));
@@ -76,12 +76,12 @@ function couplingTest(testCase)
         end
 
         s_y = state_y.tree;
-        dj_y = newage_y - s_y(j_x).time;
-        wj_y = dj_y / (s_y(k_y).time - s_y(j_x).time);
+        dj_y = newage_y - s_y(j_y).time;
+        wj_y = dj_y / (s_y(k_y).time - s_y(j_y).time);
         if j_y == r
             f_y = @(z) exp(Bcats.logPriorCounts(z, dj_y, state_y.rho));
         else
-            f_y = @(z) binopdf(z, state_y.cat(j_x), wj_y);
+            f_y = @(z) binopdf(z, state_y.cat(j_y), wj_y);
         end
 
         gExp(m) = sum(arrayfun(@(z) min(f_x(z), f_y(z)), 0:mObs));

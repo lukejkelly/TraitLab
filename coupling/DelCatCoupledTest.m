@@ -190,7 +190,7 @@ function distributionTestRun(testCase)
             legend('coupled', 'marginal');
         end
     end
-    v = input('Are the figures proportions the same? Reply 1 for yes... ');
+    v = input('Are the figures the same? Reply 1 for yes... ');
     assertTrue(testCase, v == 1);
 end
 

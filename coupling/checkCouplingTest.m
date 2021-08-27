@@ -17,8 +17,13 @@ function coupledTest(testCase)
     state_x1 = state_x;
     i1 = nodes(1);
     c1 = max(state_x1.tree(state_x1.tree(i1).child).time);
-    p1 = state_x1.tree(state_x1.tree(i1).parent).time;
-    state_x1.tree(i1).time = c1 + rand * (p1 - c1);
+    if i1 == state_x1.root
+        t1 = state_x1.tree(i1).time;
+        state_x1.tree(i1).time = (c1 + t1) / 2 + rand * (t1 - c1) * 3 / 2; 
+    else
+        p1 = state_x1.tree(state_x1.tree(i1).parent).time;
+        state_x1.tree(i1).time = c1 + rand * (p1 - c1);
+    end
     state_x1 = updateStateVariables(state_x1, model.prior);
     assertFalse(testCase, checkCoupling(state_x, state_x1));
     assertFalse(testCase, checkCoupling.extraChecks(state_x, state_x1));
@@ -68,7 +73,8 @@ function uncoupledTest(testCase)
     for n = 1:5e1
         [state_xs, pa_xs] = Markov(mcmc, model, state_x);
         state_xh = housekeeping(state_x, state_xs);
-        if any(pa_xs > 0)
+        if any(pa_xs > 0) && any(find(pa_xs > 0) ~= 15)
+            % Move 15 may propose 0 catastrophes where there was 0 already
             assertFalse(testCase, checkCoupling(state_x, state_xh));
         else
             assertTrue(testCase, checkCoupling(state_x, state_xh));
@@ -76,7 +82,7 @@ function uncoupledTest(testCase)
     end
     [state_ys, pa_ys] = Markov(mcmc, model, state_y);
     state_yh = housekeeping(state_y, state_ys);
-    if any(pa_ys > 0)
+    if any(pa_ys > 0) && any(find(pa_ys) ~= 15)
         assertFalse(testCase, checkCoupling(state_y, state_yh));
     else
         assertTrue(testCase, checkCoupling(state_y, state_yh));
