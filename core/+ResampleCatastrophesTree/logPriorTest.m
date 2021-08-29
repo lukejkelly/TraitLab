@@ -22,7 +22,7 @@ function valueTest(testCase)
             for BORROWING = 0:1
                 for VARYRHO = 0:1
                     j = 1 + 2 * BORROWING + VARYRHO;
-                    lpObs(i, j) = ResampleCatastrophes.logPrior(state);
+                    lpObs(i, j) = ResampleCatastrophesTree.logPrior(state);
                     % Expected as relevant part of LogPrior
                     MCMCCAT = 0;
                     lpExp0 = LogPrior(prior, state);
@@ -51,7 +51,7 @@ function state = dummyState(L)
     [~, a, k] = LogRhoPrior(0);
     state.rho = gamrnd(a, k);
 
-    state.cat(:) = ResampleCatastrophes.samplePriorCounts(state);
+    state.cat(:) = ResampleCatastrophesTree.samplePriorCounts(state);
     state.ncat = sum(state.cat);
 end
 

@@ -11,11 +11,11 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(...
     switch MV
     case 1
         update='RW node time between parent time and oldest child time';
-        [i, newage_x, newage_y, logq_x, logq_y] ...
+        [i, newage_x, newage_y, logq_x, logq_y, cat_x, cat_y, loc_x, loc_y] ...
             = SchooseCoupled(state_x, state_y);
         % Supdate always returns TOPOLOGY = 0 so we ignore it
-        [nstate_x, U_x, ~] = Supdate(state_x, i, newage_x);
-        [nstate_y, U_y, ~] = Supdate(state_y, i, newage_y);
+        [nstate_x, U_x, ~] = Supdate(state_x, i, newage_x, cat_x, loc_x);
+        [nstate_y, U_y, ~] = Supdate(state_y, i, newage_y, cat_y, loc_y);
     case {2, 3}
         if MV == 2
             update = 'Exchange nearest neighbours';
@@ -96,7 +96,7 @@ function [state_x, succ_x, state_y, succ_y] = MarkovCoupledMaximal(...
     case 15
         update = 'Resample catastrophes';
         [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...
-            = ResampleCatastrophesCoupled(state_x, state_y);
+            = ResampleCatastrophesBranchCoupled(state_x, state_y);
     case 16
         update = 'Vary kappa';
         [nstate_x, nstate_y, U_x, U_y, OK_x, OK_y, logq_x, logq_y] ...

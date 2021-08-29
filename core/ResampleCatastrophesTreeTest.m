@@ -1,4 +1,4 @@
-function tests = ResampleCatastrophesTest
+function tests = ResampleCatastrophesTreeTest
     tests = functiontests(localfunctions);
 end
 
@@ -11,7 +11,7 @@ function valueTest(testCase)
             for BORROWING = 0:1
                 for VARYRHO = 0:1
                     state = dummyState(L);
-                    [nstate, U, OK, logq] = ResampleCatastrophes(state);
+                    [nstate, U, OK, logq] = ResampleCatastrophesTree(state);
                     assertEqual(testCase, nstate.ncat, sum(nstate.cat));
                     for j = 1:(2  * nstate.NS)
                         if BORROWING

@@ -30,8 +30,8 @@ for t=1:(mcmc.subsample)
     OK=1;
     if MV==1
         update='RW node time between parent time and oldest child time';
-        [i,newage,logq]=Schoose(state);
-        [nstate,U,TOPOLOGY]=Supdate(state,i,newage);
+        [i,newage,logq,cat,loc]=Schoose(state);
+        [nstate,U,TOPOLOGY]=Supdate(state,i,newage,cat,loc);
     elseif MV==2
         update='Exchange nearest neighbours';
         [i,j,iP,jP,logq,OK]=Echoose(state,NARROW,model.prior);
@@ -131,7 +131,7 @@ for t=1:(mcmc.subsample)
         TOPOLOGY=0;
     elseif MV==15
         update = 'Resample catastrophes';
-        [nstate, U, OK, logq] = ResampleCatastrophes(state);
+        [nstate, U, OK, logq] = ResampleCatastrophesBranch(state);
         TOPOLOGY = 0;
     elseif MV==16
         update='Vary kappa';

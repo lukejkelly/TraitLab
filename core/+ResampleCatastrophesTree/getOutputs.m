@@ -20,6 +20,6 @@ function [nstate, U, OK, logq] = getOutputs(state, cat, catloc)
     U = above(nstate.leaves, nstate.tree, nstate.root);
     OK = 1;
 
-    logq = ResampleCatastrophes.logPrior(state) ...
-           - ResampleCatastrophes.logPrior(nstate);
+    logq = ResampleCatastrophesTree.logPrior(state) ...
+           - ResampleCatastrophesTree.logPrior(nstate);
 end

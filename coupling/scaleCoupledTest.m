@@ -36,7 +36,7 @@ function coupledTest(testCase)
         coupledTestRoutine(testCase, par, cfh);
     end
     title('Coupling proportions');
-    fprintf('Figure shows proportion of matching samples\n');
+    fprintf('Figure shows difference in expected and observed proportion of matching samples\n');
     fprintf('%i trials of %i samples\n', testCase.TestData.n_i, ...
             testCase.TestData.n_j);
     v = input('Are these proportions okay? Reply 1 for yes... ');
