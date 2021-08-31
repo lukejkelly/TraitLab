@@ -57,11 +57,10 @@ end
 
 %s=WorkVars(NS,L,s,Root); %unused assignment RJR 05/07/07
 TOPOLOGY=1;
-state=MarkRcurs(state,[LEAVES,NODES],TOPOLOGY); 
+state=MarkRcurs(state,[LEAVES,NODES],TOPOLOGY);
 %TODO compare c and state.claderoot
 
-%llkd=LogLkd(state); % Luke --- moved this inside if/else.
-if BORROWING 
+if BORROWING
     [llkd, ~] = logLkd2(state);
 else
     llkd=LogLkd(state);
@@ -77,6 +76,9 @@ end
 if state.ncat ~= sum(state.cat)
     result=[result, [6;sum(state.cat)]];
 end
+if BORROWING && ~all(state.cat(:)' == cellfun(@length, {state.tree.catloc}))
+    result=[result, [6.1; sum(state.cat)]];
+end
 
 
 if DONTMOVECATS
@@ -84,7 +86,7 @@ if DONTMOVECATS
         if s(k).type<=ANST && state.cat(k)~=1, result=[result, [7;k]]; end
     end
 end
-    
+
 
 % Check that the length is correct
 if (state.length-TreeLength(state.tree,state.root))/state.length>1e-10

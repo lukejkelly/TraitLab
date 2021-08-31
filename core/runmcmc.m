@@ -2,7 +2,7 @@ function runmcmc(fsu,handles,h)
 
 %global GRAPH JUSTS JUSTT LEAF QUIET ANST STOPRUN TESTSS WRITEXI
 GlobalSwitches;
-global LOSTONES BORROWING SAVESTATES;
+global LOSTONES SAVESTATES EXPSTART
 
 if nargin>0
 
@@ -11,6 +11,10 @@ if nargin>0
     % intialise variables
     [data,model,state,handles.output,mcmc]=fullsetup(fsu);
 
+    if mcmc.initial.setup == EXPSTART
+        [state, ~] = MarkovPrior(mcmc, model, state, 1);
+        handles.output.trees{1} = wnextree(state.tree, state.root);
+    end
     save outIC;
 
     if fromgui
@@ -75,18 +79,6 @@ end
 if mcmc.gather, lastsave=timestarted; save outMC; end
 
 for t=start:finish
-
-    % Luke 10/02/14
-    % Checking to make sure catastrophe locs aren't getting screwed around.
-    % We compare the number of catastrophe locations with the number we expect.
-    if BORROWING
-        for i = 1:(2 * state.NS)
-            if state.cat(i) ~= length(state.tree(i).catloc)
-                sprintf('Catastrophe mismatch on <pa(%d), %d>', i, i)
-                keyboard; pause;
-            end
-        end
-    end
 
     if mcmc.gather
         if etime(clock,lastsave)>3600, save outMC; lastsave=clock; end

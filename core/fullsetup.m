@@ -44,7 +44,7 @@ return;
 function mcmc=initMCMC(fsu,TWOSEQS)
 
 global GATHER
-global VARYRHO VARYMU VARYLAMBDA VARYKAPPA VARYNU DEPNU VARYP MISDAT MCMCCAT DONTMOVECATS BORROWING VARYBETA GF_START GF_APPROX
+global VARYRHO VARYMU VARYKAPPA DEPNU VARYP MISDAT MCMCCAT DONTMOVECATS BORROWING VARYBETA GF_START GF_APPROX
 
 VARYRHO=fsu.VARYRHO*fsu.MCMCCAT;
 VARYMU=fsu.VARYMU;
@@ -92,29 +92,26 @@ if ~BORROWING, mcmc.initial.beta = 0; end
 %12 rescale tree above clade bounds
 %13 add a catastrophe
 %14 delete a catastrophe
-%15 random walk rho (log scale)
+%15 resample catastrophes [previously: random walk rho (log scale)]
 %16 random walk kappa (log scale)
-%17 random walk lambda (log scale)
+%17 move catastrophe along branch [previously: random walk lambda (log scale)]
 %18 Move catastrophe to neighbour
 %19 Vary XI for one leaf
 %20 Vary XI for all leaves
-%21 random walk beta (log scale) % Luke
-if TWOSEQS      % Luke 23/04/2014 added Beta. % Luke 02/10/2017 removed move on Rho.
-   move=[1, 0, 0, 0, 0, 1, 0, VARYMU, VARYP, 0, 0, 1*fsu.ISCLADE, MCMCCAT, MCMCCAT, 0, VARYKAPPA, VARYLAMBDA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA]; % Luke 24/10/14 changed move 10 from MISDAT to 0.
-   %     1  2  3  4  5  6  7  8       9      10 11 12             13       14       15 16         17          18           19            20            21
-   %move=[0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 1];
+%21 random walk beta (log scale)
+if TWOSEQS
+   move=[1, 0, 0, 0, 0, 1, 0, VARYMU, VARYP, 0, 0, 1*fsu.ISCLADE, MCMCCAT, MCMCCAT, MCMCCAT, VARYKAPPA, fsu.MCMCCAT && VARYBETA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA]; % Luke 24/10/14 changed move 10 from MISDAT to 0.
+   %     1  2  3  4  5  6  7  8       9      10 11 12             13       14       15       16         17                       18           19            20            21
 else
-   move=[1, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3, 1, 3*VARYMU, VARYP, 0, 3, 3*fsu.ISCLADE, fsu.MCMCCAT, fsu.MCMCCAT, 0, fsu.VARYKAPPA, VARYLAMBDA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA]; % Luke - added #21 VARYBETA.
-   %     1  2                  3                4                  5                6  7  8         9      10 11 12             13           14           15 16             17          18           19            20            21
+   move=[1, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3*fsu.MCMCVARYTOP, fsu.MCMCVARYTOP, 3, 1, 3*VARYMU, VARYP, 0, 3, 3*fsu.ISCLADE, fsu.MCMCCAT, fsu.MCMCCAT, fsu.MCMCCAT, fsu.VARYKAPPA, fsu.MCMCCAT && VARYBETA, fsu.MCMCCAT, fsu.MCMCMISS, fsu.MCMCMISS, VARYBETA];
+   %     1  2                  3                4                  5                6  7  8         9      10 11 12             13           14           15           16             17                       18           19            20            21
    if fsu.DONTMOVECATS %for punctuational bursts.
        move(13)=0;
        move(14)=0;
+       move(15)=0;
+       % We could add move(17) = 0; here if we want to fix catastrophe locations
        move(18)=0;
    end
-
-   %move=[1 0 0 0 0 0 1 VARYMU VARYP MISDAT 1];
-   %move=[1 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 0];
-   %move=[zeros(1,12),1,1,zeros(1,3),1];
 end
 move=move./sum(move);
 del=0.5;
@@ -128,13 +125,13 @@ mcmc.gather=GATHER;
 %% TODO: Move RNG seeding to start of code
 if mcmc.initial.seedrand
     warning(['Setting specified RNG seed is too far into the code as some', ...
-             'of the initialisation functions (e.g. pop) called before', ...
-             'this use the RNG']);
+             'of the initialisation functions (e.g. pop) called up to now', ...
+             'use the RNG']);
     % use given seed
     rng(fsu.SEED);
 else
     % reset generator to random state
-   rng('shuffle'); % rng(sum(100 * clock));
+    rng('shuffle');
 end
 
 if mcmc.monitor.on
@@ -297,7 +294,7 @@ global NEXUS BUILD
 
 switch initial.source
 case NEXUS
-    disp(sprintf('\n***Loading data presented from GUI'));
+    fprintf('\n***Loading data presented from GUI\n');
     content = GUICONTENT;
     %content = ObserveData(content,[],[],0);
     if ~isempty(true)
