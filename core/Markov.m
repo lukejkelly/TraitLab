@@ -30,8 +30,8 @@ for t=1:(mcmc.subsample)
     OK=1;
     if MV==1
         update='RW node time between parent time and oldest child time';
-        [i,newage,logq]=Schoose(state);
-        [nstate,U,TOPOLOGY]=Supdate(state,i,newage);
+        [i,newage,logq,cat,loc]=Schoose(state);
+        [nstate,U,TOPOLOGY]=Supdate(state,i,newage,cat,loc);
     elseif MV==2
         update='Exchange nearest neighbours';
         [i,j,iP,jP,logq,OK]=Echoose(state,NARROW,model.prior);
@@ -46,17 +46,17 @@ for t=1:(mcmc.subsample)
         end
     elseif MV==4
         update='Reconnect an edge into a nearby edge';
-        [i,j,k,newage,logq]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
+        [i,j,k,newage,logq,ncat,cat,loc]=Bchoose(state,NARROW,mcmc.update.theta,model.prior);
         OK=~isempty(newage);
         if OK
-            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
+            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage,ncat,cat,loc);
         end
     elseif MV==5
         update='Reconnect an edge into an edge chosen UAR over the tree';
-        [i,j,k,newage,logq]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
+        [i,j,k,newage,logq,ncat,cat,loc]=Bchoose(state,WIDE,mcmc.update.theta,model.prior);
         OK=~isempty(newage);
         if OK
-            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage);
+            [nstate,U,TOPOLOGY]=Bupdate(state,i,j,k,newage,ncat,cat,loc);
         end
     elseif MV==6
         update='Rescale whole tree';
@@ -130,13 +130,9 @@ for t=1:(mcmc.subsample)
         [nstate, U, OK, logq]=DelCat(state);
         TOPOLOGY=0;
     elseif MV==15
-        update='Vary rho';
-        variation=mcmc.update.del+rand*mcmc.update.deldel;
-        nstate=state;
-        nstate.rho=state.rho*variation;
-        logq=-log(variation);
-        TOPOLOGY=0;
-        U=[];
+        update = 'Resample catastrophes';
+        [nstate, U, OK, logq] = ResampleCatastrophesBranch(state);
+        TOPOLOGY = 0;
     elseif MV==16
         update='Vary kappa';
         variation=mcmc.update.del+rand*mcmc.update.deldel;
@@ -150,19 +146,12 @@ for t=1:(mcmc.subsample)
         TOPOLOGY=0;
         U=state.nodes;
         if OK && DEPNU
-            nstate.nu=state.nu/variation;
+            nstate.nu = state.nu * variation;
         end
     elseif MV==17
-        update='Vary lambda';
-        variation=mcmc.update.del+rand*mcmc.update.deldel;
-        logq=-log(variation);
-        nstate=state;
-        nstate.lambda=state.lambda*variation;
-        TOPOLOGY=0;
-        U=state.nodes;
-        if DEPNU
-            nstate.nu=state.nu*variation;
-        end
+        update = 'Vary catastrophe location';
+        [nstate, U, OK, logq] = MoveCatLoc(state);
+        TOPOLOGY = 0;
     elseif MV==18
         update='Move catastrophe to neighbour';
         [nstate,U,OK,logq]=MoveCat(state);
@@ -247,9 +236,9 @@ for t=1:(mcmc.subsample)
 
         % Likelihood calculations.
         if BORROWING
-            [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate); % LUKE
+            [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate);
         else
-            nstate.loglkd     = LogLkd(nstate);
+            nstate.loglkd = LogLkd(nstate);
             nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
         end
 

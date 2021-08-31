@@ -1,0 +1,28 @@
+# YAML 1.2
+---
+authors:
+  - family-names: Kelly
+    given-names: "L.J."
+    orcid: "https://orcid.org/https://orcid.org/0000-0003-4653-9303"
+  - family-names: Nicholls
+    given-names: "G.K."
+  - family-names: Ryder
+    given-names: "R.J."
+  - family-names: Welch
+    given-names: "D."
+cff-version: "1.2.0"
+message: "If you use this software, please cite the preferred-citation. The preferred-citation will be updated in September 2021 to include additional methods and authors."
+repository-code: "https://github.com/lukejkelly/TraitLab"
+title: TraitLab
+preferred-citation:
+  authors:
+  - family-names: Nicholls
+    given-names: "G.K."
+  - family-names: Ryder
+    given-names: "R.J."
+  - family-names: Welch
+    given-names: "D."
+  title: "TraitLab: a MatLab Package for Fitting and Simulating Binary Trait-Like Data"
+  type: manual
+  year: 2013
+...
