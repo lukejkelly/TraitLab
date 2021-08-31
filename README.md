@@ -44,6 +44,10 @@ batchTraitLab('path to .par file', [optional number to append to output files]);
 ```
 The [manual][6] describes how to run experiments in detail.
 
+## Example
+
+The _example_ folder contains a synthetic data set and _.par_ files for marginal and coupled experiments.
+
 ---
 
 ## Notes
