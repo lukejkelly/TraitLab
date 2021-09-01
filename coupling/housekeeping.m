@@ -48,11 +48,11 @@ function nstate2 = housekeeping(state1, state2)
 
     % Pairs of common siblings have same ordering
     t2 = housekeeping.matchSiblings(s1, t2);
-    % TODO: remove this after further testing
-    if equaltrees(s2, t2) == 0
-        save('coupling/housekeeping-state.mat');
-        error('Trees do not match after housekeeping');
-    end
+    % % TODO: remove this after further testing
+    % if equaltrees(s2, t2) == 0
+    %     save('coupling/housekeeping-state.mat');
+    %     error('Trees do not match after housekeeping');
+    % end
 
     % Update state variables
     nstate2 = state2;

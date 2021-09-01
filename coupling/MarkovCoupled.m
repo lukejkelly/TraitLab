@@ -1,4 +1,4 @@
-function [state_x, state_y, pa_x, pa_y, pa_xy, coupledAfter] = MarkovCoupled(...
+function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(...
         mcmc, model, state_x, state_y, ignoreearlywarn)
 
     global STOPRUN
@@ -8,7 +8,7 @@ function [state_x, state_y, pa_x, pa_y, pa_xy, coupledAfter] = MarkovCoupled(...
     [acct_x, acct_y, acct_xy] = deal(zeros(mcmc.update.Nmvs, 1));
     prop = zeros(mcmc.update.Nmvs, 1);
 
-    coupledBefore = checkCoupling(state_x, state_y);
+    % coupledBefore = checkCoupling(state_x, state_y);
 
     for t = 1:(mcmc.subsample)
 
@@ -48,20 +48,20 @@ function [state_x, state_y, pa_x, pa_y, pa_xy, coupledAfter] = MarkovCoupled(...
             error('Move %d  not implemented', MV);
         end
 
-        % TODO: remove move uncoupling check after further testing
-        coupledAfter = checkCoupling(state_x, state_y);
-        if coupledBefore && ~coupledAfter
-            save(sprintf('uncoupling move %s.mat', datetime));
-            error('uncoupling at %s due to move', datetime);
-        else
-            coupledBefore = coupledAfter;
-        end
+        % % TODO: remove move uncoupling check after further testing
+        % coupledAfter = checkCoupling(state_x, state_y);
+        % if coupledBefore && ~coupledAfter
+        %     save(sprintf('uncoupling move %s.mat', datetime));
+        %     error('uncoupling at %s due to move', datetime);
+        % else
+        %     coupledBefore = coupledAfter;
+        % end
         state_y = housekeeping(state_x, state_y);
-        % TODO: remove housekeeping coupling check after further testing
-        if coupledBefore && ~checkCoupling(state_x, state_y)
-            save(sprintf('uncoupling housekeeping %s.mat', datetime));
-            error('uncoupling at %s due to housekeeping', datetime);
-        end
+        % % TODO: remove housekeeping coupling check after further testing
+        % if coupledBefore && ~checkCoupling(state_x, state_y)
+        %     save(sprintf('uncoupling housekeeping %s.mat', datetime));
+        %     error('uncoupling at %s due to housekeeping', datetime);
+        % end
         acct_x(MV) = acct_x(MV) + succ_x;
         acct_y(MV) = acct_y(MV) + succ_y;
         acct_xy(MV) = acct_xy(MV) + succ_x * succ_y;
