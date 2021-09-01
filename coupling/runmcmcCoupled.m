@@ -63,8 +63,9 @@ while ~isCoupled
     t = t + 1;
     atime = cputime;
     ignoreearlywarn = (t <= 3);
-    [state_x, state_y, pa_x, pa_y, pa_xy, isCoupled] = MarkovCoupled(...
+    [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(...
         mcmc, model, state_x, state_y, ignoreearlywarn);
+    isCoupled = checkCoupling(state_x, state_y);
     btime = cputime - atime;
     handles_x = runmcmcCoupled.writeOutputMCMC(...
         handles_x, state_x, btime, fsu, t, pa_x, model, data);
