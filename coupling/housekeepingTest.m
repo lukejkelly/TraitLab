@@ -129,6 +129,26 @@ function s1s13Test(testCase)
     checkHousekeeping(testCase, nstate13Obs, nstate13Exp);
 end
 
+function s14t14Test(testCase)
+    % Two common clades, check labelling within
+    prior = popClades();
+    state1 = partialMakeState(prior, testCase.TestData.s14_1);
+    state2 = partialMakeState(prior, testCase.TestData.s14_2);
+    nstate2Obs = housekeeping(state1, state2);
+    nstate2Exp = partialMakeState(prior, testCase.TestData.t14);
+    checkHousekeeping(testCase, nstate2Obs, nstate2Exp);
+end
+
+function s15t15Test(testCase)
+    % Two common clades, check labelling within
+    prior = popClades();
+    state1 = partialMakeState(prior, testCase.TestData.s15_1);
+    state2 = partialMakeState(prior, testCase.TestData.s15_2);
+    nstate2Obs = housekeeping(state1, state2);
+    nstate2Exp = partialMakeState(prior, testCase.TestData.t15);
+    checkHousekeeping(testCase, nstate2Obs, nstate2Exp);
+end
+
 % Helper functions
 function checkHousekeeping(testCase, stateObs, stateExp)
     % Compare tree variables
@@ -161,6 +181,8 @@ function state = partialMakeState(prior, s)
     state.cat = state.cat(:);
     state.ncat = sum(state.cat);
     state.length = TreeLength(state.tree, state.root);
+
+    checktree(state.tree, state.NS);
 end
 
 function prior = popClades()
@@ -378,7 +400,9 @@ function setupOnce(testCase)
     p6.clade{3}.language = {'6', '7', '8', '9', '10'};
     testCase.TestData.p6 = p6;
 
-    % Only adam and root differ
+    % Only Adam and root differ
+    % Cannot plot this tree as draw assumes Adam is last index in struct
+
     % s9
     % 5
     % |
@@ -389,7 +413,7 @@ function setupOnce(testCase)
     % 1
     s9 = emptyTreeStruct(6);
     [s9.Name] = deal('1', '2', '3', '', 'Adam', '');
-    [s9.parent] = deal(4, 4, 5, 5, [], 5);
+    [s9.parent] = deal(4, 4, 6, 6, [], 5);
     [s9.child] = deal([], [], [], [1, 2], 6, [4, 3]);
     [s9.type] = deal(0, 0, 0, 1, 3, 2);
     [s9.time] = deal(0, 0, 0, 1, 3, 2);
@@ -410,7 +434,7 @@ function setupOnce(testCase)
     % 1
     s10 = emptyTreeStruct(6);
     [s10.Name] = deal('1', '2', '3', 'Adam', '', '');
-    [s10.parent] = deal(4, 4, 5, [], 4, 5);
+    [s10.parent] = deal(6, 6, 5, [], 4, 5);
     [s10.child] = deal([], [], [], 5, [6, 3], [1, 2]);
     [s10.type] = deal(0, 0, 0, 3, 2, 1);
     [s10.time] = deal(0, 0, 0, 3, 2, 1);
@@ -482,6 +506,84 @@ function setupOnce(testCase)
 
     % t11s1 is s1 exactly
     testCase.TestData.t13s1 = s1;
+
+    % Checking within-clade labelling
+    % Afterwards, left and right subtrees in s2 should use same index sets as s1
+
+    %              16
+    %               |
+    %         ______9_________
+    %    ___10____       ___13___
+    % __11_   __12_   __14_   __15_
+    % 1   2   3   4   5   6   7   8
+    s14_1 = emptyTreeStruct(16);
+    [s14_1.Name] = deal('1', '2', '3', '4', '5', '6', '7', '8', '', '', '', '', '', '', '', 'Adam');
+    [s14_1.parent] = deal(11, 11, 12, 12, 14, 14, 15, 15, 16, 9, 10, 10, 9, 13, 13, []);
+    [s14_1.child] = deal([], [], [], [], [], [], [], [], [10, 13], [11, 12], [1, 2], [3, 4], [14, 15], [5, 6], [7, 8], 9);
+    [s14_1.type] = deal(0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 3);
+    [s14_1.time] = deal(0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 1, 1, 2, 1, 1, 4);
+    [s14_1.sibling] = deal(1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 2, 1, 2, []);
+    testCase.TestData.s14_1 = s14_1;
+
+    %              16
+    %               |
+    %         _____11__________
+    %     ___9____        ___12____
+    % ___15___    |   ___10___    |
+    % |   __13_   |   |   __14_   |
+    % 1   2   3   4   5   6   7   8
+    s14_2 = emptyTreeStruct(16);
+    [s14_2.Name] = deal('1', '2', '3', '4', '5', '6', '7', '8', '', '', '', '', '', '', '', 'Adam');
+    [s14_2.parent] = deal(15, 13, 13, 9, 10, 14, 14, 12, 11, 12, 16, 11, 15, 10, 9, []);
+    [s14_2.child] = deal([], [], [], [], [], [], [], [], [15, 4], [5, 14], [9, 12], [10, 8], [2, 3], [6, 7], [1, 13], 11);
+    [s14_2.type] = deal(0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 1, 1, 1, 1, 3);
+    [s14_2.time] = deal(0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 4, 3, 1, 1, 2, 5);
+    [s14_2.sibling] = deal(1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, []);
+    testCase.TestData.s14_2 = s14_2;
+
+    %              16
+    %               |
+    %         ______9__________
+    %     ___10____        ___13___
+    % ___11___    |   ___15___    |
+    % |   __12_   |   |   __14_   |
+    % 1   2   3   4   5   6   7   8
+    t14 = emptyTreeStruct(16);
+    [t14.Name] = deal('1', '2', '3', '4', '5', '6', '7', '8', '', '', '', '', '', '', '', 'Adam');
+    [t14.parent] = deal(11, 12, 12, 10, 15,  14, 14, 13, 16, 9, 10, 11, 9, 15, 13, []);
+    [t14.child] = deal([], [], [], [], [], [], [], [], [10, 13], [11, 4], [1, 12], [2, 3], [15, 8], [6, 7], [5, 14], 9);
+    [t14.type] = deal(0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 3);
+    [t14.time] = deal(0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 2, 1, 3, 1, 2, 5);
+    [t14.sibling] = deal(1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, []);
+    testCase.TestData.t14 = t14;
+
+    % Same as 14 but on a bigger scale
+    s15_1 = emptyTreeStruct(24);
+    [s15_1.Name] = deal('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '', '', '', '', '', '', '', '', '', '', '', 'Adam');
+    [s15_1.parent] = deal(23, 23, 22, 21, 20, 19, 17, 16, 15, 14, 13, 13, 14, 15, 16, 17, 18, 24, 18, 19, 20, 21, 22, []);
+    [s15_1.child] = deal([], [], [], [], [], [], [], [], [], [], [], [], [11, 12], [10, 13], [9, 14], [8, 15], [7, 16], [19, 17], [20, 6], [21, 5], [22, 4], [23, 3], [1, 2], 18);
+    [s15_1.type] = deal(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 3);
+    [s15_1.time] = deal(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 7);
+    [s15_1.sibling] = deal(1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, []);
+    testCase.TestData.s15_1 = s15_1;
+
+    s15_2 = emptyTreeStruct(24);
+    [s15_2.Name] = deal('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '', '', '', '', '', '', '', '', '', '', '', 'Adam');
+    [s15_2.parent] = deal(17, 16, 15, 14, 13, 13, 18, 18, 19, 20, 21, 22, 14, 15, 16, 17, 23, 19, 20, 21, 22, 23, 24, []);
+    [s15_2.child] = deal([], [], [], [], [], [], [], [], [], [], [], [], [5, 6], [4, 13], [3, 14], [2, 15], [1, 16], [7, 8], [18, 9], [19, 10], [20, 11], [21, 12], [17, 22], 23);
+    [s15_2.type] = deal(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3);
+    [s15_2.time] = deal(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4,  5, 1, 2, 3, 4, 5, 6, 7);
+    [s15_2.sibling] = deal(1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, []);
+    testCase.TestData.s15_2 = s15_2;
+
+    t15 = emptyTreeStruct(24);
+    [t15.Name] = deal('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '', '', '', '', '', '', '', '', '', '', '', 'Adam');
+    [t15.parent] = deal(19, 23, 22, 21, 20, 20, 16,  16,  15, 13, 14, 17, 14, 17, 13, 15, 18, 24,  18, 21, 22, 23, 19, []);
+    [t15.child] = deal([], [], [], [], [], [], [], [], [], [], [], [], [15, 10], [13, 11], [16, 9], [7, 8], [14,  12], [19, 17], [1, 23], [5, 6], [4, 20], [3, 21], [2, 22], 18);
+    [t15.type] = deal(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 3);
+    [t15.time] = deal(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 2, 1, 5, 6, 5, 1, 2, 3, 4, 7);
+    [t15.sibling] = deal(1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, []);
+    testCase.TestData.t15 = t15;
 end
 
 function teardownOnce(testCase)
