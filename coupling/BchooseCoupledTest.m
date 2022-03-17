@@ -108,11 +108,11 @@ function compareAllDistributions(testCase, clades, moveType, flip)
         yExp(r, :) = storeOutputs(iExp_y, jExp_y, kExp_y, newageExp_y, logqExp_y);
     end
 
-    parNames = {'i', 'j', 'k', 'newage', 'logq'};
-    for i = 1:5
-        subplot(5, 2, 2 * i - 1);
+    parNames = {'$ i $', '$ j $', '$ \mathrm{pa}(j) $', '$ t_i $', 'logq'};
+    for i = 1:4 %5
+        subplot(4, 2, 2 * i - 1);
         drawECDFs(xObs(:, i), xExp(:, i), sprintf('x: %s', parNames{i}), i < 4);
-        subplot(5, 2, 2 * i);
+        subplot(4, 2, 2 * i);
         drawECDFs(yObs(:, i), yExp(:, i), sprintf('y: %s', parNames{i}), i < 4);
     end
     fprintf('clades: %s\nmove type: %s\nflip: %s\nsamples: %g\n', ...
@@ -142,9 +142,10 @@ function drawECDFs(xObs, xExp, figTitle, binIntegers)
     ylim([0, 1]);
     yyaxis right;
     plot(binCentres, nObs - nExp, '-.r', 'LineWidth', 2);
-    legend('Obs', 'Exp', 'Diff', 'Location', 'SouthEast');
+    legend('Coupled', 'Marginal', 'Difference', 'Location', 'northoutside', ...
+           'Orientation', 'horizontal');
     axis('tight');
-    title(figTitle);
+    xlabel(figTitle, 'Interpreter', 'latex');
 end
 
 function drawIndividualECDFs(state, xObs, xExp, figVar)

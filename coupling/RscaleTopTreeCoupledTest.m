@@ -182,4 +182,5 @@ end
 
 function teardownOnce(testCase)
     RscaleTopTreeCoupledTest.teardownOnce(testCase);
+    close;
 end

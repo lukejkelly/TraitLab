@@ -10,6 +10,8 @@ saveStates
 **/*.txt
 **/*.nex
 **/*_info
+**/*.tau
+**/*.pa
 
 # Matlab and MEX files
 outDC.mat
