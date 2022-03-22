@@ -115,12 +115,13 @@ function compareAllDistributions(testCase, clades, moveType, flip)
         subplot(4, 2, 2 * i);
         drawECDFs(yObs(:, i), yExp(:, i), sprintf('y: %s', parNames{i}), i < 4);
     end
-    fprintf('clades: %s\nmove type: %s\nflip: %s\nsamples: %g\n', ...
+    fprintf('\nclades: %s\nmove type: %s\nflip: %s\nsamples: %g\n', ...
             clades, moveType, flip, nReps);
     fprintf('Histograms do not reach 1 if any moves fail\n');
     v1 = input('Do the CDFs in the figure match? Reply 1 for yes... ');
     assertEqual(testCase, v1, 1);
 
+    clf;
     drawIndividualECDFs(state_x, xObs, xExp, 'x');
     drawIndividualECDFs(state_y, yObs, yExp, 'y');
     v2 = input('Do the CDFs in the figure match? Reply 1 for yes... ');
@@ -139,6 +140,7 @@ function drawECDFs(xObs, xExp, figTitle, binIntegers)
     binCentres = conv(edges, [0.5, 0.5], 'valid');
     yyaxis left;
     plot(binCentres, nObs, '-b', binCentres, nExp, ':g', 'LineWidth', 2);
+    ylabel('ECDF');
     ylim([0, 1]);
     yyaxis right;
     plot(binCentres, nObs - nExp, '-.r', 'LineWidth', 2);
@@ -178,6 +180,7 @@ function drawIndividualECDFs(state, xObs, xExp, figVar)
         binCentres = conv(edges, [0.5, 0.5], 'valid');
         yyaxis left;
         plot(binCentres, nObs, '-b', binCentres, nExp, ':g', 'LineWidth', 2);
+        ylabel('ECDF');
         ylim([0, 1]);
         yyaxis right;
         plot(binCentres, nObs - nExp, '-.r', 'LineWidth', 2);
@@ -247,5 +250,8 @@ function teardownOnce(testCase)
     global VARYRHO
     unitTests.teardownOnce(testCase);
     VARYRHO = testCase.TestData.VARYRHO;
+end
+
+function teardown(~)
     close;
 end

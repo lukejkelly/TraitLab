@@ -83,6 +83,7 @@ function marginalTests(testCase)
 
     n = 1e3;
     [xCoupled, yCoupled, xMarginal, yMarginal] = deal(zeros(n, 2));
+    fprintf('%d samples\n', n);
 
     for samp = 1:n
         [iCoupled, newage_xCoupled, newage_yCoupled, ~, ~] ...
@@ -105,6 +106,8 @@ function marginalTests(testCase)
         [n_xM, e_xM] = histcounts(xMarginal(xMarginal(:, 1) == i, 2), 20, ...
                                   'Normalization', 'cdf');
         plot([e_xC; e_xM]', [zeros(2, 1), [n_xC; n_xM]]', ':', 'LineWidth', 2);
+        xlabel(sprintf('t_{%i}^{(X)}', i));
+        ylabel('ECDF');
 
         subplot(state_x.NS - 1, 2, 2 * j);
         [n_yC, e_yC] = histcounts(yCoupled(yCoupled(:, 1) == i, 2), 20, ...
@@ -112,6 +115,8 @@ function marginalTests(testCase)
         [n_yM, e_yM] = histcounts(yMarginal(yMarginal(:, 1) == i, 2), 20, ...
                                   'Normalization', 'cdf');
         plot([e_yC; e_yM]', [zeros(2, 1), [n_yC; n_yM]]', ':', 'LineWidth', 2);
+        xlabel(sprintf('t_{%i}^{(Y)}', i));
+        ylabel('ECDF');
     end
     v = input('Do the CDFs in the figure match? Reply 1 for yes... ');
     assertEqual(testCase, v, 1);
@@ -140,7 +145,7 @@ function coupledTests(testCase)
     fprintf('obs     exp     diff\n');
     fmt = '%-.4f  %-.4f  %+-.4f\n';
     fprintf(fmt, [overlapObs; overlapExp; overlapObs - overlapExp]);
-    v = input(['Do these proportions of coupled samples match? ', ...
+    v = input(['Do these proportions of coupled samples for each node index match? ', ...
                'Reply 1 for yes... ']);
     assertEqual(testCase, v, 1);
 end
@@ -151,12 +156,14 @@ function setupOnce(testCase)
     global BORROWING MCMCCAT
     testCase.TestData.BORROWING = BORROWING;
     testCase.TestData.MCMCCAT = MCMCCAT;
+    clf;
 end
 
 function teardownOnce(testCase)
     global BORROWING MCMCCAT
     BORROWING = testCase.TestData.BORROWING;
     MCMCCAT = testCase.TestData.MCMCCAT;
+    close;
 end
 
 function [state_x, state_y] = dummyStates()
