@@ -2,7 +2,7 @@ function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn)
 % Modification of Markov to sample from prior by ignoring log-likelihood
 % Log-likelihood terms are only calculated on exit
 
-mcmc.subsample = 1e3;
+mcmc.subsample = 1e4;
 % Do not change rate parameters, scale entire tree or add catastrophes
 mcmc.update.move([6, 8, 13:18, 21]) = 0;
 mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
