@@ -17,12 +17,13 @@ function nstate2 = housekeeping(state1, state2)
 
     % Permute indices so that subtrees have common parent indices
     r = {s1([s1.type] == LEAF).Name};
-    a1 = housekeeping.getLeafArray(s1, r);
+    a1 = housekeeping.getLeafArray(s1, r, state1.root);
     i1 = (1:length(s1))';
     j2 = 1:length(s2);
     done = false;
     while ~done
-        a2 = housekeeping.getLeafArray(t2, r);
+        root2 = find([t2.type] == ROOT);
+        a2 = housekeeping.getLeafArray(t2, r, root2);
         [c1, c2] = ismember(a1, a2, 'rows');
         i2 = find(c1 & (i1 ~= c2), 1);
         if any(i2)
