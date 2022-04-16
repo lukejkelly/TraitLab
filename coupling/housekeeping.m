@@ -90,15 +90,19 @@ function nstate2 = housekeeping(state1, state2)
         error('Clade roots do not match after housekeeping');
     end
 
-     % Update node likelihood information
+    % Update node likelihood information
+    % Unit tests don't have data so disable the following when running them
     if ~BORROWING
-        nstate2 = MarkRcurs(nstate2, [nstate2.leaves, nstate2.nodes], 1);
+        swapped = find(i1' ~= j2);
+        if ~isempty(swapped)
+            U = unique(above(swapped, nstate2.tree, nstate2.root));
+            nstate2 = MarkRcurs(nstate2, U, 1);
+            if check(nstate2)
+                keyboard;
+            end
+        end
     end
-    % if BORROWING && ~ismembertol(nstate2.loglkd, logLkd2(nstate2))
-    %     keyboard;
-    % elseif ~BORROWING && ~ismembertol(nstate2.loglkd, LogLkd(nstate2))
-    %     keyboard;
-    % elseif check(state1) || check(state2) || check(nstate2)
+    % if check(state1) || check(state2) || check(nstate2)
     %     keyboard;
     % end
 end
