@@ -182,7 +182,7 @@ function state = dummyState(s)
     state.cat = state.cat(:);
     state.ncat = sum(state.cat);
     state.length = TreeLength(state.tree, state.root);
-    % Added because housekeeping now uses MarkRCurs when BORROWING = 0
+    % Added because housekeeping now uses MarkRcurs when BORROWING = 0
     state.kappa = rand;
 end
 
