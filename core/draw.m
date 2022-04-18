@@ -49,7 +49,7 @@ end
 nu=progeny(s,Root,LEAF);
 n(nu(1,:))=nu(2,:);
 
-v=split(s,n,0,1,Root);
+v=splitArrange(s,n,0,1,Root);
 x(v(1,:))=v(2,:);
 
 figure(f);
