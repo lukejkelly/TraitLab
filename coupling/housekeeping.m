@@ -91,16 +91,9 @@ function nstate2 = housekeeping(state1, state2)
     end
 
     % Update node likelihood information
-    % Unit tests don't have data so disable the following when running them
+    % Unit tests don't have data so rest of function if running them
     if ~BORROWING
-        swapped = find(i1' ~= j2);
-        if ~isempty(swapped)
-            U = unique(above(swapped, nstate2.tree, nstate2.root));
-            nstate2 = MarkRcurs(nstate2, U, 1);
-            if check(nstate2)
-                keyboard;
-            end
-        end
+        nstate2 = MarkRcurs(nstate2, [nstate2.leaves, nstate2.nodes], 1);
     end
     % if check(state1) || check(state2) || check(nstate2)
     %     keyboard;
