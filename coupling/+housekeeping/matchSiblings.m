@@ -3,9 +3,9 @@ function s2 = matchSiblings(s1, s2)
     global ANST ROOT;
 
     nodes = find(ismember([s1.type], [ANST, ROOT]));
-    if ~all(nodes == find(ismember([s2.type], [ANST, ROOT])))
-        error('Node sets do not match');
-    end
+    % if ~all(nodes == find(ismember([s2.type], [ANST, ROOT])))
+    %     error('Node sets do not match');
+    % end
 
     for i = nodes
         % If children are the same but in the opposite order in s2 then flip

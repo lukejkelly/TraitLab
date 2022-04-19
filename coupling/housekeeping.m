@@ -35,7 +35,7 @@ function nstate2 = housekeeping(state1, state2)
 
     % Common ancestral nodes
     for k = state1.nodes(c1(state1.nodes))
-        done = false;
+        done = state1.tree(k).type ~= ANST;
         while ~done
             k1 = housekeeping.internalOffspring(s1, k);
             k2 = housekeeping.internalOffspring(t2, k);
@@ -91,11 +91,11 @@ function nstate2 = housekeeping(state1, state2)
     end
 
     % Update node likelihood information
-    % Unit tests don't have data so rest of function if running them
+    % Unit tests don't have data so disable rest of function when running them
     if ~BORROWING
         nstate2 = MarkRcurs(nstate2, [nstate2.leaves, nstate2.nodes], 1);
     end
-    % if check(state1) || check(state2) || check(nstate2)
+    % if check(nstate2) || check(state2);
     %     keyboard;
     % end
 end
