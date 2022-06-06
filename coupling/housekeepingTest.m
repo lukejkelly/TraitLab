@@ -197,7 +197,7 @@ function setupOnce(testCase)
 
     global BORROWING
     testCase.TestData.BORROWING = BORROWING;
-    BORROWING = 0;
+    BORROWING = 1;
 
     emptyTreeStruct = @(n) repmat(TreeNode([], [], [], [], [], []), 1, n);
 
