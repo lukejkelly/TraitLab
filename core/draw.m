@@ -34,6 +34,7 @@ LEAVES=[];
 NODES=[];
 Root=[];
 
+% Implicitly assumes that Adam is node N+1
 for k=1:N
    if s(k).type==ROOT
        Root=k;
@@ -48,7 +49,7 @@ end
 nu=progeny(s,Root,LEAF);
 n(nu(1,:))=nu(2,:);
 
-v=split(s,n,0,1,Root);
+v=splitArrange(s,n,0,1,Root);
 x(v(1,:))=v(2,:);
 
 figure(f);
@@ -95,7 +96,7 @@ for k=NODES
     if MCMCCAT && ~isempty(s(k).cat)
         for t=s(k).cat
             plot(Tmax-t,x(k),'ro','MarkerFaceColor','r','Parent',currax);
-            
+
         end
     end
 end

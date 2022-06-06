@@ -108,19 +108,20 @@ function compareAllDistributions(testCase, clades, moveType, flip)
         yExp(r, :) = storeOutputs(iExp_y, jExp_y, kExp_y, newageExp_y, logqExp_y);
     end
 
-    parNames = {'i', 'j', 'k', 'newage', 'logq'};
-    for i = 1:5
-        subplot(5, 2, 2 * i - 1);
+    parNames = {'$ i $', '$ j $', '$ \mathrm{pa}(j) $', '$ t_i $', 'logq'};
+    for i = 1:4 %5
+        subplot(4, 2, 2 * i - 1);
         drawECDFs(xObs(:, i), xExp(:, i), sprintf('x: %s', parNames{i}), i < 4);
-        subplot(5, 2, 2 * i);
+        subplot(4, 2, 2 * i);
         drawECDFs(yObs(:, i), yExp(:, i), sprintf('y: %s', parNames{i}), i < 4);
     end
-    fprintf('clades: %s\nmove type: %s\nflip: %s\nsamples: %g\n', ...
+    fprintf('\nclades: %s\nmove type: %s\nflip: %s\nsamples: %g\n', ...
             clades, moveType, flip, nReps);
     fprintf('Histograms do not reach 1 if any moves fail\n');
     v1 = input('Do the CDFs in the figure match? Reply 1 for yes... ');
     assertEqual(testCase, v1, 1);
 
+    clf;
     drawIndividualECDFs(state_x, xObs, xExp, 'x');
     drawIndividualECDFs(state_y, yObs, yExp, 'y');
     v2 = input('Do the CDFs in the figure match? Reply 1 for yes... ');
@@ -139,12 +140,14 @@ function drawECDFs(xObs, xExp, figTitle, binIntegers)
     binCentres = conv(edges, [0.5, 0.5], 'valid');
     yyaxis left;
     plot(binCentres, nObs, '-b', binCentres, nExp, ':g', 'LineWidth', 2);
+    ylabel('ECDF');
     ylim([0, 1]);
     yyaxis right;
     plot(binCentres, nObs - nExp, '-.r', 'LineWidth', 2);
-    legend('Obs', 'Exp', 'Diff', 'Location', 'SouthEast');
+    legend('Coupled', 'Marginal', 'Difference', 'Location', 'northoutside', ...
+           'Orientation', 'horizontal');
     axis('tight');
-    title(figTitle);
+    xlabel(figTitle, 'Interpreter', 'latex');
 end
 
 function drawIndividualECDFs(state, xObs, xExp, figVar)
@@ -177,6 +180,7 @@ function drawIndividualECDFs(state, xObs, xExp, figVar)
         binCentres = conv(edges, [0.5, 0.5], 'valid');
         yyaxis left;
         plot(binCentres, nObs, '-b', binCentres, nExp, ':g', 'LineWidth', 2);
+        ylabel('ECDF');
         ylim([0, 1]);
         yyaxis right;
         plot(binCentres, nObs - nExp, '-.r', 'LineWidth', 2);
@@ -246,5 +250,8 @@ function teardownOnce(testCase)
     global VARYRHO
     unitTests.teardownOnce(testCase);
     VARYRHO = testCase.TestData.VARYRHO;
+end
+
+function teardown(~)
     close;
 end

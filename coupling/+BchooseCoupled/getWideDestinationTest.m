@@ -68,7 +68,11 @@ function couplingTest(testCase)
             legend('Observed', 'Expected');
             xlabel('Branch i');
             ylabel('Proportion j_x = j_y');
-            title(sprintf('L = %d : clades = %d', L, addClades));
+            if addClades
+                title(sprintf('L = %d : clades = %s', L, 'Y'));
+            else
+                title(sprintf('L = %d : clades = %s', L, 'N'));
+            end
         end
     end
     fprintf('Observed and expected proportions from %g samples\n', nSamp);

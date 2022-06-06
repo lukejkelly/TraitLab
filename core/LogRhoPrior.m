@@ -9,6 +9,6 @@ function [p k theta]=LogRhoPrior(rho)
 
 %GKN Feb 08 - changed RJR's original
 k=1.5;
-theta=1e-5; % .0002;
+theta=.0002;
 
 p=(k-1)*log(rho)-rho/theta-k*log(theta)-gammaln(k);

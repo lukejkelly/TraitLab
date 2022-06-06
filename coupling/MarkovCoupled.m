@@ -56,7 +56,10 @@ function [state_x, state_y, pa_x, pa_y, pa_xy] = MarkovCoupled(...
         % else
         %     coupledBefore = coupledAfter;
         % end
-        state_y = housekeeping(state_x, state_y);
+        % Only do housekeeping if a topology proposal was accepted
+        if (succ_x || succ_y) && ismember(MV, 2:5)
+            state_y = housekeeping(state_x, state_y);
+        end
         % % TODO: remove housekeeping coupling check after further testing
         % if coupledBefore && ~checkCoupling(state_x, state_y)
         %     save(sprintf('uncoupling housekeeping %s.mat', datetime));

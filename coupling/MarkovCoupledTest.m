@@ -30,6 +30,9 @@ function coupledTest(testCase)
     % States from runmcmcCoupled main loop just after successful coupling
     load('coupling/+MarkovCoupledTest/coupledVariables-20210803.mat', ...
          'mcmc', 'model', 'state_x', 'state_y');
+    state_x.logprior = LogPrior(model.prior, state_x);
+    state_y.logprior = LogPrior(model.prior, state_y);
+
     mcmc.subsample = 1;
     n = 1e3;
     fprintf('\n');
@@ -51,6 +54,8 @@ function uncoupledTest(testCase)
     % States from runmcmcCoupled main loop before coupling
     load('coupling/+MarkovCoupledTest/uncoupledVariables-20210803.mat', ...
          'mcmc', 'model', 'state_x', 'state_y');
+    state_x.logprior = LogPrior(model.prior, state_x);
+    state_y.logprior = LogPrior(model.prior, state_y);
     % Uneven move distribution
     [state_x, ~] = Markov(mcmc, model, state_x);
     [state_y, ~] = Markov(mcmc, model, state_y);
@@ -69,6 +74,8 @@ function uncoupledPriorTest(testCase)
     testCase.TestData.global_vars = whos('global');
     load('coupling/+MarkovCoupledTest/uncoupledPriorVariables-20210803.mat', ...
          'mcmc', 'model', 'state_x', 'state_y');
+    state_x.logprior = LogPrior(model.prior, state_x);
+    state_y.logprior = LogPrior(model.prior, state_y);
     % Uneven move distribution
     [state_x, ~] = Markov(mcmc, model, state_x);
     [state_y, ~] = Markov(mcmc, model, state_y);
@@ -118,6 +125,8 @@ function compareMarginalCoupled(testCase, mcmc, model, state_x, state_y)
     d_y2 = logical(b_y2);
     % Comparing sample distributions
     clf;
+    fprintf('Figures in legend denote number of accepted moves\n');
+    fprintf('Curves unlikely to be close for few accepted moves\n')
     for j = 1:length(vars)
         subplot(2, length(vars), j);
         plotStateOutputs(t_x1(d_x1, j), t_x2(d_x2, j));
@@ -165,6 +174,7 @@ function compareMarginalCoupled(testCase, mcmc, model, state_x, state_y)
     fprintf('CDFs of posterior for successful moves in marginal/coupled x and y\n');
     v3 = input('Do both sets of posterior CDFs match? Reply 1 for yes... ');
     assertEqual(testCase, v3, 1);
+    close('all');
 end
 
 function t = stateOutputs(state, vars)

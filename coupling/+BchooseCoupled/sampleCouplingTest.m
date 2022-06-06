@@ -188,9 +188,13 @@ function setupOnce(~)
     GlobalValues;
 end
 
+function teardown(~)
+    close;
+end
+
 function [s, nReps, newageObs, newageExp] = getTree10Params(clades)
     s = BchooseCoupled.state10a(clades);
-    nReps = 5e4;
+    nReps = 5e3;
     [newageObs, newageExp] = deal(nan(nReps, 1));
 end
 
@@ -213,7 +217,7 @@ function [s_x, s_y, nRep, nReps, matchCount, matchAttempt] = getTrees5Params()
     s_y = getfield(load(testStates), 'state_y', 'tree');
 
     nRep = 1;
-    nReps = 5e5;
+    nReps = 5e3;
     [matchCount, matchAttempt] = deal(zeros(size(s_x)));
 end
 

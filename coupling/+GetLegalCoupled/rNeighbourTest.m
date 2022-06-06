@@ -37,6 +37,7 @@ function setupOnce(testCase)
     global MCMCCAT BORROWING;
     MCMCCAT = 1;
     BORROWING = 0;
+    clf;
 end
 
 function teardownOnce(testCase)
