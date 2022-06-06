@@ -24,10 +24,10 @@ if mcmc.initial.setup == EXPSTART
     [state_y, ~] = MarkovPrior(mcmc, model, state_y, 1);
 end
 
-% Disable scaling moves LJK  22/3/22
-mcmc.update.move([6, 7, 12]) = 0;
-mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
-mcmc.update.cmove = cumsum(mcmc.update.move);
+% % Disable scaling moves
+% mcmc.update.move([6, 7, 12]) = 0;
+% mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
+% mcmc.update.cmove = cumsum(mcmc.update.move);
 
 % Write initial states
 [handles_x, handles_y] = deal(handles);
