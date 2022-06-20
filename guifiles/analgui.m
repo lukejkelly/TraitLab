@@ -768,10 +768,13 @@ end
 function consensuspet_Callback(hObject, eventdata, handles)
 checknum(handles.consensuspet,.5,1,.5,0);
 
+function kappacorrcb_Callback(hObject, evendata, handles)
 
+function consensuscatcb_Callback(hObject, evendata, handles)
 
-% --- Call this when opening figure. Posted by a guy called Wouter at
-% https://stackoverflow.com/questions/19843040/matlab-gui-compatibility-between-mac-and-windows-display
+function rhocorrcb_Callback(hObject, evendata, handles)
+
+% --- Call this when opening figure. Posted by user Wouter at https://stackoverflow.com/questions/19843040/matlab-gui-compatibility-between-mac-and-windows-display
 function decreaseFontSizesIfReq(handles)
 % make all fonts smaller on a Windows computer
 if ispc()

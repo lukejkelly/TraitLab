@@ -585,3 +585,5 @@ function exploredatacb_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of exploredatacb
+
+function missingdatacb_Callback(hObject, evendata, handles)
