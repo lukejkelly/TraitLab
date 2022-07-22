@@ -474,7 +474,7 @@ fsu.SYNTHTRE          = STR   ;
 fsu.KNOWCATS          = CK    ;
 fsu.TREEPRIOR         = YULE  ;
 fsu.ROOTMAX           = 0     ;
-fsu.MCMCINITTREESTYLE = EXPSTART    ;
+fsu.MCMCINITTREESTYLE = EXPSTART;
 fsu.MCMCINITTREEFILE  = ''    ;
 fsu.MCMCINITTREE      = ''    ;
 fsu.MCMCINITMU        = 0.18  ;
@@ -507,11 +507,12 @@ fsu.CLADE             = []    ;
 fsu.STRONGCLADES      = []    ;
 fsu.GUITRUE           = []    ;
 fsu.GUICONTENT        = []    ;
-fsu.SYNTHMISS         =MISDAT ;
-fsu.MCMCCAT           =MCMCCAT;
-fsu.RHO               =RHO;
-fsu.KAPPA             =KAPPA;
-fsu.MISDAT            =MISDAT;
+fsu.SYNTHMISS         = MISDAT;
+fsu.MCMCCAT           = MCMCCAT;
+fsu.RHO               = RHO   ;
+fsu.KAPPA             = KAPPA ;
+fsu.MISDAT            = MISDAT;
+fsu.BETA              = 0     ; % Using BORROW(FRAC) here
 
 data = fullsetup(fsu);
 
@@ -585,3 +586,5 @@ function exploredatacb_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of exploredatacb
+
+function missingdatacb_Callback(hObject, evendata, handles)

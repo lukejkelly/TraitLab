@@ -333,20 +333,20 @@ else
     end
    guidata(h,handles);
    L=size(handles.data.language,1);
-   for k=1:L,
+   for k=1:L
        fprintf('%g %s\n', k, handles.data.language{k});
    end
    %% DW 19/7/2007
    % report those languages missing at least 5% of data
    % [NS,L] = size(handles.data.array);
-   %missingmany = find(sum(handles.data.array == 2,2) >= L/20);
-   missingmany = find(sum(handles.data.array == 2,2) >= 1);
+   missingmany = find(mean(handles.data.array == 2,2) >= 1/20);
+   % missingmany = find(sum(handles.data.array == 2,2) >= 1);
    %length(missingmany)
    if ~isempty(missingmany)
        fprintf('\nThe following taxa have at least 5%% missing data: \n')
        for k = missingmany'
            %disp(sprintf('%g %s %d%%', k, handles.data.language{k},round(100*sum(handles.data.array(k,:) == 2)/L)))
-           fprintf('%g %s %d\n', k, handles.data.language{k},round(sum(handles.data.array(k,:) == 2)))
+           fprintf('%g %s %d%%\n', k, handles.data.language{k},round(100 * mean(handles.data.array(k,:) == 2)));
        end
    end
    %% DW 19/7/2007 end
@@ -674,6 +674,10 @@ if ispc && isequal(get(h,'BackgroundColor'), get(0,'defaultUicontrolBackgroundCo
     set(h,'BackgroundColor','white');
 end
 
+function uniformpriorrb_Callback(hObject, evendata, handles)
+
+function missingdatacb_Callback(hObject, evendata, handles)
+
 
 % --- Executes on button press in allowForLateralTransferCB.
 function allowForLateralTransferCB_Callback(hObject, eventdata, handles)
@@ -756,8 +760,7 @@ end
 
 
 
-% --- Call this when opening figure. Posted by a guy called Wouter at
-% https://stackoverflow.com/questions/19843040/matlab-gui-compatibility-between-mac-and-windows-display
+% --- Call this when opening figure. Posted by user Wouter at https://stackoverflow.com/questions/19843040/matlab-gui-compatibility-between-mac-and-windows-display
 function decreaseFontSizesIfReq(handles)
 % make all fonts smaller on a Windows computer
 if ispc()
