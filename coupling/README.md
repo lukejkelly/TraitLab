@@ -22,7 +22,7 @@ In order to start the experiment, execute
 ```matlab
 batchTraitLab('path to .par file', [optional digit to add to output file names]);
 ```
-This will create a similar set of output files to the mariginal analyses except filenames will have `-x` or `-y` appended to them.
+This will create a similar set of output files to the marginal analyses except filenames will have `-x` or `-y` appended to them.
 
 As we typically run many pairs of coupled chains, we use the second argument of `batchTraitLab` to distinguish between them.
 
