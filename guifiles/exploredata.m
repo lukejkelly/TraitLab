@@ -107,6 +107,7 @@ if dispmat
     axis off;
     set(ax7,'Position',[0 0.05 0.9 0.925]);
     text(NS.*ones(1,NS)+1,1:NS,strrep(cutcontent.language,'_','\_'));
+    colorbar;
     if handles.makeHTMLet
         writehtml([handles.HTMLpathet handles.HTMLnameet],'<h2>Distance matrix</h2>',opt.postfig);
     end

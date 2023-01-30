@@ -231,6 +231,6 @@ case 'fsu'
       'GF_START', {0}, ... % LUKE 12/11/2014
       'GF_APPROX', {1}, ... % LUKE 12/11/2014
       'COUPLING', {0}, ... % LJK 19/02/2021
-      'COUPLINGLAG', {[]} ... % LJK 19/02/2021
+      'COUPLINGLAG', {0} ... % LJK 27/01/2023
   );
 end
