@@ -101,7 +101,7 @@ else
     TP = FLAT;
     RM = Max_root_age;
     if RM <= 0
-        error('Need postive value for  Max_root_age')
+        error('Need positive value for Max_root_age')
     end
 end
 
