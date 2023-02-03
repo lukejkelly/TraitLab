@@ -4,7 +4,7 @@ function [state,pa] = MarkovPrior(mcmc,model,state,ignoreearlywarn)
 
 mcmc.subsample = 1e4;
 % Do not change rate parameters, scale entire tree or add catastrophes
-mcmc.update.move([6, 8, 13:18, 21]) = 0;
+mcmc.update.move([6, 8, 13:21]) = 0;
 mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
 mcmc.update.cmove = cumsum(mcmc.update.move);
 
