@@ -2,7 +2,7 @@ function [data,model,state,output,mcmc] = fullsetup(fsu)
 
 %header file defines globals
 
-global BUILD TESTSS
+global BUILD TESTSS BORROWING
 %setup the mcmc control variables
 TWOSEQS = (~fsu.MASKING & fsu.NUMSEQ==2) | (fsu.MASKING & fsu.NUMSEQ-length(fsu.DATAMASK)==2);
 mcmc=initMCMC(fsu,TWOSEQS);
@@ -34,6 +34,16 @@ if all([state.tree.leaf_has_timerange] == 0)
     mcmc.update.move(11) = 0;
     mcmc.update.move = mcmc.update.move ./ sum(mcmc.update.move);
     mcmc.update.cmove = cumsum(mcmc.update.move);
+end
+
+% Error if try to start a borrowing run from a state in an output file
+% which did not have borrowing in the model
+if BORROWING 
+    if state.beta == 0
+        error('Borrowing rate beta has been initialised at 0');
+    end
+else
+    state.beta = 0;
 end
 
 return;
@@ -70,8 +80,6 @@ if ~MCMCCAT
     mcmc.initial.kappa=0;
     mcmc.initial.nu=0;
 end
-
-if ~BORROWING, mcmc.initial.beta = 0; end
 
 %MOVE TYPES
 %1 slide
