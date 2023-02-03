@@ -177,14 +177,14 @@ if ok
                         %there must be a cattree file and you get the old
                         %catastrophes - the following GKN 6/9/09
                         if setkappa(1)
-                             MT.kappa=MCMCINITKAPPA;
+                            MT.kappa = MCMCINITKAPPA;
                         else
-                            MT.kappa = handles.tree.output.stats(8,TN);
+                            MT.kappa = handles.tree.output.stats(8, TN);
                         end
                         if setrho(1)
-                            MT.rho= MCMCINITRHO;
+                            MT.rho = MCMCINITRHO;
                         else
-                            MT.rho = handles.tree.output.stats(9,TN);
+                            MT.rho = handles.tree.output.stats(9, TN);
                         end
                         s=MT.tree;
                         sc=rnextree(handles.tree.output.cattrees{TN});

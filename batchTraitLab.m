@@ -171,10 +171,10 @@ if MCT
         % fixed through MCMC
         MIK = Initial_cat_death_prob;
         if MIK <= 0 || MIK > 1
-            error('Catastrophe strength fixed at at value outside (0, 1]');
+            error('Initial_cat_death_prob fixed at value outside (0, 1]');
         end
     else
-        error('Catastrophes included, but no value set for kappa (probability of death at a catastrophe)')
+        error('Catastrophes included, but no initial value set for kappa (probability of death at a catastrophe)')
     end
 
     if exist('Random_initial_cat_rate','var') && Random_initial_cat_rate
@@ -245,10 +245,10 @@ switch find(vals)
                 MT.mu = oldoutput.stats(4,TN);
                 MIK = oldoutput.stats(8,TN);
                 MIR = oldoutput.stats(9,TN);
-                IM=MT.mu;
-                MT.rho=MIR;
-                MT.p=1;
-                MT.kappa=MIK;
+                IM = MT.mu;
+                MT.rho = MIR;
+                MT.p = 1;
+                MT.kappa = MIK;
 
                 %Add catastrophes %GKN 18/3/11 was '.cat.nex'
                 if MCT && exist([MIF(1:end-4) 'cat.nex'],'file')
