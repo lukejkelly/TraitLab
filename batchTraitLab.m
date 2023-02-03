@@ -164,13 +164,17 @@ MIR=0;
 
 if MCT
     if exist('Random_initial_cat_death_prob','var') && Random_initial_cat_death_prob
+        % will vary through MCMC
         MIK = 0.25 + 0.75 * rand;
         RMIK = 1;
     elseif exist('Initial_cat_death_prob','var')
+        % fixed through MCMC
         MIK = Initial_cat_death_prob;
+        if MIK <= 0 || MIK > 1
+            error('Catastrophe strength fixed at at value outside (0, 1]');
+        end
     else
-        warning('Catastrophes included, but no value set for kappa (probability of death at a catastrophe). Setting at 0.2.')
-        MIK = 0.2;
+        error('Catastrophes included, but no value set for kappa (probability of death at a catastrophe)')
     end
 
     if exist('Random_initial_cat_rate','var') && Random_initial_cat_rate
@@ -353,7 +357,7 @@ fsu.MCMCCAT           = MCT   ;  %RJR 15 Mar 2011
 fsu.MCMCINITMU        = IM    ;  %RJR 15 Mar 2011
 fsu.MCMCINITP         = IP     ;  %ignored anyway
 fsu.MCMCINITTHETA     = IT    ;
-fsu.VARYKAPPA         = RMIK; % LJK 02/08/21   MCT   ;  %RJR 15 Mar 2011
+fsu.VARYKAPPA         = RMIK; % LJK 02/08/21
 fsu.VARYMU            = VARYMU; %RJR 15 Mar 2011
 fsu.VARYRHO           = RMIR   ;  %RJR 15 Mar 2011
 fsu.MCMCMISS          = MISS ; %RJR 15 Mar 2011
