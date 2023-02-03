@@ -118,11 +118,11 @@ if all(topoprior == 1) || all(topoprior ==0 )
     error('Exactly one of Flat_prior_on_tree and Yule_prior_on_tree must be 1')
 end
 
-    if Uniform_prior_on_tree_topologies==1
-        TOPOLOGYPRIOR=TOPO;
-    else
-        TOPOLOGYPRIOR=LABHIST;
-    end
+if Uniform_prior_on_tree_topologies==1
+    TOPOLOGYPRIOR=TOPO;
+else
+    TOPOLOGYPRIOR=LABHIST;
+end
 
 VARYMU = Vary_loss_rate;
 if Random_initial_loss_rate
@@ -151,9 +151,9 @@ end
 
  % Parameters for catastrophes
 if ~exist('Include_catastrophes','var')
-   MCT = 0;
+    MCT = 0;
 else
-    MCT=Include_catastrophes;
+    MCT = Include_catastrophes;
 end
 
 % Initialize catastrophe parameters
@@ -164,23 +164,27 @@ MIR=0;
 
 if MCT
     if exist('Random_initial_cat_death_prob','var') && Random_initial_cat_death_prob
-        MIK= 0.25 + 0.75 * rand;
-        RMIK=1;
+        MIK = 0.25 + 0.75 * rand;
+        RMIK = 1;
     elseif exist('Initial_cat_death_prob','var')
-        MIK=Initial_cat_death_prob;
+        MIK = Initial_cat_death_prob;
     else
         warning('Catastrophes included, but no value set for kappa (probability of death at a catastrophe). Setting at 0.2.')
-        MIK=.2;
+        MIK = 0.2;
     end
 
     if exist('Random_initial_cat_rate','var') && Random_initial_cat_rate
-        MIR=rand;
-        RMIR=1;
+        % integrated out so value does not matter
+        MIR = 0.002;
+        RMIR = 1;
     elseif exist('Initial_cat_rate','var')
-        MIR=Initial_cat_rate;
+        % fixed throughout run
+        MIR = Initial_cat_rate;
+        if MIR <= 0
+            error('Initial_cat_rate rho must be positive');
+        end
     else
-        warning('Catastrophes included, but no value set for rho (rate of catastrophes). Setting at 0.002.')
-        MIR=.002;
+        error('Catastrophes included, but no value set for catastrophe rate rho');
     end
 end
 
@@ -351,7 +355,7 @@ fsu.MCMCINITP         = IP     ;  %ignored anyway
 fsu.MCMCINITTHETA     = IT    ;
 fsu.VARYKAPPA         = RMIK; % LJK 02/08/21   MCT   ;  %RJR 15 Mar 2011
 fsu.VARYMU            = VARYMU; %RJR 15 Mar 2011
-fsu.VARYRHO           = MCT   ;  %RJR 15 Mar 2011
+fsu.VARYRHO           = RMIR   ;  %RJR 15 Mar 2011
 fsu.MCMCMISS          = MISS ; %RJR 15 Mar 2011
 fsu.RANDOMKAPPA       = RMIK;
 fsu.RANDOMRHO         = RMIR;

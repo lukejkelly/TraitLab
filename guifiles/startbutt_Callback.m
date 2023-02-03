@@ -140,7 +140,7 @@ if ok
     vals = get([handles.randtreerb,handles.spectreerb,handles.truetreerb],'Value');
     val = find([vals{:}]==1);
     if sum([vals{:}]==1)~=1
-        disp('More than one intial tree type chosen')
+        disp('More than one initial tree type chosen')
         ok = 0;
     end
     if ok
