@@ -76,59 +76,66 @@ end
 
 % check catastrophe parameters
 if ok
-    RANDOMKAPPA=0; %is initial kappa random
-    RANDOMRHO=0;
-    if get(handles.includecatscb,'Value') %Include catastrophes
-        MCMCCAT=1;
+    RANDOMKAPPA = 0; %is initial kappa random
+    RANDOMRHO = 0;
+    if get(handles.includecatscb, 'Value') %Include catastrophes
+        MCMCCAT = 1;
 
         % kappa
-        kappahandles=[handles.fixkapparb, handles.speckapparb];
-        setkappa=get(kappahandles,'Value');
-        setkappa=[setkappa{:}];
-        VARYKAPPA=1;
+        kappahandles = [handles.fixkapparb, handles.speckapparb];
+        setkappa = get(kappahandles,'Value');
+        setkappa = [setkappa{:}];
+        VARYKAPPA = 1;
         if setkappa(1)
-            %chosen a fixed kappa value
-            MCMCINITKAPPA=str2double(get(handles.kappavalfixet,'String'));
-            VARYKAPPA=0;
+            % chosen a fixed kappa value
+            MCMCINITKAPPA = str2double(get(handles.kappavalfixet, 'String'));
+            VARYKAPPA = 0;
         elseif setkappa(2)
-            %specified a starting value to vary kappa from
-            MCMCINITKAPPA=str2double(get(handles.kappavalet,'String'));
+            % specified a starting value to vary kappa from
+            MCMCINITKAPPA = str2double(get(handles.kappavalet, 'String'));
         else
-            %choose random starting kappa and vary
+            % choose random starting kappa and vary
             MCMCINITKAPPA = 0.25 + 0.75 * rand; % LUKE 02/10/2017
-            RANDOMKAPPA=1;
+            RANDOMKAPPA = 1;
+        end
+        if MCMCINITKAPPA <= 0 || MCMCINITKAPPA > 1
+            error('Initial kappa outside (0, 1]');
         end
 
         %rho
-        rhohandles=[handles.fixrhorb handles.specrhorb];
-        setrho=get(rhohandles,'Value');
-        setrho=[setrho{:}];
-        VARYRHO=1;
+        rhohandles = [handles.fixrhorb handles.specrhorb];
+        setrho = get(rhohandles, 'Value');
+        setrho = [setrho{:}];
+        VARYRHO = 1;
         if setrho(1)
-            %chosen a fixed rho value
-            MCMCINITRHO=str2double(get(handles.rhovalfixet,'String'));
-            VARYRHO=0;
+            % chosen a fixed rho value
+            MCMCINITRHO = str2double(get(handles.rhovalfixet, 'String'));
+            VARYRHO = 0;
         elseif setrho(2)
-            %specified a starting value to vary rho from
-            MCMCINITRHO=str2double(get(handles.rhovalet,'String'));
+            % specified a starting value to vary rho from
+            MCMCINITRHO = str2double(get(handles.rhovalet, 'String'));
         else
-            %choose random starting rho and vary
-            [foo k theta]=LogRhoPrior(1); %get the values of k and theta in LogRhoPrior
-            MCMCINITRHO=randG(k,1/theta);
-            RANDOMRHO=1;
+            % choose random starting rho and vary
+            [~, k, theta] = LogRhoPrior(1); % get the values of k and theta in LogRhoPrior
+            MCMCINITRHO = randG(k, 1 / theta);
+            RANDOMRHO = 1;
         end
-    else % No catastrophes
-        MCMCCAT=0;
-        MCMCINITKAPPA=0;
-        VARYKAPPA=0;
-        MCMCINITRHO=0;
-        VARYRHO=0;
+        if MCMCINITRHO <= 0
+            error('Initial catastrophe rate rho must be positive');
+        end
+    else
+        % No catastrophes
+        MCMCCAT = 0;
+        MCMCINITKAPPA = 0;
+        VARYKAPPA = 0;
+        MCMCINITRHO = 0;
+        VARYRHO = 0;
     end
 end
 
 % check missing data parameters
 if ok
-    MCMCMISS=get(handles.missingdatacb,'Value');
+    MCMCMISS = get(handles.missingdatacb, 'Value');
 end
 
 
@@ -153,8 +160,8 @@ if ok
             % use a tree stored in a nexus output file to start
             MI = OLDSTART;
             MIF = [handles.oldstart.path handles.oldstart.file];
-% TODO values of handles.tree.path etc not loaded in Language:treefilebutt_Callback()
-%            MIF = [handles.tree.path handles.tree.file];
+            % TODO values of handles.tree.path etc not loaded in Language:treefilebutt_Callback()
+            % MIF = [handles.tree.path handles.tree.file];
             if isempty(MIF)
                 fprintf('\nYou need to specify an output tree file from which to start\n')
                 ok=0;
@@ -173,23 +180,31 @@ if ok
                     MT.p = handles.tree.output.stats(5,TN);
                     MT.lambda = handles.tree.output.stats(7,TN);
                     if MCMCCAT && ~isempty(handles.tree.output.cattrees)
-                        %if you are using catastrophes and an old tree then
-                        %there must be a cattree file and you get the old
-                        %catastrophes - the following GKN 6/9/09
-                        if setkappa(1)
-                            MT.kappa = MCMCINITKAPPA;
-                        else
-                            MT.kappa = handles.tree.output.stats(8, TN);
-                        end
-                        if setrho(1)
-                            MT.rho = MCMCINITRHO;
-                        else
-                            MT.rho = handles.tree.output.stats(9, TN);
-                        end
-                        s=MT.tree;
-                        sc=rnextree(handles.tree.output.cattrees{TN});
+                        % GKN 6/9/09 if you are using catastrophes and an old
+                        % tree then there must be a cattree file and you get the
+                        % old catastrophes - the following
+                        % LJK 9/2/23 initialise kappa and rho at output values
+                        % regardless of specified inputs to be consistent with
+                        % other parameters and batch inputs, whether kappa/rho
+                        % is fixed/varies during run is inherited from GUI
+                        % if setkappa(1)
+                        %     MT.kappa = MCMCINITKAPPA;
+                        % else
+                        %     MT.kappa = handles.tree.output.stats(8, TN);
+                        % end
+                        % if setrho(1)
+                        %     MT.rho = MCMCINITRHO;
+                        % else
+                        %     MT.rho = handles.tree.output.stats(9, TN);
+                        % end
+                        MCMCINITKAPPA = handles.tree.output.stats(8, TN);
+                        MT.kappa = MCMCINITKAPPA;
+                        MCMCINITRHO = handles.tree.output.stats(9, TN);
+                        MT.rho = MCMCINITRHO;
+                        s = MT.tree;
+                        sc = rnextree(handles.tree.output.cattrees{TN});
                         %removed legacy code for cattreetolist in svn version < 146
-                        [MT.tree MT.cat]=CatTreeToList(sc,s); % RJR 17�Mar 2011
+                        [MT.tree MT.cat] = CatTreeToList(sc, s); % RJR 17 Mar 2011
                     else
                         MT.kappa = MCMCINITKAPPA;
                         MT.rho = MCMCINITRHO;
