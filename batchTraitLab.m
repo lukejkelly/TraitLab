@@ -68,7 +68,7 @@ if isempty(content.array)
 else
    L=size(content.language,1);
    disp(sprintf('%5s %12s%% %s', 'index', 'missing data', 'language'))
-   for k=1:L,
+   for k=1:L
        disp(sprintf('%5g %12d%% %s', k, round(100*mean(content.array(k,:) == MIX)), content.language{k}))
    end
 end
@@ -209,7 +209,7 @@ MT = [];
 if ~exist('Start_from_rand_tree','var')
    Start_from_rand_tree = 0;
 end
- if ~exist('Start_from_tree_in_output','var')
+if ~exist('Start_from_tree_in_output','var')
    Start_from_tree_in_output = 0;
 end
 if ~exist('Start_from_true_tree','var')
@@ -332,7 +332,7 @@ if COUPLING && (isnan(COUPLINGLAG) || COUPLINGLAG < 1 ...
 end
 
 %write the control variables into structures used by fullsetup
-fsu=pop('fsu');
+fsu = pop('fsu');
 fsu.RUNLENGTH         = Run_length    ;
 fsu.SUBSAMPLE         = Sample_interval    ;
 fsu.SEEDRAND          = Seed_random_numbers ;

@@ -539,7 +539,6 @@ if ok
         fsu.MCMCINITBETA      = MCMCINITBETA;
         fsu.ISBETARANDOM      = ISBETARANDOM;  % LUKE 24/3/20
 
-
         runmcmc(fsu,handles,h);
 else
     set(handles.statustxt,'String','Idle');
