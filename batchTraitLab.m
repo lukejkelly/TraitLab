@@ -7,7 +7,7 @@ GlobalValues
 addpath('core')
 addpath('guifiles')
 
-rng('shuffle');
+% rng('shuffle'); % LJK 24/02/20 seed set or shuffled below
 
 % Clear persistent variables in SDLT code. LUKE 24/3/20
 clear logLkd2_m patternCounts patternMeans
@@ -37,6 +37,13 @@ for i = 1:length(a{1})
             end
             eval([a{1}{i} '=[' a{2}{i} '];']);
     end
+end
+
+% LJK 24/02/23 since rng is used in initialisation steps below 
+if Seed_random_numbers
+    rng(With_seed); % moved forward from fullsetup>initMCMC
+else
+    rng('shuffle');
 end
 
 % check that output file has no appended extension

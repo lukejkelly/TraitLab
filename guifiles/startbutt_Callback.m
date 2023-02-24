@@ -27,9 +27,11 @@ if ok
     if get(handles.seedrandcb,'Value')
         SR = ON; % seeds the rand so runs can be repeated
         SE = str2double(get(handles.seedet,'String'));
+        rng(SE); % moved forward from fullsetup>initMCMC
     else
         SR = OFF;
         SE = 0;
+        rng('shuffle');
     end
 end
 
