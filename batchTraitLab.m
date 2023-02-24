@@ -243,6 +243,7 @@ switch find(vals)
                 warning('Parameters values from same output as tree');
                 %GKN 18/3/11 alter whatever we concluded above
                 MT.mu = oldoutput.stats(4,TN);
+                MT.lambda = oldoutput.stats(7,TN); % defaults to 0 otherwise
                 MIK = oldoutput.stats(8,TN);
                 MIR = oldoutput.stats(9,TN);
                 IM = MT.mu;
