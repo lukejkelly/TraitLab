@@ -166,7 +166,7 @@ if fromgui
     set(h,'Interruptible','on');
 end
 
-save outMC;
+%% save outMC;
 
 %writeoutput(handles.output);
 
