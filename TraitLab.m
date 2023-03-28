@@ -349,10 +349,10 @@ else
            fprintf('%g %s %d%%\n', k, handles.data.language{k},round(100 * mean(handles.data.array(k,:) == 2)));
        end
    end
-   %% DW 19/7/2007 end
+   % DW 19/7/2007 end
 
 
-   %% save outDC; %% commented out by LK and RR 15/03/2023
+   % save outDC; % commented out by LK and RR 15/03/2023
 end
 
 

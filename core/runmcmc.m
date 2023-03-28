@@ -15,7 +15,7 @@ if nargin>0
         [state, ~] = MarkovPrior(mcmc, model, state, 1);
         handles.output.trees{1} = wnextree(state.tree, state.root);
     end
-    save outIC;
+    % save outIC;
 
     if fromgui
         set(h,'Interruptible','off');
@@ -69,20 +69,20 @@ if nargin>0
     end
 else
 
-    load outMC
+    % load outMC
     LOSTONES=model.observe.LostOnes;
     fromgui = 0;
     start=t;
 
 end
 
-if mcmc.gather, lastsave=timestarted; save outMC; end
+% if mcmc.gather, lastsave=timestarted; save outMC; end
 
 for t=start:finish
 
-    if mcmc.gather
-        if etime(clock,lastsave)>3600, save outMC; lastsave=clock; end
-    end
+    % if mcmc.gather
+    %     if etime(clock,lastsave)>3600, save outMC; lastsave=clock; end
+    % end
 
     %update the Markov chain (mcmc.subsample) steps
     atime=cputime;
@@ -166,7 +166,7 @@ if fromgui
     set(h,'Interruptible','on');
 end
 
-%% save outMC;
+% save outMC;
 
 %writeoutput(handles.output);
 

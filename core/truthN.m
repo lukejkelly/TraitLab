@@ -6,7 +6,7 @@ function [true,content]=truthN(prior,initial,true)
 %content     synthetic data               (data.content)
 %initial     data initialisation          (data.initial)
 %true        true state initialisation    (data.true)
-         
+
 global OLDTRE NEWTRE OFF ON
 
 disp(sprintf('Synthesizing data using parameter values'));
@@ -20,7 +20,7 @@ case OLDTRE
     if ~isempty(initial.tree)
         stree = initial.tree;
     else
-        stree=nexus2stype(initial.treefile); 
+        stree=nexus2stype(initial.treefile);
         disp(sprintf(['Simulating trait data on tree loaded from ',initial.treefile,'.\n']));
     end
     % convert the names on the leaves to numbers
@@ -47,7 +47,7 @@ end
 
 %(B.1) simulate cognates on tree
 %TODO - change this so only use the PolyMorph() function
-%       and make true.br=0 for no borrowing etc. 
+%       and make true.br=0 for no borrowing etc.
 %       Reserve Mutations() and GTRmut() for testing.
 % TODO missing data handling is messy
 if initial.polymorph, polymorph_string='polymorphic '; else polymorph_string=''; end
@@ -62,15 +62,15 @@ else
     locborr_string = '';
 end
 if initial.missing, missing_string=' and with missing data.'; else missing_string=' and with no missing data.'; end
-if initial.rhbranchvar > 0, rhbranch_str = sprintf('\nHeterogenity in anagenic loss rate across branches with std dev %g.',initial.rhbranchvar); 
+if initial.rhbranchvar > 0, rhbranch_str = sprintf('\nHeterogenity in anagenic loss rate across branches with std dev %g.',initial.rhbranchvar);
 else rhbranch_str = sprintf('\nNo rate heterogenity across branches.');end
-if initial.rhclassvar > 0, rhclass_str = sprintf('\nHeterogenity in anagenic loss rate across observation classes with std dev %g.',initial.rhbranchvar); 
+if initial.rhclassvar > 0, rhclass_str = sprintf('\nHeterogenity in anagenic loss rate across observation classes with std dev %g.',initial.rhbranchvar);
 else rhclass_str = sprintf('\nNo rate heterogenity across observation classes.');end
-    
-    content = pop('content');
-       
 
-% Modified by RJR 2011-03-02    
+    content = pop('content');
+
+
+% Modified by RJR 2011-03-02
 if initial.polymorph || ( ( initial.borrow || initial.cats ) && ( initial.rhbranchvar || initial.rhclassvar ) )
     disp('Simulating synthetic data using PolyMorph()');
     if initial.cats
@@ -79,17 +79,17 @@ if initial.polymorph || ( ( initial.borrow || initial.cats ) && ( initial.rhbran
         [true.wordset,content.language,content.cognate,content.NS,content.L,content.L_vals]=PolyMorph(true.br,true.mu,true.p,true.lambda,stree,initial.polymorph,initial.nmeaningclass,initial.localborrow,initial.maxdist,initial.rhbranchvar,initial.rhclassvar,0);
     end
 
-    
+
 elseif (initial.borrow || initial.cats)
     disp('Simulating synthetic data using SimBo()');
     [true.wordset, content.language, content.cognate, content.NS, content.L, true.cat, stree]=SimBo(true.br,true.mu,true.p,true.lambda,true.rho,true.kappa,true.nu,stree);
-    
+
 else
     disp('Simulating synthetic data using MutationsRH()');
     [true.wordset,content.language,content.cognate,content.NS,content.L]=MutationsRH(true.mu,true.p,true.lambda,stree,initial.rhbranchvar);
 end
 
-% switch (initial.borrow || initial.cats) 
+% switch (initial.borrow || initial.cats)
 %     case OFF
 %         switch initial.polymorph
 %             case OFF
@@ -118,7 +118,7 @@ disp([polymorph_string,'traits simulated',nmc_string,borrow_string,cladagenic_st
 %else % Used PolyMorph
 %    content.array = words2array(true.wordset,stree,content.L,true.missingwords);
 %end
-    
+
 %(B.2a) data go missing %RJR 29/05/08
 if initial.missing
     if initial.polymorph % Used PolyMorph
@@ -139,5 +139,4 @@ true.state = makestate(prior,true.mu,true.lambda,true.p,true.rho,true.kappa,cont
 disp(sprintf('\nSimulated data contains %g distinct traits in %g taxa.\n',content.L,content.NS));
 disp(sprintf('simulated on a tree of depth %g years\n',true.state.tree(true.state.root).time));
 
-save outSD;
-
+% save outSD;
