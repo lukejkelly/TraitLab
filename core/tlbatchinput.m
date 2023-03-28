@@ -1,18 +1,18 @@
 [SPECIFY DATA SOURCE]
-datafilepath = 
-datafilename = 
+datafilepath =
+datafilename =
 
 [APPLY MASKS TO DATA AND CLADES]
 taxamask =
 traitmask =
-clademask = 
+clademask =
 
 
 [SPECIFY INITIAL TREE STATE FOR MCMC]
 initialtree = [1 for random, 2 for tree from output file, 3 for true state from data file]
-inittreefilename = 
-inittreefilepath = 
-inittreeindex = 
+inittreefilename =
+inittreefilepath =
+inittreeindex =
 
 [SPECIFY TREE PRIOR]
 treeprior = [1 for flat, 2 for yule]
@@ -20,20 +20,20 @@ maxrootage = [only necessary with flat prior]
 
 estimatelossrate = [0 to leave rate fixed, 1 to estimate]
 initlossrate = [between 0 and 1]
-userandinitlossrate = 
+userandinitlossrate =
 
 [PROGRESS REPORTS]
-drawcurrentstate = 
-drawparametertrace = 
-suppressonscreenoutput = 
+drawcurrentstate =
+drawparametertrace =
+suppressonscreenoutput =
 
 [SPECIFY MCMC RUN PARAMETERS AND OUTPUT FILE]
-outputfilepath = 
-outputfilename = 
-runlength = 
-subsample = 
-userandseed = 
-seed = 
+outputfilepath =
+outputfilename =
+runlength =
+subsample =
+userandseed =
+seed =
 
 
 
@@ -59,7 +59,7 @@ end
 
 % see if we want to seed the random number generator
 % define SR, SE
-if ok 
+if ok
     if get(handles.seedrandcb,'Value')
         SR = ON; % seeds the rand so runs can be repeated
         SE = str2double(get(handles.seedet,'String'));
@@ -104,22 +104,22 @@ if ok
         switch val
         case 1
             % use Exptree to generate random initial tree
-            MI = EXPSTART;  
+            MI = EXPSTART;
             IT = str2double(get(handles.initthetaet,'String'));
         case 2
             % use a tree stored in a nexus output file to start
-            MI = OLDSTART; 
-            MIFc = get([handles.treedirtxt handles.treefiletxt],{'String'});           
+            MI = OLDSTART;
+            MIFc = get([handles.treedirtxt handles.treefiletxt],{'String'});
             MIF = [MIFc{1},MIFc{2}];
 % TODO values of handles.tree.path etc not loaded in Language:treefilebutt_Callback()
-%            MIF = [handles.tree.path handles.tree.file]; 
+%            MIF = [handles.tree.path handles.tree.file];
             if isempty(MIF)
                 disp(sprintf('\nYou need to specify an output tree file from which to start'))
                 ok=0;
             else
                 treenum  = str2double(get(handles.numtreeet,'String'));
                 if ok & treenum <= length(handles.tree.output.trees)
-                    % make sure that there 
+                    % make sure that there
                     MT = pop('state');
                     MT.tree = rnextree(handles.tree.output.trees{treenum});
                     MT.mu = handles.tree.output.stats(4,treenum);
@@ -132,7 +132,7 @@ if ok
                 end
             end
         case 3
-            % use true tree to start from 
+            % use true tree to start from
             MI = TRUSTART;
             IT = handles.data.true.theta;
             MT = pop('state');
@@ -149,7 +149,7 @@ if ok
                 disp(sprintf('Ignoring the fixed trait death rate set as starting value',LossRate(handles.data.true.mu)));
                 disp(sprintf('Using the trait death rate %g imported with the true tree to initialise MCMC',LossRate(handles.data.true.mu)));
             end
-                
+
         end
     end
 end
@@ -158,7 +158,7 @@ end
 % need to define VB, OP and OF
 if ok
     vals = get([handles.drawtreescb handles.plotstatscb handles.quietcb],'Value');
-    [dt,ds,qu] = deal(vals{:});  
+    [dt,ds,qu] = deal(vals{:});
     if qu
         VB = QUIET;
     elseif dt & ds
@@ -167,7 +167,7 @@ if ok
         VB = JUSTT;
     elseif ds
         VB = JUSTS;
-    else 
+    else
         VB = COUNT;
     end
     % make sure that we have an output file
@@ -177,9 +177,9 @@ if ok
         OP = get(handles.outdirtxt,'String');
     else
         OF = handles.output.file;
-        OP = handles.output.path;        
+        OP = handles.output.path;
     end
-    
+
 end
 
 % find what kind of data we have
@@ -211,7 +211,7 @@ if ok
         DFS = [handles.data.path handles.data.file];
     end
 end
-if ok 
+if ok
         % called from gui these parameters are arbirtary
     ST = NEWTRE;
     STF = '';
@@ -258,7 +258,7 @@ if ok
                 disp([maskstr ' is not a valid vector of taxa to omit'])
                 ok = 0;
             else
-                % check that all numbers are natural less than number of languages 
+                % check that all numbers are natural less than number of languages
                 if any(floor(mask)~=mask) | mask(1) < 1 | mask(end) > NS
                     disp(sprintf('Taxa to omit must be a vector of integers between 1 and %1.0f',NS))
                     ok = 0;
@@ -275,7 +275,7 @@ end
 % need to define ICM and CM
 if ok
     ICM=OFF; %is clade mask ON or OFF
-    CM=[];  % Clade mask 
+    CM=[];  % Clade mask
     if get(handles.cogmaskcb,'Value') & strcmp(get(handles.cogmaskcb,'Enable'),'on');
         % we are to mask given languages check they are valid
         ICM =ON;
@@ -296,11 +296,11 @@ end
 
 %get clade info
 %need to define IC and CL
-if ok 
+if ok
     IC = OFF;
     CL = [];
     if (get(handles.cladescb,'Value') == 1) & (get(handles.cladescb,'Enable') == 'on')
-        % impose the clades         
+        % impose the clades
         IC = ON;
         CL = handles.data.clade;
         % see whether we need to get rid of any of the clades
@@ -312,7 +312,7 @@ if ok
                 disp([clademaskstr ' is not a valid vector of clades to omit'])
                 ok = 0;
             else
-                % check that all numbers are natural and less than number of clades 
+                % check that all numbers are natural and less than number of clades
                 if any(floor(clademask)~=clademask) | clademask(1) < 1 | clademask(end) > length(CL)
                     disp(sprintf('\nClades to omit must be a vector of integers between 1 and %1.0f\n',length(CL)))
                     ok = 0;
@@ -330,7 +330,7 @@ if ok
                     else
                         disp('')
                         CL = CL(logical(keepclade));
-                    end 
+                    end
                 end
             end
         end
@@ -359,14 +359,14 @@ end
 %     ok = 0;
 % end
 if ok & (NS - length(DM)) < 2
-     disp(sprintf('\nAt least two taxa must be left in analysis.  Shorten the list of omitted taxa.\nCurrently, taxa to be omitted are %s \n',num2str(DM)));    
+     disp(sprintf('\nAt least two taxa must be left in analysis.  Shorten the list of omitted taxa.\nCurrently, taxa to be omitted are %s \n',num2str(DM)));
      ok = 0;
  end
 %if ok & (MI == OLDSTART) & ((MK==OFF) & ((NS - length(DM)) ~= (length(MT.tree)/2)))
 %    disp(sprintf('\nData and inital tree don''t match: \n Data has %1.0f languages \n of which %1.0f are to be masked, leaving %1.0f \n but Initial Tree has %1.0f leaves',[NS,length(DM),NS - length(DM),length(MT.tree)/2]));
 %    ok = 0;
 %end
-if ok & (MI == OLDSTART) 
+if ok & (MI == OLDSTART)
     initleafnames = sort({MT.tree(find([MT.tree.type]==LEAF)).Name}');
     dataleafnames = sort(handles.data.language(setdiff(1:NS,DM)));
     if (~isequal(initleafnames,dataleafnames) & MK==OFF) | (MK==ON & ~isequal(sort(setdiff(initleafnames,dataleafnames)),sort(handles.data.language(DM))))
@@ -382,12 +382,12 @@ if ok
     IP=1;
   %  try
         % run the MCMC unless there is an error
-        
+
         % configure buttons for run mode
         set(h,'Enable','off');
         set(handles.statustxt,'String','Running');
         set([handles.pausebutt,handles.stopbutt],'Enable','on');
-              
+
         %write the control variables into structures used by fullsetup
 	    fsu=pop('fsu');
         fsu.RUNLENGTH         = RL    ;
@@ -417,8 +417,8 @@ if ok
         fsu.PSURVIVE          = PS    ;
         fsu.BORROW            = BW    ;
         fsu.BORROWFRAC        = BF    ;
-        fsu.LOCALBORROW       = OFF   ;   
-        fsu.MAXDIST           = 0     ;     
+        fsu.LOCALBORROW       = OFF   ;
+        fsu.MAXDIST           = 0     ;
         fsu.POLYMORPH         = OFF   ;  %TODO XXX FIX CHECKBOXES
         fsu.MASKING           = MK    ;
         fsu.DATAMASK          = DM    ;
@@ -433,50 +433,50 @@ if ok
         fsu.STRONGCLADES      = SC    ;
         fsu.GUITRUE           = GT    ;
         fsu.GUICONTENT        = GC    ;
-	
+
         % intialise variables
         [data,model,state,handles.output,mcmc]=fullsetup(fsu);
-        save outIC;
-        
+        % save outIC;
+
         set(h,'Interruptible','off');
 
         if any(handles.output.verbose==[GRAPH JUSTS JUSTT])
             ShowMCMC(model,state,handles.output,data.true);
         end
-  
+
         start=1;
-        
-        if ( any(handles.output.verbose==[GRAPH JUSTT]) )& ~isempty(data.true.state) 
-            draw(data.true.state.tree,handles.output.truefig,LEAF,'true state'); 
+
+        if ( any(handles.output.verbose==[GRAPH JUSTT]) )& ~isempty(data.true.state)
+            draw(data.true.state.tree,handles.output.truefig,LEAF,'true state');
         end
-         
+
         disp(sprintf('\n***running MCMC'));
         if ~(handles.output.verbose==QUIET)
             disp(sprintf('(%d,%f)',0,state.loglkd))
         end
-        
+
         finish=floor(mcmc.runlength/mcmc.subsample);
         timestarted = clock;
-        
+
         set(h,'Interruptible','on');
-        
+
         for t=start:finish
- 
+
             %update the Markov chain (mcmc.subsample) steps
-            atime=cputime; 
-            [state,pa]=Markov(mcmc,model,state); 
-            btime=cputime-atime;   
-            
+            atime=cputime;
+            [state,pa]=Markov(mcmc,model,state);
+            btime=cputime-atime;
+
             if STOPRUN
                 disp('Run halted from stop button')
                 STOPRUN = 0;
-                set(h,'UserData',STOPRUN);         
+                set(h,'UserData',STOPRUN);
                 break
             end
-            
-            if mcmc.gather, save outMC; end   
-            
-            
+
+            % if mcmc.gather, save outMC; end
+
+
             %Write the current state of the Markov chain to output
             NextSamp=handles.output.Nsamp+1;
             stats = [ state.logprior; state.loglkd; state.tree(state.root).time; state.mu; state.p; btime; state.lambda];
@@ -484,25 +484,25 @@ if ok
             handles.output.pa(:,NextSamp) = pa;
             handles.output.trees{NextSamp}=wnextree(state.tree,state.root);
             handles.output.Nsamp=NextSamp;
-            
+
             % make output available to GUI
             guidata(gcbf,handles);
-            
+
             %write out progress reports
             set(handles.sampledtxt,'String',sprintf('%4.0f',handles.output.Nsamp));
             timegone = etime(clock,timestarted)/3600;
             set(handles.timegonetxt,'String',sprintf('%4.2f %s',timegone,' hrs'));
             remtime = timegone*(finish+1-(handles.output.Nsamp-1))/(handles.output.Nsamp-1);
             set(handles.timeremtxt,'String',sprintf('%4.2f %s',remtime,' hrs'));
-            
+
             % make sure that the GUI is only interrupted where we want
             set(h,'Interruptible','off');
             %write out progress reports
             if ~(handles.output.verbose==QUIET), disp([sprintf('(%d,%f)',t,state.loglkd),sprintf(' %4.2f',pa')]); end
             if any(handles.output.verbose==[GRAPH,JUSTS,JUSTT]), ShowMCMC(model,state,handles.output,data.true); end
             set(h,'Interruptible','on');
-            
-            
+
+
             %do some routine checking of the state.tree structure
             if TESTSS & check(state,data.true.state)
                 check(state,data.true.state)
@@ -510,7 +510,7 @@ if ok
                 keyboard;pause;
             end
         end
-        
+
         if mcmc.monitor.on
             mcmc.monitor.data = profile( 'info' );
             profreport( mcmc.monitor.filename, mcmc.monitor.data );
@@ -518,11 +518,11 @@ if ok
         set(h,'Interruptible','off');
         if ~(handles.output.verbose==QUIET), ShowMCMC(model,state,handles.output,data.true); end
         set(h,'Interruptible','on');
-      
+
 %     catch
 %         disp(lasterr)
 %     end
-    save outMC;
+    % save outMC;
     writeoutput(handles.output);
     set(h,'Enable','on');
     set(handles.statustxt,'String','Idle');
