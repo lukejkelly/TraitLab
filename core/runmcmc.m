@@ -52,7 +52,7 @@ if nargin>0
 
     disp(sprintf('\n***running MCMC'));
     if ~(handles.output.verbose==QUIET)
-        disp(sprintf('(Sample%5d, loglkd%12.3f)  1    2    3    4    5    6    7    8    9    10   11   12   13   14   15   16   17   18   19   20   21',0,state.loglkd)) % Luke - added '  21'.
+        disp(sprintf('(Sample%5d, loglkd%12.3f)  1    2    3    4    5    6    7    8    9    10   11   12   13   14   15   16   17   18   19   20   21',0,state.loglkd)) 
     end
 
     finish=floor(mcmc.runlength/mcmc.subsample);
@@ -99,7 +99,7 @@ for t=start:finish
 
     %Write the current state of the Markov chain to output
     NextSamp=handles.output.Nsamp+1;
-    stats = [state.logprior; state.loglkd; state.tree(state.root).time; state.mu; state.p; btime; state.lambda ; state.kappa ; state.rho ; state.ncat ; state.fullloglkd ; state.beta]; % Luke - added ' ; state.beta' to end.
+    stats = [state.logprior; state.loglkd; state.tree(state.root).time; state.mu; state.p; btime; state.lambda ; state.kappa ; state.rho ; state.ncat ; state.fullloglkd ; state.beta];
     handles.output.stats(:,NextSamp) = stats;
     handles.output.pa(:,NextSamp) = pa;
     for i=1:2*state.NS  % I think this is superfluous LJK 28/4/20
