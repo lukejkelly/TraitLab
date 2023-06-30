@@ -248,7 +248,7 @@ for t=1:(mcmc.subsample)
         % Log-prior for parameters: mu, beta, etc.
         logpp = LogPriorParm(state, nstate);
 
-        % Log-Hastings ratio in acceptance step.
+        % Log-Hastings ratio for acceptance step.
         logr = nstate.logprior - state.logprior + nstate.loglkd - state.loglkd + logq + logpp;
 
         % Acceptance step.
