@@ -5,7 +5,7 @@ function handles = writeOutputMCMC(...
 
     %Write the current state of the Markov chain to output
     NextSamp=handles.output.Nsamp+1;
-    stats = [state.logprior; state.loglkd; state.tree(state.root).time; state.mu; state.p; btime; state.lambda ; state.kappa ; state.rho ; state.ncat ; state.fullloglkd ; state.beta]; % Luke - added ' ; state.beta' to end.
+    stats = [state.logprior; state.loglkd; state.tree(state.root).time; state.mu; state.p; btime; state.lambda ; state.kappa ; state.rho ; state.ncat ; state.fullloglkd ; state.beta]; 
     handles.output.stats(:,NextSamp) = stats;
     handles.output.pa(:,NextSamp) = pa;
     % % LJK 28/4/20 I think this is superfluous
