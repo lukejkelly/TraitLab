@@ -114,11 +114,11 @@ assuming the most recent time of the remaining leaves is 0. Similarly, for a Yul
 
 To generate samples from the prior, the simplest option is to replace
 ```matlab
-4: [intLogLik, logLkd] = logLkd2_m( state );
+[intLogLik, logLkd] = logLkd2(state);
 ```
 in `core/logLkd2.m` by
 ```matlab
-4: [intLogLik, logLkd] = deal(0);
+[intLogLik, logLkd] = deal(0);
 ```
 
 To compute Savage–Dickey ratios and plot the output, we use the functions in the _goodnessOfFit_ directory as below. In this example, suppose we want to perform goodness-of-fit tests by relaxing constraint #3 in the synthetic data example above ([Kelly, (2016)][4], bottom-left component of Figure 5.7 and left-hand component of Figure 5.8).

@@ -4,7 +4,7 @@ GlobalSwitches;
 GlobalValues;
 
 % Clear persistent variables in SDLT code. LUKE 04/09/2016
-clear logLkd2_m patternCounts patternMeans
+clear logLkd2 patternCounts patternMeans
 
 set(h,'UserData',STOPRUN);
 ok = 1;

@@ -9,8 +9,8 @@ addpath('guifiles')
 
 % rng('shuffle'); % LJK 24/02/20 seed set or shuffled below
 
-% Clear persistent variables in SDLT code. LUKE 24/3/20
-clear logLkd2_m patternCounts patternMeans
+% Clear persistent variables in SDLT code
+clear logLkd2 patternCounts patternMeans
 
 a = readrunfile(run_file);
 for i = 1:length(a{1})
@@ -39,7 +39,7 @@ for i = 1:length(a{1})
     end
 end
 
-% LJK 24/02/23 since rng is used in initialisation steps below 
+% LJK 24/02/23 since rng is used in initialisation steps below
 if Seed_random_numbers
     rng(With_seed); % moved forward from fullsetup>initMCMC
 else
