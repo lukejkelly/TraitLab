@@ -1,4 +1,4 @@
-function [intLogLik, logLkd, x_T] = logLkd2(state)
+function [intLogLik, logLkd, x_R] = logLkd2(state)
 % compute integrated and full log-likelihoods of data given tree and parameters
 
 % defining persistent variables
@@ -22,6 +22,6 @@ x_T = solveOverTree(tEvents, [1; state.mu; state.beta; state.kappa], borPars);
 x_T = max(x_T, eps);
 
 % integrated and full log-likelihoods
-[intLogLik, logLkd] = patternCounts(state, rl, x_T, borPars);
+[intLogLik, logLkd, x_R] = patternCounts(state, rl, x_T, borPars);
 
 end

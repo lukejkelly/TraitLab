@@ -1,6 +1,6 @@
 function [state, pa] = Markov(mcmc, model, state, ignoreearlywarn)
 
-global STOPRUN WIDE NARROW DEPNU VARYP ADAM VARYLAMBDA VARYMU TESTUP DONTMOVECATS BORROWING VARYBETA
+global STOPRUN WIDE NARROW DEPNU VARYP ADAM VARYLAMBDA VARYMU TESTUP DONTMOVECATS BORROWING VARYBETA VARYRHO
 
 if nargin<=3, ignoreearlywarn=0; end
 
@@ -233,10 +233,20 @@ for t=1:(mcmc.subsample)
 
         % Likelihood calculations.
         if BORROWING
-            [nstate.loglkd, nstate.fullloglkd] = logLkd2(nstate);
+            [nstate.loglkd, nstate.fullloglkd, x_R] = logLkd2(nstate);
         else
-            nstate.loglkd = LogLkd(nstate);
+            [nstate.loglkd, x_R] = LogLkd(nstate);
             nstate.fullloglkd = LogLkd(nstate, nstate.lambda);
+        end
+
+        % Draw lambda and rho from marginal posteriors
+        old_lambda = nstate.lambda;
+        nstate.lambda = lambda.sample(nstate, x_R);
+        nstate.fullloglkd = nstate.fullloglkd ...
+            + state.L * log(nstate.lambda / old_lambda) ...
+            - x_R * (nstate.lambda - old_lambda);
+        if VARYRHO
+            nstate.rho = rho.sample(nstate);
         end
 
         % Log-prior for tree and catastrophes.
@@ -255,14 +265,6 @@ for t=1:(mcmc.subsample)
             acct(MV)=acct(MV)+1;
         end
 
-        % Draw lambda and rho from marginal posteriors
-        if VARYLAMBDA
-
-        end
-        if VARYRHO
-            state.rho = rho.sample(state);
-        end
-
         if TESTUP && check(state,[])
             disp(['Error in update:',update]);
             check(nstate,[])
@@ -271,14 +273,6 @@ for t=1:(mcmc.subsample)
     end
 
 end
-
-% % % % % %update lambda|g,mu - assumes 1/lambda prior
-% % % % % if ~VARYLAMBDA
-% % % % %     state.lambda=Lambda(state);
-% % % % %     if DEPNU
-% % % % %         state.nu=state.kappa*state.lambda/state.mu;
-% % % % %     end
-% % % % % end
 
 %calculate proportion accepted for each update type
 %pa=zeros(mcmc.update.Nmvs,1);
