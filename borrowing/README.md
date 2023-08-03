@@ -10,7 +10,7 @@ The likelihood parameters are given by the solution of a sequence of initial val
 
 This method uses the `bi2de` and `de2bi` from the _Communication Systems_ toolbox. If they are not available then _MEX_ implementations of these functions can be compiled from within the _TraitLab_ folder by executing
 ```Matlab
-addpath borrowing % if not already set
+addpath borrowing 
 mexFiles
 ```
 The compiled functions have the same names and syntaxes as their _Communication Systems_ counterparts.

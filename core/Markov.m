@@ -1,7 +1,4 @@
-function [state,pa] = Markov(mcmc,model,state,ignoreearlywarn)
-% [state,pa] = Markov(mcmc,model,state)
-% written by GKN
-% last modified by RJR on 07/05/07
+function [state, pa] = Markov(mcmc, model, state, ignoreearlywarn)
 
 global STOPRUN WIDE NARROW DEPNU VARYP ADAM VARYLAMBDA VARYMU TESTUP DONTMOVECATS BORROWING VARYBETA
 
@@ -257,6 +254,15 @@ for t=1:(mcmc.subsample)
             state=nstate;
             acct(MV)=acct(MV)+1;
         end
+
+        % Draw lambda and rho from marginal posteriors
+        if VARYLAMBDA
+
+        end
+        if VARYRHO
+            state.rho = rho.sample(state);
+        end
+
         if TESTUP && check(state,[])
             disp(['Error in update:',update]);
             check(nstate,[])

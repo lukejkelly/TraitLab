@@ -121,8 +121,8 @@ function [state_x, state_y, theta, prior] = coupledStates(L, addClades)
     for c = 1:(3 + poissrnd(3))
         [state_x, state_y] = AddCatCoupled(state_x, state_y);
     end
-    state_x.rho = state_x.ncat / state_x.length;
-    state_y.rho = state_y.ncat / state_y.length;
+    state_x.rho = (0.5 + state_x.ncat) / state_x.length;
+    state_y.rho = (0.5 + state_y.ncat) / state_y.length;
 end
 
 function [state_x, state_y, theta, prior] = housekeptStates(L, addClades)
@@ -160,8 +160,8 @@ function [state_x, state_y, theta, prior] = housekeptStates(L, addClades)
     for c = 1:(3 + poissrnd(3))
         state_y = AddCat(state_y);
     end
-    state_x.rho = state_x.ncat / state_x.length;
-    state_y.rho = state_y.ncat / state_y.length;
+    state_x.rho = (0.5 + state_x.ncat) / state_x.length;
+    state_y.rho = (0.5 + state_y.ncat) / state_y.length;
 end
 
 % Setup and teardown functions

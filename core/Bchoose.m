@@ -19,7 +19,7 @@ if mt == WIDE
         r=[];
         for a = 1:(2 * state.NS)
             if s(a).type < ROOT & length(s(a).clade) >= length(s(iP).clade) & length(s(s(a).parent).clade) >= length(s(iP).clade) & isempty(setdiff(s(iP).clade, s(a).clade)) & isempty(setdiff(s(s(a).parent).clade, s(iP).clade))
-                r=[r, a];
+                r = [r, a];
             end
         end
         N = length(r);

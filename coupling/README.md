@@ -6,7 +6,7 @@ This code implements the methods described in [Kelly, Ryder and Clarté (2021)][
 
 ## Requirements
 
-We use some functions from Matlab's _Statistics_ toolbox.
+This code requires functions from Matlab's _Statistics and Machine Learning_ toolbox.
 
 ---
 
