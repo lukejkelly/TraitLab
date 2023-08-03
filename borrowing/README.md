@@ -10,7 +10,7 @@ The likelihood parameters are given by the solution of a sequence of initial val
 
 This method uses the `bi2de` and `de2bi` from the _Communication Systems_ toolbox. If they are not available then _MEX_ implementations of these functions can be compiled from within the _TraitLab_ folder by executing
 ```Matlab
-addpath borrowing % if not already set
+addpath borrowing 
 mexFiles
 ```
 The compiled functions have the same names and syntaxes as their _Communication Systems_ counterparts.
@@ -114,11 +114,11 @@ assuming the most recent time of the remaining leaves is 0. Similarly, for a Yul
 
 To generate samples from the prior, the simplest option is to replace
 ```matlab
-4: [intLogLik, logLkd] = logLkd2_m( state );
+[intLogLik, logLkd] = logLkd2(state);
 ```
 in `core/logLkd2.m` by
 ```matlab
-4: [intLogLik, logLkd] = deal(0);
+[intLogLik, logLkd] = deal(0);
 ```
 
 To compute Savage–Dickey ratios and plot the output, we use the functions in the _goodnessOfFit_ directory as below. In this example, suppose we want to perform goodness-of-fit tests by relaxing constraint #3 in the synthetic data example above ([Kelly, (2016)][4], bottom-left component of Figure 5.7 and left-hand component of Figure 5.8).

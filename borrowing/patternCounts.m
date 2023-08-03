@@ -1,4 +1,4 @@
-function [intLogLik, logLik] = patternCounts(state, rl, x_T, borPars)
+function [intLogLik, logLik, x_R] = patternCounts(state, rl, x_T, borPars)
 % Function which sorts dataset according to topological ordering from
 % stype2Events for the current tree then computes pattern counts. Finally,
 % the integrated and full log-likelihoods are returned.
@@ -218,5 +218,8 @@ intLogLik = intLogLik_o + intLogLik_m;
 
 % Log-likelihood.
 logLik = logLik_c + logLik_o + logLik_m;
+
+% Expected number of recorded patterns (not scaled by lambda)
+x_R = sum(x_T) - C;
 
 end

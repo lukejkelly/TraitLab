@@ -6,7 +6,7 @@ function prior = clade2prior(clade, rootmax)
     n = size(prior.clade, 2);
     prior.isupboundadamclade = logical([]);
     prior.upboundclade=[];
-    prior.isclade = 1;
+    prior.isclade = ~isempty(clade);
     if rand < 0.5
         prior.type = FLAT;
     else

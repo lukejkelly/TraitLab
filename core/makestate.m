@@ -107,4 +107,4 @@ state.logprior=LogPrior(prior,state);
 
 %%
 % Clear persistent variables in SDLT code. LUKE 04/09/2016
-clear logLkd2_m patternCounts patternMeans
+clear logLkd2 patternCounts patternMeans
