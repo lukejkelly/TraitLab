@@ -242,6 +242,7 @@ for t=1:(mcmc.subsample)
         % Draw lambda and rho from marginal posteriors
         old_lambda = nstate.lambda;
         nstate.lambda = lambda.sample(nstate, x_R);
+        % Update without recomputing assuming old_lambda > 0
         nstate.fullloglkd = nstate.fullloglkd ...
             + state.L * log(nstate.lambda / old_lambda) ...
             - x_R * (nstate.lambda - old_lambda);
