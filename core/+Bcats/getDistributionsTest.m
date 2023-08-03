@@ -35,7 +35,7 @@ function outputTest(testCase)
                                 lfExp = @(x) PoissonGammaLogProb(x, a, b / (b + dj));
                             else
                                 rfExp = @() poissrnd(state.rho * dj);
-                                lfExp = @() log(poisspdf(x, state.rho * dj));
+                                lfExp = @(x) log(poisspdf(x, state.rho * dj));
                             end
                         else
                             wj = dj / (s(k).time - s(j).time);
