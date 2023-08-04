@@ -535,11 +535,11 @@ if ok
         fsu.MISDAT            = MISDAT;   % 19/8/10 GKN
         fsu.TOPOLOGYPRIOR     = TOPOLOGYPRIOR;
 
-        % Lateral transfer. LUKE 04/09/2016
+        % Lateral transfer
         fsu.BORROWING         = BORROWING;
         fsu.VARYBETA          = VARYBETA;
         fsu.MCMCINITBETA      = MCMCINITBETA;
-        fsu.ISBETARANDOM      = ISBETARANDOM;  % LUKE 24/3/20
+        fsu.ISBETARANDOM      = ISBETARANDOM;  
 
         runmcmc(fsu,handles,h);
 else

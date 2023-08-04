@@ -267,20 +267,12 @@ for t=1:(mcmc.subsample)
 
 end
 
-% % % % % %update lambda|g,mu - assumes 1/lambda prior
-% % % % % if ~VARYLAMBDA
-% % % % %     state.lambda=Lambda(state);
-% % % % %     if DEPNU
-% % % % %         state.nu=state.kappa*state.lambda/state.mu;
-% % % % %     end
-% % % % % end
-
 %calculate proportion accepted for each update type
 %pa=zeros(mcmc.update.Nmvs,1);
 %pa(prop~=0)=acct(prop~=0)./prop(prop~=0);
 pa=acct./prop; %Changed to display NaN when the update was not proposed. RJR 19/03/09
 
-% Likelihood calculations.
+% Likelihood calculations for initial state of chain targeting posterior
 if BORROWING
     [state.loglkd, state.fullloglkd] = logLkd2(state);
 else
