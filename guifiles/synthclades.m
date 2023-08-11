@@ -1,5 +1,4 @@
-function  clade = synthclades(s,numclade,originrootboth,accuracy);
-% clade = synthclades(tree,numclade,originrootboth,accuracy);
+function  clade = synthclades(s,numclade,originrootboth,accuracy)
 global LEAF ANST
 
 clade = {pop('clade')};
@@ -34,4 +33,3 @@ for i = 1:numclade
     % update list of eligible nodes
     eligible(chosen) = [];
 end
-    

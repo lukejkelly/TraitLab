@@ -2,7 +2,7 @@ function [data,model,state,output,mcmc] = fullsetup(fsu)
 
 %header file defines globals
 
-global BUILD TESTSS
+global BUILD TESTSS BORROWING
 %setup the mcmc control variables
 TWOSEQS = (~fsu.MASKING & fsu.NUMSEQ==2) | (fsu.MASKING & fsu.NUMSEQ-length(fsu.DATAMASK)==2);
 mcmc=initMCMC(fsu,TWOSEQS);
@@ -36,6 +36,16 @@ if all([state.tree.leaf_has_timerange] == 0)
     mcmc.update.cmove = cumsum(mcmc.update.move);
 end
 
+% Error if try to start a borrowing run from a state in an output file
+% which did not have borrowing in the model
+if BORROWING 
+    if state.beta == 0
+        error('Borrowing rate beta has been initialised at 0');
+    end
+else
+    state.beta = 0;
+end
+
 return;
 
 
@@ -44,20 +54,16 @@ return;
 function mcmc=initMCMC(fsu,TWOSEQS)
 
 global GATHER
-global VARYRHO VARYMU VARYKAPPA DEPNU VARYP MISDAT MCMCCAT DONTMOVECATS BORROWING VARYBETA GF_START GF_APPROX
+global VARYRHO VARYMU VARYKAPPA DEPNU VARYP MISDAT MCMCCAT DONTMOVECATS BORROWING VARYBETA
 
-VARYRHO=fsu.VARYRHO*fsu.MCMCCAT;
-VARYMU=fsu.VARYMU;
-VARYKAPPA=fsu.VARYKAPPA*fsu.MCMCCAT; % LUKE 05/10/2013
-MCMCCAT=fsu.MCMCCAT;
-DONTMOVECATS=fsu.DONTMOVECATS;
-MISDAT=fsu.MISDAT;
+VARYRHO = fsu.VARYRHO * fsu.MCMCCAT;
+VARYMU = fsu.VARYMU;
+VARYKAPPA = fsu.VARYKAPPA * fsu.MCMCCAT; % LUKE 05/10/2013
+MCMCCAT = fsu.MCMCCAT;
+DONTMOVECATS = fsu.DONTMOVECATS;
+MISDAT = fsu.MISDAT;
 BORROWING = fsu.BORROWING;
 VARYBETA = fsu.VARYBETA && fsu.BORROWING;
-
-% Green's functions things - Luke 12/12/2014
-GF_START = fsu.GF_START;
-GF_APPROX = fsu.GF_APPROX;
 
 if DEPNU
     fsu.MCMCINITNU=fsu.MCMCINITKAPPA*fsu.MCMCINITLAMBDA/fsu.MCMCINITMU;
@@ -74,8 +80,6 @@ if ~MCMCCAT
     mcmc.initial.kappa=0;
     mcmc.initial.nu=0;
 end
-
-if ~BORROWING, mcmc.initial.beta = 0; end
 
 %MOVE TYPES
 %1 slide
@@ -121,18 +125,19 @@ mcmc.runlength=fsu.RUNLENGTH;
 mcmc.subsample=fsu.SUBSAMPLE;
 mcmc.gather=GATHER;
 
-%% Luke 3/4/20: Replacing old RNG format
-%% TODO: Move RNG seeding to start of code
-if mcmc.initial.seedrand
-    warning(['Setting specified RNG seed is too far into the code as some', ...
-             'of the initialisation functions (e.g. pop) called up to now', ...
-             'use the RNG']);
-    % use given seed
-    rng(fsu.SEED);
-else
-    % reset generator to random state
-    rng('shuffle');
-end
+% % Luke 3/4/20: Replacing old RNG format
+% % TODO: Move RNG seeding to start of code
+% % Luke 24/02/20: Done
+% if mcmc.initial.seedrand
+%     warning(['Setting specified RNG seed is too far into the code as some', ...
+%              'of the initialisation functions (e.g. pop) called up to now', ...
+%              'use the RNG']);
+%     % use given seed
+%     rng(fsu.SEED);
+% else
+%     % reset generator to random state
+%     rng('shuffle');
+% end
 
 if mcmc.monitor.on
    profile on;

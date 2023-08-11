@@ -7,10 +7,10 @@ GlobalValues
 addpath('core')
 addpath('guifiles')
 
-rng('shuffle');
+% rng('shuffle'); % LJK 24/02/20 seed set or shuffled below
 
-% Clear persistent variables in SDLT code. LUKE 24/3/20
-clear logLkd2_m patternCounts patternMeans
+% Clear persistent variables in SDLT code
+clear logLkd2 patternCounts patternMeans
 
 a = readrunfile(run_file);
 for i = 1:length(a{1})
@@ -37,6 +37,13 @@ for i = 1:length(a{1})
             end
             eval([a{1}{i} '=[' a{2}{i} '];']);
     end
+end
+
+% LJK 24/02/23 since rng is used in initialisation steps below
+if Seed_random_numbers
+    rng(With_seed); % moved forward from fullsetup>initMCMC
+else
+    rng('shuffle');
 end
 
 % check that output file has no appended extension
@@ -68,7 +75,7 @@ if isempty(content.array)
 else
    L=size(content.language,1);
    disp(sprintf('%5s %12s%% %s', 'index', 'missing data', 'language'))
-   for k=1:L,
+   for k=1:L
        disp(sprintf('%5g %12d%% %s', k, round(100*mean(content.array(k,:) == MIX)), content.language{k}))
    end
 end
@@ -101,7 +108,7 @@ else
     TP = FLAT;
     RM = Max_root_age;
     if RM <= 0
-        error('Need postive value for  Max_root_age')
+        error('Need positive value for Max_root_age')
     end
 end
 
@@ -118,11 +125,11 @@ if all(topoprior == 1) || all(topoprior ==0 )
     error('Exactly one of Flat_prior_on_tree and Yule_prior_on_tree must be 1')
 end
 
-    if Uniform_prior_on_tree_topologies==1
-        TOPOLOGYPRIOR=TOPO;
-    else
-        TOPOLOGYPRIOR=LABHIST;
-    end
+if Uniform_prior_on_tree_topologies==1
+    TOPOLOGYPRIOR=TOPO;
+else
+    TOPOLOGYPRIOR=LABHIST;
+end
 
 VARYMU = Vary_loss_rate;
 if Random_initial_loss_rate
@@ -151,9 +158,9 @@ end
 
  % Parameters for catastrophes
 if ~exist('Include_catastrophes','var')
-   MCT = 0;
+    MCT = 0;
 else
-    MCT=Include_catastrophes;
+    MCT = Include_catastrophes;
 end
 
 % Initialize catastrophe parameters
@@ -164,23 +171,31 @@ MIR=0;
 
 if MCT
     if exist('Random_initial_cat_death_prob','var') && Random_initial_cat_death_prob
-        MIK= 0.25 + 0.75 * rand;
-        RMIK=1;
+        % will vary through MCMC
+        MIK = 0.25 + 0.75 * rand;
+        RMIK = 1;
     elseif exist('Initial_cat_death_prob','var')
-        MIK=Initial_cat_death_prob;
+        % fixed through MCMC
+        MIK = Initial_cat_death_prob;
+        if MIK <= 0 || MIK > 1
+            error('Initial_cat_death_prob fixed at value outside (0, 1]');
+        end
     else
-        warning('Catastrophes included, but no value set for kappa (probability of death at a catastrophe). Setting at 0.2.')
-        MIK=.2;
+        error('Catastrophes included, but no initial value set for kappa (probability of death at a catastrophe)')
     end
 
     if exist('Random_initial_cat_rate','var') && Random_initial_cat_rate
-        MIR=rand;
-        RMIR=1;
+        % integrated out so value does not matter
+        MIR = 0.002;
+        RMIR = 1;
     elseif exist('Initial_cat_rate','var')
-        MIR=Initial_cat_rate;
+        % fixed throughout run
+        MIR = Initial_cat_rate;
+        if MIR <= 0
+            error('Initial_cat_rate rho must be positive');
+        end
     else
-        warning('Catastrophes included, but no value set for rho (rate of catastrophes). Setting at 0.002.')
-        MIR=.002;
+        error('Catastrophes included, but no value set for catastrophe rate rho');
     end
 end
 
@@ -201,7 +216,7 @@ MT = [];
 if ~exist('Start_from_rand_tree','var')
    Start_from_rand_tree = 0;
 end
- if ~exist('Start_from_tree_in_output','var')
+if ~exist('Start_from_tree_in_output','var')
    Start_from_tree_in_output = 0;
 end
 if ~exist('Start_from_true_tree','var')
@@ -235,12 +250,13 @@ switch find(vals)
                 warning('Parameters values from same output as tree');
                 %GKN 18/3/11 alter whatever we concluded above
                 MT.mu = oldoutput.stats(4,TN);
+                MT.lambda = oldoutput.stats(7,TN); % defaults to 0 otherwise
                 MIK = oldoutput.stats(8,TN);
                 MIR = oldoutput.stats(9,TN);
-                IM=MT.mu;
-                MT.rho=MIR;
-                MT.p=1;
-                MT.kappa=MIK;
+                IM = MT.mu;
+                MT.rho = MIR;
+                MT.p = 1;
+                MT.kappa = MIK;
 
                 %Add catastrophes %GKN 18/3/11 was '.cat.nex'
                 if MCT && exist([MIF(1:end-4) 'cat.nex'],'file')
@@ -324,7 +340,7 @@ if COUPLING && (isnan(COUPLINGLAG) || COUPLINGLAG < 1 ...
 end
 
 %write the control variables into structures used by fullsetup
-fsu=pop('fsu');
+fsu = pop('fsu');
 fsu.RUNLENGTH         = Run_length    ;
 fsu.SUBSAMPLE         = Sample_interval    ;
 fsu.SEEDRAND          = Seed_random_numbers ;
@@ -349,9 +365,9 @@ fsu.MCMCCAT           = MCT   ;  %RJR 15 Mar 2011
 fsu.MCMCINITMU        = IM    ;  %RJR 15 Mar 2011
 fsu.MCMCINITP         = IP     ;  %ignored anyway
 fsu.MCMCINITTHETA     = IT    ;
-fsu.VARYKAPPA         = RMIK; % LJK 02/08/21   MCT   ;  %RJR 15 Mar 2011
+fsu.VARYKAPPA         = RMIK; % LJK 02/08/21
 fsu.VARYMU            = VARYMU; %RJR 15 Mar 2011
-fsu.VARYRHO           = MCT   ;  %RJR 15 Mar 2011
+fsu.VARYRHO           = RMIR   ;  %RJR 15 Mar 2011
 fsu.MCMCMISS          = MISS ; %RJR 15 Mar 2011
 fsu.RANDOMKAPPA       = RMIK;
 fsu.RANDOMRHO         = RMIR;

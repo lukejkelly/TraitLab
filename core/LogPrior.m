@@ -55,7 +55,7 @@ if prior.topologyprior==TOPO
     %    disp('Topology prior type not recognised in LogPrior');keyboard;pause;
 end
 
-% %Taking into account catastrophies
+% Taking into account catastrophies
 if MCMCCAT
     % Prior on number of catastrophes per branch is Poisson(rho)
     % If VARYRHO then we integrate rho analytically to get a Negative Binomial,

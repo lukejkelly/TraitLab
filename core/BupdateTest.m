@@ -215,7 +215,7 @@ function [state, theta, prior] = dummyState(L, addClade)
             state = AddCat(state);
         end
     end
-    state.rho = state.ncat / state.length;
+    state.rho = (0.5 + state.ncat) / state.length;
 end
 
 % Setup and teardown functions

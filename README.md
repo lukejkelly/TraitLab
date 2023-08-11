@@ -15,7 +15,7 @@ The TraitLab [website][6] includes more information, and the [manual][7] (soon b
 
 ## Requirements
 
-TraitLab runs in Matlab. The lateral transfer and coupling methods use functions in additional Matlab toolboxes; see their README files for details.
+TraitLab runs in Matlab. The lateral transfer and coupling methods use functions in additional Matlab toolboxes; see the README files in the corresponding folders for details.
 
 Please get in touch if you have any issues.
 

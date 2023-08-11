@@ -28,7 +28,7 @@ if isstruct(varargin{1}) % LAUNCH GUI
    if handles.output.Nsamp >= 1
        % there is output loaded
        set(hdl,'Enable','on');
-       plot(handles.output.stats(3,:),'Color','Black','Parent',handles.llkdax);
+       plot(handles.output.stats(2,:),'Color','Black','Parent',handles.llkdax);
        ylim=get(handles.llkdax,'Ylim');
        if handles.output.Nsamp==1
            xlim = [0.9 handles.output.Nsamp];
@@ -44,7 +44,7 @@ if isstruct(varargin{1}) % LAUNCH GUI
        set([handles.movbeginet handles.movendet],{'String'},{num2str(xlim(1));num2str(xlim(2))});
        set(handles.laget,'String',num2str(ceil(handles.output.Nsamp/5)));
        set(handles.nsamptxt, 'String',num2str(handles.output.Nsamp));
-       set(handles.titletxt,'String',sprintf('MRCA time trace for samples %1.0f to %1.0f',xlim));
+       set(handles.titletxt,'String',sprintf('Log Likelihood trace for samples %1.0f to %1.0f',xlim));
        if ~isempty(handles.data.file)
            set(handles.datafiletxt,'String',handles.data.file);
            set(handles.datadirtxt,'String',handles.data.path);
@@ -441,7 +441,7 @@ else
             set([handles.movbeginet handles.movendet],{'String'},{num2str(xlim(1));num2str(xlim(2))});
             set(handles.laget,'String',num2str(ceil(handles.output.Nsamp/5)));
             set(handles.nsamptxt, 'String',num2str(handles.output.Nsamp));
-            set(handles.titletxt,'String',sprintf('Log Likelihood Trace for samples %1.0f to %1.0f',xlim));
+            set(handles.titletxt,'String',sprintf('Log Likelihood trace for samples %1.0f to %1.0f',xlim));
             guidata(h,handles);
         else
             hdl = [handles.currpossl handles.currposet handles.viewtreebutt handles.movbeginet handles.movendet handles.moviebutt handles.zoombutt];

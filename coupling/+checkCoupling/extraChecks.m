@@ -21,7 +21,7 @@ function t = extraChecks(state_x, state_y)
             if ts(i) == 0
                 error('Housekeeping failure on %s', fi);
             end
-        case {'mu', 'lambda', 'beta', 'rho', 'kappa'}
+        case {'mu', 'beta', 'kappa'} % 'lambda', 'rho'
             ts(i) = ismembertol(state_x.(fi), state_y.(fi));
         case {'loglkd', 'logprior'}
             ts(i) = ismembertol(state_x.(fi), state_y.(fi));

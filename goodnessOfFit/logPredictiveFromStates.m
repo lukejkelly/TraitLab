@@ -16,7 +16,7 @@ function [lPL] = logPredictiveFromStates(pathToData, testData, outFile, ...
   MISDAT = misDat; LOSTONES = lostOnes;
 
   % Clearing log-likelihood function
-  clear('logLkd2_m');
+  clear('logLkd2');
 
   % Reading test data
   [~, cTest, ~, ~] = nexus2stype(sprintf('%s%s%s.nex', pathToData, ...
@@ -52,7 +52,7 @@ function [lPL] = logPredictiveFromStates(pathToData, testData, outFile, ...
 
     % Compute log-likelihood
     clear('patternCounts');
-    lPL(k) = logLkd2_m(state);
+    lPL(k) = logLkd2(state);
 
   end
 

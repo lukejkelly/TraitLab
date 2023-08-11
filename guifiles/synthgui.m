@@ -9,7 +9,6 @@ GlobalValues;
 if nargin == 0  % LAUNCH GUI
 
 	fig = openfig(mfilename,'reuse');
-    fig.Resize = 'on';  % LJK 12/3/20
 
 	% Use system color scheme for figure:
 	set(fig,'Color',get(0,'defaultUicontrolBackgroundColor'));
