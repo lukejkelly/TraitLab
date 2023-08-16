@@ -97,7 +97,13 @@ for t=1:(mcmc.subsample)
             nvl=size(vl,2);
             i=vl(ceil(rand*nvl));
             nstate=state;
-            nstate.tree(i).time=state.tree(i).timerange(1)+rand*(state.tree(i).timerange(2)-state.tree(i).timerange(1));
+            if isinf(state.tree(i).timerange(2))
+                % LK 08/23 if clade time is ignored then upper bound is inf so 
+                % sample uniformly between 0 and root time instead
+                nstate.tree(i).time = state.tree(i).timerange(1) + rand * (state.tree(state.root).time - state.tree(i).timerange(1));
+            else
+                nstate.tree(i).time = state.tree(i).timerange(1) + rand * (state.tree(i).timerange(2) - state.tree(i).timerange(1));
+            end
             %nstate.tree(i).cat=(state.tree(i).cat-state.tree(i).time)/(state.tree(state.tree(i).parent).time-state.tree(i).time)*(nstate.tree(nstate.tree(i).parent).time -nstate.tree(i).time)+nstate.tree(i).time;
             %keyboard;
             %tr=reshape([state.tree(vl).timerange],2,size(vl,2));

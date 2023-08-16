@@ -117,9 +117,8 @@ if ok
             % specified a starting value to vary rho from
             MCMCINITRHO = str2double(get(handles.rhovalet, 'String'));
         else
-            % choose random starting rho and vary
-            [~, k, theta] = LogRhoPrior(1); % get the values of k and theta in LogRhoPrior
-            MCMCINITRHO = randG(k, 1 / theta);
+            % integrated out so value does not matter
+            MCMCINITRHO = 0.002;
             RANDOMRHO = 1;
         end
         if MCMCINITRHO <= 0
@@ -529,7 +528,7 @@ if ok
         fsu.VARYRHO           = VARYRHO;
         fsu.MCMCINITRHO       = MCMCINITRHO;
         fsu.VARYMU            = VARYMU;
-        fsu.MCMCINITLAMBDA    = 1.5e-3; % TODO: remove all instances of lambda everywhere. This value will never be needed (we are integrating lambda out). RJR 19-03-09
+        fsu.MCMCINITLAMBDA    = 0.1; % TODO: remove all instances of lambda everywhere. This value will never be needed (we are integrating lambda out). RJR 19-03-09
         fsu.MCMCMISS          = MCMCMISS;
         MISDAT                = MCMCMISS; % swapped this line and next
         fsu.MISDAT            = MISDAT;   % 19/8/10 GKN
