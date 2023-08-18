@@ -11,18 +11,19 @@ authors:
   - family-names: Welch
     given-names: "D."
 cff-version: "1.2.0"
-message: "If you use this software, please cite the preferred-citation. The preferred-citation will be updated in September 2021 to include additional methods and authors."
-repository-code: "https://github.com/lukejkelly/TraitLab"
+message: "If you use this software, please cite the preferred-citation."
+repository-code: "https://github.com/traitlab-mcmc/TraitLab"
 title: TraitLab
 preferred-citation:
   authors:
+  - family-names: Kelly
+    given-names: "Luke J."
   - family-names: Nicholls
     given-names: "G.K."
   - family-names: Ryder
     given-names: "R.J."
   - family-names: Welch
     given-names: "D."
-  title: "TraitLab: a MatLab Package for Fitting and Simulating Binary Trait-Like Data"
+  title: "TraitLab: a Matlab package for fitting and simulating binary tree-like data"
   type: manual
-  year: 2013
-...
+  year: 2023
