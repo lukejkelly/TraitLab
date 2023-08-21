@@ -16,14 +16,15 @@ repository-code: "https://github.com/traitlab-mcmc/TraitLab"
 title: TraitLab
 preferred-citation:
   authors:
-  - family-names: Kelly
+  - family-names: "Kelly"
     given-names: "Luke J."
   - family-names: Nicholls
-    given-names: "G.K."
-  - family-names: Ryder
-    given-names: "R.J."
-  - family-names: Welch
-    given-names: "D."
+    given-names: "Geoff K."
+  - family-names: "Ryder"
+    given-names: "Robin J."
+  - family-names: "Welch"
+    given-names: "David"
   title: "TraitLab: a Matlab package for fitting and simulating binary tree-like data"
-  type: manual
+  type: article
   year: 2023
+  note: "arXiv:2308.09060"
